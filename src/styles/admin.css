@@ -1,0 +1,42 @@
+/* ---- Admin area ---- */
+.admin-shell { min-height: 100vh; display: grid; grid-template-columns: minmax(0, 1fr); background: var(--wasla-surface); }
+.admin-sidebar { background: #fff; border-bottom: 1px solid var(--wasla-border); padding: 1rem; }
+.admin-main { padding: 1.5rem 1rem; min-width: 0; }
+.admin-nav { display: flex; flex-wrap: wrap; gap: 0.25rem; }
+.admin-nav-link {
+  display: flex; align-items: center; gap: 0.65rem; padding: 0.6rem 0.85rem;
+  border-radius: 0.75rem; color: #374151; text-decoration: none; font-size: 0.92rem; font-weight: 500;
+}
+.admin-nav-link:hover { background: #f3f4f6; color: var(--wasla-primary); }
+.admin-nav-link.active { background: var(--wasla-primary); color: #fff; }
+.admin-nav-link.disabled { opacity: 0.5; cursor: not-allowed; }
+.admin-nav-link.disabled:hover { background: transparent; color: #374151; }
+
+@media (min-width: 992px) {
+  .admin-shell { grid-template-columns: 250px minmax(0, 1fr); }
+  .admin-sidebar {
+    position: sticky; top: 0; height: 100vh; display: flex; flex-direction: column;
+    border-bottom: 0; border-right: 1px solid var(--wasla-border);
+  }
+  .admin-nav { flex-direction: column; }
+  .admin-main { padding: 2rem; }
+}
+
+.admin-card { background: #fff; border: 1px solid var(--wasla-border); border-radius: 1rem; overflow: hidden; }
+.admin-table thead th {
+  background: #f9fafb; color: #6b7280; font-size: 0.72rem; font-weight: 600;
+  letter-spacing: 0.05em; text-transform: uppercase; white-space: nowrap;
+  border-bottom: 1px solid var(--wasla-border);
+}
+.admin-table tbody td { padding-top: 0.75rem; padding-bottom: 0.75rem; }
+.admin-thumb { width: 48px; height: 48px; object-fit: contain; border-radius: 0.5rem; background: #f3f4f6; padding: 0.2rem; }
+
+.stat-card { background: #fff; border: 1px solid var(--wasla-border); border-radius: 1rem; padding: 1.25rem; height: 100%; }
+.stat-icon {
+  width: 42px; height: 42px; border-radius: 0.75rem; flex-shrink: 0;
+  display: inline-flex; align-items: center; justify-content: center; font-size: 1.2rem;
+}
+.stat-blue { background: #eff6ff; color: #1d4ed8; }
+.stat-orange { background: #fff7ed; color: #c2410c; }
+.stat-green { background: #ecfdf5; color: #065f46; }
+.stat-purple { background: #f5f3ff; color: #6d28d9; }

@@ -1,0 +1,11 @@
+/* ---- Wishlist ---- */
+.wishlist-btn {
+  position: absolute; top: 0.5rem; right: 0.5rem; z-index: 2;
+  width: 36px; height: 36px; padding: 0; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  border: 1px solid var(--wasla-border); background: #fff;
+  color: #4b5563; font-size: 1.05rem; line-height: 1;
+}
+.wishlist-btn:hover:not(:disabled) { color: #ef4444; border-color: #fca5a5; }
+.wishlist-btn.active { color: #ef4444; }
+.wishlist-btn:disabled { opacity: 0.6; }

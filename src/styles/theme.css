@@ -1,0 +1,163 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@600;700&display=swap");
+
+:root {
+  --wasla-primary: #1e3a8a;
+  --wasla-primary-dark: #172c6b;
+  --wasla-accent: #f97316;
+  --wasla-accent-dark: #ea580c;
+  --wasla-surface: #f8f9fc;
+  --wasla-border: #e5e7eb;
+
+  --bs-primary: #1e3a8a;
+  --bs-primary-rgb: 30, 58, 138;
+  --bs-link-color: #1e3a8a;
+  --bs-link-hover-color: #172c6b;
+  --bs-body-font-family: "Inter", system-ui, sans-serif;
+  --bs-body-bg: var(--wasla-surface);
+  --bs-body-color: #191c1d;
+}
+
+h1, h2, h3, h4, h5, h6, .font-display {
+  font-family: "Outfit", "Inter", sans-serif;
+  letter-spacing: -0.01em;
+}
+
+.text-wasla { color: var(--wasla-primary) !important; }
+.text-accent { color: var(--wasla-accent) !important; }
+.bg-accent { background-color: var(--wasla-accent) !important; }
+
+.btn-wasla,
+.btn-accent {
+  color: #fff;
+  font-weight: 600;
+  border: 1px solid transparent;
+}
+.btn-wasla { background: var(--wasla-primary); border-color: var(--wasla-primary); }
+.btn-wasla:hover, .btn-wasla:focus-visible {
+  background: var(--wasla-primary-dark); border-color: var(--wasla-primary-dark); color: #fff;
+}
+.btn-accent { background: var(--wasla-accent); border-color: var(--wasla-accent); }
+.btn-accent:hover, .btn-accent:focus-visible {
+  background: var(--wasla-accent-dark); border-color: var(--wasla-accent-dark); color: #fff;
+}
+
+.search-box .form-control { background: var(--wasla-surface); border-color: var(--wasla-border); }
+.search-box .form-control:focus {
+  border-color: var(--wasla-primary);
+  box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.15);
+}
+
+.nav-link-wasla {
+  padding: 0.6rem 0;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #4b5563;
+  text-decoration: none;
+  border-bottom: 2px solid transparent;
+}
+.nav-link-wasla:hover { color: var(--wasla-primary); }
+.nav-link-wasla.active { color: var(--wasla-primary); border-bottom-color: var(--wasla-accent); }
+
+.icon-btn { font-size: 1.25rem; color: #1f2937; line-height: 1; }
+.icon-btn:hover { color: var(--wasla-primary); }
+
+.avatar-circle {
+  width: 36px; height: 36px; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--wasla-primary); color: #fff; font-weight: 600; font-size: 0.9rem;
+}
+
+.footer-link { color: #6b7280; text-decoration: none; font-size: 0.85rem; }
+.footer-link:hover { color: var(--wasla-primary); }
+
+/* ---- Products ---- */
+.chip {
+  height: 32px; padding: 0 0.9rem; border-radius: 9999px;
+  border: 1px solid var(--wasla-border); background: #fff;
+  color: #374151; font-size: 0.85rem; font-weight: 500;
+}
+.chip:hover { border-color: #d1d5db; background: #f3f4f6; }
+.chip.active { background: var(--wasla-primary); border-color: var(--wasla-primary); color: #fff; }
+
+.thumb { background: #f3f4f6; }
+.product-card { transition: box-shadow 0.15s, border-color 0.15s; }
+.product-card .thumb img { transition: transform 0.2s; }
+.product-card:hover {
+  border-color: #d1d5db !important;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
+}
+.product-card:hover .thumb img { transform: scale(1.03); }
+@media (prefers-reduced-motion: reduce) {
+  .product-card, .product-card .thumb img { transition: none; }
+  .product-card:hover .thumb img { transform: none; }
+}
+
+.line-clamp-2 {
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  overflow: hidden; min-height: 2.6em;
+}
+.price-old { color: #9ca3af; text-decoration: line-through; }
+
+.rating-badge {
+  display: inline-flex; align-items: center; gap: 0.25rem;
+  padding: 0.15rem 0.55rem; border-radius: 9999px;
+  background: #fef3c7; color: #92400e; font-size: 0.8rem; font-weight: 600;
+}
+.rating-badge .bi { color: #f59e0b; }
+
+.stock-badge { padding: 0.2rem 0.65rem; border-radius: 9999px; font-size: 0.8rem; font-weight: 600; }
+.stock-ok { background: #ecfdf5; color: #065f46; }
+.stock-low { background: #fffbeb; color: #b45309; }
+.stock-out { background: #fef2f2; color: #991b1b; }
+
+.thumb-btn {
+  width: 72px; height: 72px; padding: 0; overflow: hidden;
+  border: 2px solid var(--wasla-border); border-radius: 0.75rem; background: #f3f4f6;
+}
+.thumb-btn.active { border-color: var(--wasla-primary); }
+
+.qty-input::-webkit-inner-spin-button, .qty-input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+.qty-input { -moz-appearance: textfield; appearance: textfield; }
+
+/* ---- Cart ---- */
+.min-w-0 { min-width: 0; }
+.cart-item + .cart-item { border-top: 1px solid #f3f4f6; }
+.cart-thumb {
+  display: block; width: 72px; height: 72px; overflow: hidden;
+  border-radius: 0.75rem; background: #f3f4f6;
+}
+.cart-thumb.sm { width: 44px; height: 44px; border-radius: 0.5rem; }
+.cart-thumb img { width: 100%; height: 100%; object-fit: contain; padding: 0.25rem; }
+.cart-dropdown { width: 340px; max-width: calc(100vw - 2rem); }
+@media (min-width: 992px) {
+  .cart-summary { position: sticky; top: 8.5rem; }
+}
+
+/* ---- Checkout ---- */
+@media (min-width: 992px) {
+  .checkout-summary { position: sticky; top: 8.5rem; }
+}
+.payment-option {
+  cursor: pointer; background: #fff; border: 1px solid var(--wasla-border);
+}
+.payment-option.selected { border-color: var(--wasla-primary); box-shadow: 0 0 0 1px var(--wasla-primary); }
+.payment-option.disabled { cursor: not-allowed; background: #f9fafb; }
+.payment-option.disabled > :not(.badge) { opacity: 0.6; }
+.form-check-input:checked { background-color: var(--wasla-primary); border-color: var(--wasla-primary); }
+
+/* ---- Orders ---- */
+.eyebrow {
+  font-size: 0.75rem; font-weight: 600; letter-spacing: 0.06em;
+  text-transform: uppercase; color: var(--wasla-accent-dark);
+}
+.status-badge {
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  padding: 0.25rem 0.7rem; border-radius: 9999px;
+  font-size: 0.8rem; font-weight: 600; white-space: nowrap;
+}
+.status-pending { background: #fffbeb; color: #b45309; }
+.status-confirmed { background: #eff6ff; color: #1d4ed8; }
+.status-shipped { background: #f5f3ff; color: #6d28d9; }
+.status-delivered { background: #ecfdf5; color: #065f46; }
+.status-cancelled { background: #fef2f2; color: #991b1b; }
+.status-unknown { background: #f3f4f6; color: #374151; }

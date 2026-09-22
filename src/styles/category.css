@@ -1,0 +1,47 @@
+/* ---- Category page ---- */
+.breadcrumb-item + .breadcrumb-item::before { color: #9ca3af; }
+.breadcrumb-item.active { color: #6b7280; }
+
+.category-header-icon {
+  width: 56px; height: 56px; border-radius: 1rem;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 1.5rem; color: #fff;
+}
+.category-header-icon.cat-pink { background: linear-gradient(135deg, #f472b6, #ec4899); }
+.category-header-icon.cat-purple { background: linear-gradient(135deg, #a78bfa, #8b5cf6); }
+.category-header-icon.cat-blue { background: linear-gradient(135deg, #60a5fa, var(--wasla-primary)); }
+.category-header-icon.cat-green { background: linear-gradient(135deg, #34d399, #059669); }
+
+.category-filters { position: sticky; top: 6.5rem; }
+
+/* Dual-thumb price slider: two overlapping native range inputs + a painted track/fill behind them. */
+.price-slider { height: 32px; }
+.price-slider-track {
+  position: absolute; top: 50%; left: 0; right: 0; height: 4px;
+  transform: translateY(-50%); border-radius: 9999px; background: var(--wasla-border);
+}
+.price-slider-fill {
+  position: absolute; top: 0; bottom: 0; border-radius: 9999px; background: var(--wasla-primary);
+}
+.price-slider-input {
+  position: absolute; top: 50%; left: 0; width: 100%; margin: 0;
+  transform: translateY(-50%); background: transparent; pointer-events: none;
+  -webkit-appearance: none; appearance: none;
+}
+.price-slider-input::-webkit-slider-thumb {
+  pointer-events: auto; -webkit-appearance: none; appearance: none;
+  width: 18px; height: 18px; border-radius: 50%;
+  background: #fff; border: 3px solid var(--wasla-primary);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25); cursor: pointer;
+}
+.price-slider-input::-moz-range-thumb {
+  pointer-events: auto; width: 18px; height: 18px; border-radius: 50%;
+  background: #fff; border: 3px solid var(--wasla-primary);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25); cursor: pointer;
+}
+.price-slider-input::-webkit-slider-runnable-track { background: transparent; }
+.price-slider-input::-moz-range-track { background: transparent; }
+
+@media (max-width: 991.98px) {
+  .category-filters { position: static; }
+}
