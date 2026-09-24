@@ -52,6 +52,10 @@ export const authSlice = createSlice({
       state.status = "idle";
       state.error = null;
     },
+    // Used after a profile edit to keep the navbar, etc. in sync with the saved changes.
+    setUser(state, { payload }) {
+      state.user = payload;
+    },
   },
   extraReducers: (builder) => {
     builder

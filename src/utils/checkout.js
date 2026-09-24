@@ -35,9 +35,20 @@ export const GOVERNORATES = [
 
 const round2 = (n) => Math.round(n * 100) / 100;
 
-export const getOrderTotals = ({ items, subtotal, discount, total }) => {
+// `appliedCoupon` is optional: { code, discount }. Passing nothing keeps the old behavior
+// (shipping added, nothing else subtracted), so existing callers don't need to change.
+export const getOrderTotals = ({ items, subtotal, discount, total }, appliedCoupon = null) => {
   const shipping = items.length > 0 ? SHIPPING_FEE : 0;
-  return { subtotal, discount, shipping, total: round2(total + shipping) };
+  const couponCode = appliedCoupon?.code ?? null;
+  const couponDiscount = appliedCoupon?.discount ?? 0;
+  return {
+    subtotal,
+    discount,
+    shipping,
+    couponCode,
+    couponDiscount,
+    total: Math.max(0, round2(total + shipping - couponDiscount)),
+  };
 };
 
 // Shown everywhere with a leading "#": `#${orderNumber(12)}` -> #WSL-00012

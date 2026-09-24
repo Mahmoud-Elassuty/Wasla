@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../../store/reducers/authSlice";
 import { fetchWishlist } from "../../store/reducers/wishlistSlice";
 import WishlistNotice from "../wishlist/WishlistNotice";
+import NotificationBell from "../notifications/NotificationBell";
 import { formatPrice } from "../../utils/format";
 
 const links = [
@@ -17,7 +18,7 @@ const PREVIEW_LIMIT = 4;
 
 export default function Navbar() {
   const [searchParams] = useSearchParams();
-  const urlSearch = searchParams.get("search") ?? "";
+  const urlSearch = searchParams.get("q") ?? searchParams.get("search") ?? "";
   const [query, setQuery] = useState(urlSearch);
   const [prevUrlSearch, setPrevUrlSearch] = useState(urlSearch);
   const navigate = useNavigate();
@@ -44,7 +45,7 @@ export default function Navbar() {
   const handleSearch = (e) => {
     e.preventDefault();
     const q = query.trim();
-    navigate(q ? `/products?search=${encodeURIComponent(q)}` : "/products");
+    navigate(q ? `/search?q=${encodeURIComponent(q)}` : "/search");
   };
 
   const handleLogout = () => {
@@ -94,6 +95,8 @@ export default function Navbar() {
                 </span>
               )}
             </Link>
+
+            <NotificationBell />
 
             <div className="dropdown">
               <button
@@ -172,6 +175,9 @@ export default function Navbar() {
                     <div className="text-secondary small">{user.email}</div>
                   </li>
                   <li><hr className="dropdown-divider" /></li>
+                  <li>
+                    <Link className="dropdown-item" to="/profile">My account</Link>
+                  </li>
                   <li>
                     <Link className="dropdown-item" to="/orders">My orders</Link>
                   </li>

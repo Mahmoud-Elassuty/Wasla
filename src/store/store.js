@@ -4,6 +4,10 @@ import productsReducer from "./reducers/productsSlice";
 import ordersReducer from "./reducers/ordersSlice";
 import wishlistReducer from "./reducers/wishlistSlice";
 import adminReducer from "./reducers/adminSlice";
+import reviewsReducer from "./reducers/reviewsSlice";
+import couponsReducer from "./reducers/couponsSlice";
+import profileReducer from "./reducers/profileSlice";
+import notificationsReducer from "./reducers/notificationsSlice";
 import cartReducer, { saveToLocalStorage } from "./reducers/cartSlice";
 
 const store = configureStore({
@@ -14,6 +18,10 @@ const store = configureStore({
     orders: ordersReducer,
     wishlist: wishlistReducer,
     admin: adminReducer,
+    reviews: reviewsReducer,
+    coupons: couponsReducer,
+    profile: profileReducer,
+    notifications: notificationsReducer,
   },
 });
 

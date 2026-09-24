@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { addToCart, selectItemQuantity } from "../../store/reducers/cartSlice";
 import { formatPrice, getSalePrice, titleCase } from "../../utils/format";
+import { showInfo, showSuccess } from "../../utils/notifications";
 import useWishlist from "../../hooks/useWishlist";
 import "../../styles/wishlist.css";
 
@@ -10,6 +11,7 @@ export default function ProductCard({ product }) {
   const dispatch = useDispatch();
   const location = useLocation();
   const [added, setAdded] = useState(false);
+  const user = useSelector((s) => s.auth.user);
   const inCart = useSelector(selectItemQuantity(product.id));
   const { wished, pending: wishPending, toggle: toggleWish } = useWishlist(product.id);
 
@@ -36,6 +38,18 @@ export default function ProductCard({ product }) {
       })
     );
     setAdded(true);
+    dispatch(showSuccess(`Added "${product.title}" to cart.`));
+  };
+
+  const handleToggleWish = () => {
+    const willRemove = wished; // current (pre-toggle) state, captured before the toggle fires
+    toggleWish();
+    if (!user) return; // guest gets redirected to login instead — no toast
+    dispatch(
+      willRemove
+        ? showInfo(`Removed "${product.title}" from wishlist.`)
+        : showSuccess(`Added "${product.title}" to wishlist.`)
+    );
   };
 
   return (
@@ -49,7 +63,7 @@ export default function ProductCard({ product }) {
       <button
         type="button"
         className={`wishlist-btn${wished ? " active" : ""}`}
-        onClick={toggleWish}
+        onClick={handleToggleWish}
         disabled={wishPending}
         aria-pressed={wished}
         aria-label={wished ? `Remove ${product.title} from wishlist` : `Add ${product.title} to wishlist`}

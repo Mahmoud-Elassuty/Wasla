@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { removeFromCart, updateQuantity } from "../../store/reducers/cartSlice";
 import { formatPrice } from "../../utils/format";
+import { showInfo } from "../../utils/notifications";
 
 const MAX_QTY = 99;
 
@@ -30,6 +31,11 @@ export default function CartItem({ item }) {
     const next = Math.min(Math.max(1, n), max);
     setDraft(String(next));
     setQty(next);
+  };
+
+  const handleRemove = () => {
+    dispatch(removeFromCart(item.id));
+    dispatch(showInfo(`Removed "${item.title}" from cart.`));
   };
 
   const hasDiscount = item.listPrice > item.price;
@@ -91,7 +97,7 @@ export default function CartItem({ item }) {
           <button
             type="button"
             className="btn btn-link btn-sm text-danger p-0 text-decoration-none"
-            onClick={() => dispatch(removeFromCart(item.id))}
+            onClick={handleRemove}
             aria-label={`Remove ${item.title} from cart`}
           >
             <i className="bi bi-trash me-1" aria-hidden="true" />

@@ -1,0 +1,15 @@
+/* ---- Reviews ---- */
+.rating-star-btn {
+  background: none; border: none; padding: 0; line-height: 1; cursor: pointer;
+  color: #f59e0b;
+}
+.rating-star-btn:focus-visible { outline: 2px solid var(--wasla-primary); outline-offset: 2px; border-radius: 4px; }
+.rating-stars-static .bi { color: #f59e0b; }
+
+.rating-bar {
+  height: 8px; border-radius: 9999px; background: var(--wasla-border); overflow: hidden;
+}
+.rating-bar-fill { height: 100%; background: #f59e0b; border-radius: 9999px; }
+
+.review-item { transition: box-shadow 0.15s; }
+.review-form textarea { resize: vertical; }

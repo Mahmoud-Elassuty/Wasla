@@ -4,11 +4,13 @@ import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { clearCart } from "../store/reducers/cartSlice";
 import { createOrder, resetCreateStatus } from "../store/reducers/ordersSlice";
+import { redeemCoupon } from "../store/reducers/couponsSlice";
 import ShippingForm from "../components/checkout/ShippingForm";
 import PaymentMethod from "../components/checkout/PaymentMethod";
 import OrderSummary from "../components/checkout/OrderSummary";
 import { formatPrice } from "../utils/format";
 import { getOrderTotals, orderNumber } from "../utils/checkout";
+import { showError, showSuccess } from "../utils/notifications";
 
 function OrderPlaced({ order }) {
   return (
@@ -34,12 +36,14 @@ export default function Checkout() {
   const dispatch = useDispatch();
   const user = useSelector((s) => s.auth.user);
   const cart = useSelector((s) => s.cart);
+  const { coupon, discount: couponDiscount } = useSelector((s) => s.coupons);
   const { createStatus: status, createError: error } = useSelector((s) => s.orders);
   const [payment, setPayment] = useState("cod");
   const [placedOrder, setPlacedOrder] = useState(null);
 
   const loading = status === "loading";
-  const { total } = getOrderTotals(cart);
+  const appliedCoupon = coupon ? { code: coupon.code, discount: couponDiscount } : null;
+  const { total } = getOrderTotals(cart, appliedCoupon);
 
   useEffect(() => {
     dispatch(resetCreateStatus()); // drop an old error from a previous visit
@@ -72,7 +76,7 @@ export default function Checkout() {
       })),
       paymentMethod: payment,
       currency: "USD",
-      ...getOrderTotals(cart),
+      ...getOrderTotals(cart, appliedCoupon),
       status: "pending",
       createdAt: new Date().toISOString(),
     };
@@ -82,8 +86,11 @@ export default function Checkout() {
       // Show the confirmation first, so emptying the cart doesn't flash the "empty cart" screen.
       flushSync(() => setPlacedOrder(created));
       dispatch(clearCart());
-    } catch {
-      /* the error message is in the store and shown next to the button */
+      if (appliedCoupon) dispatch(redeemCoupon());
+      dispatch(showSuccess(`Order #${orderNumber(created.id)} placed.`));
+    } catch (err) {
+      // the error message is also shown next to the button via the store
+      dispatch(showError(typeof err === "string" ? err : "Couldn't place your order. Please try again."));
     }
   };
 

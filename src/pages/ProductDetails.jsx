@@ -1,19 +1,32 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { clearSelectedProduct, fetchProductById } from "../store/reducers/productsSlice";
 import { addToCart, selectItemQuantity } from "../store/reducers/cartSlice";
+import { fetchReviews } from "../store/reducers/reviewsSlice";
 import { formatPrice, getSalePrice, titleCase } from "../utils/format";
 import useWishlist from "../hooks/useWishlist";
+import AverageRating from "../components/reviews/AverageRating";
+import ReviewForm from "../components/reviews/ReviewForm";
+import ReviewsList from "../components/reviews/ReviewsList";
+import "../styles/reviews.css";
 
 function ProductView({ product, backTo }) {
   const dispatch = useDispatch();
+  const location = useLocation();
   const [active, setActive] = useState(0);
   const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false); // keeps the "View cart" message visible
   const [justAdded, setJustAdded] = useState(false); // 1.5 s button feedback
+  const [showReviewForm, setShowReviewForm] = useState(false);
   const inCart = useSelector(selectItemQuantity(product.id));
   const { wished, pending: wishPending, toggle: toggleWish } = useWishlist(product.id);
+  const user = useSelector((s) => s.auth.user);
+  const {
+    items: reviews,
+    status: reviewsStatus,
+    averageRating,
+  } = useSelector((s) => s.reviews);
 
   const gallery = product.images?.length ? product.images : [product.thumbnail];
   const sale = getSalePrice(product);
@@ -39,6 +52,19 @@ function ProductView({ product, backTo }) {
     const timer = setTimeout(() => setJustAdded(false), 1500);
     return () => clearTimeout(timer);
   }, [justAdded]);
+
+  useEffect(() => {
+    const request = dispatch(fetchReviews(product.id));
+    return () => request.abort();
+  }, [dispatch, product.id]);
+
+  const distribution = useMemo(() => {
+    const dist = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
+    reviews.forEach((r) => {
+      dist[r.rating] = (dist[r.rating] || 0) + 1;
+    });
+    return dist;
+  }, [reviews]);
 
   const changeQty = (n) => {
     setQty(Math.min(Math.max(1, n || 1), Math.max(1, remaining)));
@@ -106,10 +132,13 @@ function ProductView({ product, backTo }) {
 
           <div className="d-flex flex-wrap align-items-center gap-2 mb-3">
             <span className="rating-badge">
-              <i className="bi bi-star-fill" aria-hidden="true" /> {Number(product.rating).toFixed(1)}
+              <i className="bi bi-star-fill" aria-hidden="true" />{" "}
+              {Number(reviews.length > 0 ? averageRating : product.rating).toFixed(1)}
             </span>
-            {product.reviews?.length > 0 && (
-              <span className="small text-secondary">({product.reviews.length} reviews)</span>
+            {reviews.length > 0 && (
+              <span className="small text-secondary">
+                ({reviews.length} review{reviews.length === 1 ? "" : "s"})
+              </span>
             )}
             <span className={`stock-badge ${stock.cls}`}>{stock.label}</span>
           </div>
@@ -217,6 +246,41 @@ function ProductView({ product, backTo }) {
           )}
         </div>
       </div>
+
+      <hr className="my-5" />
+
+      <section id="reviews">
+        <h2 className="h4 mb-4">Ratings &amp; Reviews</h2>
+
+        <div className="row g-4 align-items-start mb-4">
+          <div className="col-lg-8">
+            <AverageRating average={averageRating} count={reviews.length} distribution={distribution} />
+          </div>
+          <div className="col-lg-4 text-lg-end">
+            {user ? (
+              <button type="button" className="btn btn-wasla" onClick={() => setShowReviewForm((s) => !s)}>
+                {showReviewForm ? "Cancel" : "Write a review"}
+              </button>
+            ) : (
+              <Link to="/login" state={{ from: location }} className="btn btn-outline-secondary">
+                Log in to write a review
+              </Link>
+            )}
+          </div>
+        </div>
+
+        {showReviewForm && user && (
+          <div className="border rounded-4 p-3 p-lg-4 mb-4 bg-white">
+            <ReviewForm productId={product.id} onSubmitted={() => setShowReviewForm(false)} />
+          </div>
+        )}
+
+        {reviewsStatus === "loading" && reviews.length === 0 ? (
+          <p className="text-secondary">Loading reviews…</p>
+        ) : (
+          <ReviewsList reviews={reviews} />
+        )}
+      </section>
     </div>
   );
 }

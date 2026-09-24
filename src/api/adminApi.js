@@ -28,3 +28,36 @@ export const createProduct = (productData) => request("/products", send("POST", 
 // PUT replaces the whole product, so pass the complete object (existing fields + your changes).
 export const updateProduct = (id, productData) =>
   request(`/products/${encodeURIComponent(id)}`, send("PUT", productData));
+
+// Newest first, across every product.
+export const fetchAllReviews = (signal) => request("/reviews?_sort=createdAt&_order=desc", { signal });
+
+// Already deleted (404) counts as success.
+export async function deleteReview(id) {
+  try {
+    await request(`/reviews/${encodeURIComponent(id)}`, { method: "DELETE" });
+  } catch (err) {
+    if (err.status !== 404) throw err;
+  }
+}
+
+// PATCH: this schema's "status" is the review's verified flag — only that changes.
+export const updateReviewStatus = (id, verified) =>
+  request(`/reviews/${encodeURIComponent(id)}`, send("PATCH", { verified }));
+
+export const fetchCoupons = (signal) => request("/coupons", { signal });
+
+export const createCoupon = (couponData) => request("/coupons", send("POST", couponData));
+
+// PUT replaces the whole coupon, so pass the complete object (existing fields + your changes).
+export const updateCoupon = (id, couponData) =>
+  request(`/coupons/${encodeURIComponent(id)}`, send("PUT", couponData));
+
+// Already deleted (404) counts as success.
+export async function deleteCoupon(id) {
+  try {
+    await request(`/coupons/${encodeURIComponent(id)}`, { method: "DELETE" });
+  } catch (err) {
+    if (err.status !== 404) throw err;
+  }
+}

@@ -8,11 +8,13 @@ import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import "./styles/theme.css";
 import store from "./store/store";
 import router from "./router/router";
+import ToastContainer from "./components/notifications/Toast";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <Provider store={store}>
       <RouterProvider router={router} />
+      <ToastContainer />
     </Provider>
   </StrictMode>
 );

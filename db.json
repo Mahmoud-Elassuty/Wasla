@@ -1825,7 +1825,8 @@
       "name": "Wasla Admin",
       "email": "admin@wasla.local",
       "password": "admin123",
-      "role": "admin"
+      "role": "admin",
+      "phone": "01094210986"
     },
     {
       "id": 2,
@@ -1849,6 +1850,16 @@
       "status": "active",
       "createdAt": "2026-09-21T06:35:30.839Z",
       "id": 4
+    },
+    {
+      "name": "mahmoud",
+      "email": "mahmoud@gmail.com",
+      "password": "123456",
+      "role": "customer",
+      "status": "active",
+      "createdAt": "2026-09-23T21:13:38.191Z",
+      "id": 5,
+      "phone": ""
     }
   ],
   "orders": [
@@ -1882,7 +1893,7 @@
       "discount": 2.1,
       "shipping": 1,
       "total": 18.88,
-      "status": "confirmed",
+      "status": "delivered",
       "createdAt": "2026-09-21T06:37:18.732Z",
       "id": 1
     },
@@ -1950,7 +1961,7 @@
       "discount": 1.25,
       "shipping": 1,
       "total": 9.7,
-      "status": "confirmed",
+      "status": "shipped",
       "createdAt": "2026-09-21T07:05:54.803Z",
       "id": 3
     },
@@ -1992,12 +2003,308 @@
       "discount": 1.91,
       "shipping": 1,
       "total": 149.06,
-      "status": "shipped",
+      "status": "confirmed",
       "createdAt": "2026-09-21T19:55:12.542Z",
       "id": 4
+    },
+    {
+      "userId": 1,
+      "customer": {
+        "name": "Wasla Admin",
+        "email": "admin@wasla.local",
+        "phone": "+201094210986"
+      },
+      "shippingAddress": {
+        "address": "cairo bank",
+        "city": "menouf",
+        "governorate": "Monufia",
+        "postalCode": "",
+        "notes": ""
+      },
+      "items": [
+        {
+          "productId": 8,
+          "title": "Dior J'adore",
+          "thumbnail": "https://cdn.dummyjson.com/product-images/fragrances/dior-j'adore/thumbnail.webp",
+          "price": 45,
+          "listPrice": 89.99,
+          "quantity": 2
+        },
+        {
+          "productId": 2,
+          "title": "Eyeshadow Palette with Mirror",
+          "thumbnail": "https://cdn.dummyjson.com/product-images/beauty/eyeshadow-palette-with-mirror/thumbnail.webp",
+          "price": 16.35,
+          "listPrice": 19.99,
+          "quantity": 1
+        },
+        {
+          "productId": 13,
+          "title": "Bedside Table African Cherry",
+          "thumbnail": "https://cdn.dummyjson.com/product-images/furniture/bedside-table-african-cherry/thumbnail.webp",
+          "price": 242.72,
+          "listPrice": 299.99,
+          "quantity": 2
+        }
+      ],
+      "paymentMethod": "cod",
+      "currency": "USD",
+      "subtotal": 799.95,
+      "discount": 208.16,
+      "shipping": 1,
+      "couponCode": null,
+      "couponDiscount": 0,
+      "total": 592.79,
+      "status": "delivered",
+      "createdAt": "2026-09-23T21:06:22.023Z",
+      "id": 5
+    },
+    {
+      "userId": 5,
+      "customer": {
+        "name": "Mahmoud Alassiouty",
+        "email": "mahmoud@gmail.com",
+        "phone": "+201094210986"
+      },
+      "shippingAddress": {
+        "address": "cairo bank",
+        "city": "menouf",
+        "governorate": "Monufia",
+        "postalCode": "",
+        "notes": ""
+      },
+      "items": [
+        {
+          "productId": 4,
+          "title": "Red Lipstick",
+          "thumbnail": "https://cdn.dummyjson.com/product-images/beauty/red-lipstick/thumbnail.webp",
+          "price": 11.41,
+          "listPrice": 12.99,
+          "quantity": 6
+        }
+      ],
+      "paymentMethod": "cod",
+      "currency": "USD",
+      "subtotal": 77.94,
+      "discount": 9.48,
+      "shipping": 1,
+      "couponCode": null,
+      "couponDiscount": 0,
+      "total": 69.46,
+      "status": "cancelled",
+      "createdAt": "2026-09-23T21:15:16.221Z",
+      "id": 6
     }
   ],
-  "reviews": [],
+  "reviews": [
+    {
+      "id": 1,
+      "productId": 1,
+      "rating": 5,
+      "title": "Better than expected",
+      "comment": "The lash volume is amazing and it doesn't flake. Repurchasing already.",
+      "verified": true,
+      "helpful": 14,
+      "createdAt": "2026-06-02",
+      "userId": 2,
+      "userName": "Wasla Customer"
+    },
+    {
+      "id": 2,
+      "productId": 1,
+      "rating": 4,
+      "title": "Good for the price",
+      "comment": "Solid everyday mascara, though it smudges a little by the end of the day.",
+      "verified": true,
+      "helpful": 5,
+      "createdAt": "2026-06-18",
+      "userId": 4,
+      "userName": "Mahmoud Alassiouty"
+    },
+    {
+      "id": 3,
+      "productId": 1,
+      "rating": 3,
+      "title": "It's okay",
+      "comment": "Does the job but nothing special compared to other brands I've tried.",
+      "verified": false,
+      "helpful": 1,
+      "createdAt": "2026-07-01",
+      "userName": "Nour Hassan"
+    },
+    {
+      "id": 4,
+      "productId": 2,
+      "rating": 5,
+      "title": "Perfect for travel",
+      "comment": "The mirror is a nice touch and the shades are pigmented. Love it.",
+      "verified": true,
+      "helpful": 10,
+      "createdAt": "2026-05-20",
+      "userId": 2,
+      "userName": "Wasla Customer"
+    },
+    {
+      "id": 5,
+      "productId": 2,
+      "rating": 4,
+      "title": "Pretty shades",
+      "comment": "Great color payoff, a couple of the shades are a bit powdery.",
+      "verified": true,
+      "helpful": 3,
+      "createdAt": "2026-06-11",
+      "userName": "Salma Adel"
+    },
+    {
+      "id": 6,
+      "productId": 4,
+      "rating": 5,
+      "title": "My go-to red",
+      "comment": "Long-lasting, doesn't dry out my lips. Exactly the shade I wanted.",
+      "verified": true,
+      "helpful": 8,
+      "createdAt": "2026-07-05",
+      "userId": 4,
+      "userName": "Mahmoud Alassiouty"
+    },
+    {
+      "id": 7,
+      "productId": 4,
+      "rating": 2,
+      "title": "Faded quickly",
+      "comment": "Looked great on application but didn't last more than two hours for me.",
+      "verified": false,
+      "helpful": 2,
+      "createdAt": "2026-07-14",
+      "userName": "Heba Kamal"
+    },
+    {
+      "id": 8,
+      "productId": 6,
+      "rating": 5,
+      "title": "Classic scent",
+      "comment": "CK One never disappoints, and this arrived well packaged and authentic.",
+      "verified": true,
+      "helpful": 11,
+      "createdAt": "2026-06-25",
+      "userId": 2,
+      "userName": "Wasla Customer"
+    },
+    {
+      "id": 9,
+      "productId": 6,
+      "rating": 4,
+      "title": "Great value",
+      "comment": "Good longevity for the price point, light and fresh for summer.",
+      "verified": true,
+      "helpful": 4,
+      "createdAt": "2026-07-08",
+      "userName": "Omar Farouk"
+    },
+    {
+      "id": 10,
+      "productId": 6,
+      "rating": 5,
+      "title": "Authentic and fast delivery",
+      "comment": "Verified the batch code myself, 100% genuine.",
+      "verified": true,
+      "helpful": 6,
+      "createdAt": "2026-07-20",
+      "userName": "Layla Ibrahim"
+    },
+    {
+      "id": 11,
+      "productId": 16,
+      "rating": 4,
+      "title": "Sturdy build",
+      "comment": "Assembly took a while but the finish looks premium in person.",
+      "verified": true,
+      "helpful": 7,
+      "createdAt": "2026-05-30",
+      "userId": 2,
+      "userName": "Wasla Customer"
+    },
+    {
+      "id": 12,
+      "productId": 16,
+      "rating": 5,
+      "title": "Exceeded expectations",
+      "comment": "Great quality for the price, very happy with this purchase.",
+      "verified": true,
+      "helpful": 10,
+      "createdAt": "2026-06-14",
+      "userName": "Youssef Adly"
+    },
+    {
+      "id": 13,
+      "productId": 16,
+      "rating": 3,
+      "title": "Shipping took long",
+      "comment": "Product is fine but delivery to Dubai took over a week.",
+      "verified": false,
+      "helpful": 0,
+      "createdAt": "2026-07-02",
+      "userName": "Rania Tarek"
+    },
+    {
+      "id": 14,
+      "productId": 21,
+      "rating": 5,
+      "title": "Fresh every time",
+      "comment": "Always crisp and fresh when it arrives, great cold-chain packaging.",
+      "verified": true,
+      "helpful": 5,
+      "createdAt": "2026-06-08",
+      "userId": 4,
+      "userName": "Mahmoud Alassiouty"
+    },
+    {
+      "id": 15,
+      "productId": 21,
+      "rating": 4,
+      "title": "Good quality",
+      "comment": "Fresh and well packed, would order again for weekly groceries.",
+      "verified": true,
+      "helpful": 2,
+      "createdAt": "2026-06-29",
+      "userName": "Dina Samir"
+    },
+    {
+      "id": 16,
+      "productId": 25,
+      "rating": 5,
+      "title": "Excellent product!",
+      "comment": "Really loved this product. Highly recommended!",
+      "verified": true,
+      "helpful": 12,
+      "createdAt": "2026-01-15",
+      "userName": "Ahmed Mohamed"
+    },
+    {
+      "id": 17,
+      "productId": 25,
+      "rating": 4,
+      "title": "Would buy again",
+      "comment": "Great taste and freshness, arrived well before the best-by date.",
+      "verified": true,
+      "helpful": 3,
+      "createdAt": "2026-06-20",
+      "userId": 2,
+      "userName": "Wasla Customer"
+    },
+    {
+      "productId": 4,
+      "userId": 5,
+      "userName": "mahmoud",
+      "rating": 2,
+      "title": "very bad",
+      "comment": "i dont like it",
+      "verified": false,
+      "helpful": 1,
+      "createdAt": "2026-09-24T09:24:45.836Z",
+      "id": 18
+    }
+  ],
   "wishlist": [
     {
       "productId": 2,
@@ -2028,10 +2335,99 @@
       "productId": 3,
       "userId": 1,
       "id": 6
+    },
+    {
+      "productId": 4,
+      "userId": 5,
+      "id": 7
+    },
+    {
+      "productId": 17,
+      "userId": 5,
+      "id": 8
+    },
+    {
+      "productId": 2,
+      "userId": 1,
+      "id": 9
+    },
+    {
+      "productId": 8,
+      "userId": 1,
+      "id": 10
     }
   ],
   "sellers": [],
-  "coupons": [],
+  "coupons": [
+    {
+      "id": 1,
+      "code": "WASLA10",
+      "discount": 10,
+      "type": "percentage",
+      "minTotal": 50,
+      "maxDiscount": 20,
+      "validFrom": "2026-01-01",
+      "validUntil": "2026-12-31",
+      "active": true,
+      "usageLimit": 100,
+      "usedCount": 45
+    },
+    {
+      "id": 2,
+      "code": "SAVE20",
+      "discount": 20,
+      "type": "percentage",
+      "minTotal": 100,
+      "maxDiscount": 50,
+      "validFrom": "2026-01-01",
+      "validUntil": "2026-12-31",
+      "active": true
+    },
+    {
+      "id": 3,
+      "code": "FLAT50",
+      "discount": 50,
+      "type": "fixed",
+      "minTotal": 200,
+      "validFrom": "2026-01-01",
+      "validUntil": "2026-12-31",
+      "active": true
+    },
+    {
+      "id": 4,
+      "code": "EXPIRED10",
+      "discount": 10,
+      "type": "percentage",
+      "minTotal": 0,
+      "validFrom": "2025-01-01",
+      "validUntil": "2025-12-31",
+      "active": true,
+      "usedCount": 3
+    },
+    {
+      "id": 5,
+      "code": "PAUSED15",
+      "discount": 15,
+      "type": "percentage",
+      "minTotal": 30,
+      "validFrom": "2026-01-01",
+      "validUntil": "2026-12-31",
+      "active": false,
+      "usedCount": 0
+    },
+    {
+      "id": 6,
+      "code": "MAXEDOUT5",
+      "discount": 5,
+      "type": "fixed",
+      "minTotal": 20,
+      "validFrom": "2026-01-01",
+      "validUntil": "2026-12-31",
+      "active": true,
+      "usageLimit": 5,
+      "usedCount": 5
+    }
+  ],
   "carts": [],
   "addresses": [],
   "payments": [],

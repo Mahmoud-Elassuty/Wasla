@@ -1,4 +1,4 @@
-const KEYS = { user: "wasla_user", cart: "wasla_cart" };
+const KEYS = { user: "wasla_user", cart: "wasla_cart", recentSearches: "wasla_recent_searches" };
 
 const read = (key) => {
   try {
@@ -32,3 +32,16 @@ export const removeAuthUser = () => remove(KEYS.user);
 export const getCart = () => read(KEYS.cart);
 export const setCart = (cart) => write(KEYS.cart, cart);
 export const removeCart = () => remove(KEYS.cart);
+
+const RECENT_SEARCHES_LIMIT = 5;
+export const getRecentSearches = () => read(KEYS.recentSearches) ?? [];
+// Most recent first, de-duplicated (case-insensitive), capped at RECENT_SEARCHES_LIMIT.
+export const addRecentSearch = (query) => {
+  const trimmed = query.trim();
+  if (!trimmed) return getRecentSearches();
+  const existing = getRecentSearches().filter((q) => q.toLowerCase() !== trimmed.toLowerCase());
+  const next = [trimmed, ...existing].slice(0, RECENT_SEARCHES_LIMIT);
+  write(KEYS.recentSearches, next);
+  return next;
+};
+export const clearRecentSearches = () => remove(KEYS.recentSearches);

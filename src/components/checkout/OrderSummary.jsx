@@ -5,7 +5,9 @@ import { SHIPPING_FEE_EGP, getOrderTotals } from "../../utils/checkout";
 // `children` is rendered under the totals (used for the action buttons).
 export default function OrderSummary({ children }) {
   const cart = useSelector((s) => s.cart);
-  const { subtotal, discount, shipping, total } = getOrderTotals(cart);
+  const { coupon, discount: couponDiscount } = useSelector((s) => s.coupons);
+  const appliedCoupon = coupon ? { code: coupon.code, discount: couponDiscount } : null;
+  const { subtotal, discount, shipping, couponCode, total } = getOrderTotals(cart, appliedCoupon);
 
   return (
     <aside className="checkout-summary bg-white border rounded-4 p-4" aria-label="Order summary">
@@ -39,6 +41,12 @@ export default function OrderSummary({ children }) {
           <div className="d-flex justify-content-between text-success">
             <dt className="fw-normal">Discount</dt>
             <dd className="mb-0">-{formatPrice(discount)}</dd>
+          </div>
+        )}
+        {couponDiscount > 0 && (
+          <div className="d-flex justify-content-between text-success">
+            <dt className="fw-normal">Coupon ({couponCode})</dt>
+            <dd className="mb-0">-{formatPrice(couponDiscount)}</dd>
           </div>
         )}
         <div className="d-flex justify-content-between">
