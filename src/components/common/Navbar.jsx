@@ -26,7 +26,12 @@ export default function Navbar() {
   const user = useSelector((s) => s.auth.user);
   const { items, itemCount, total } = useSelector((s) => s.cart);
   const wishlistCount = useSelector((s) => s.wishlist.items.length);
-  const navLinks = user?.role === "admin" ? [...links, { to: "/admin", label: "Admin" }] : links;
+  const navLinks =
+    user?.role === "admin"
+      ? [...links, { to: "/admin", label: "Admin" }]
+      : user?.role === "seller"
+        ? [...links, { to: "/seller", label: "Seller Dashboard" }]
+        : links;
   const userId = user?.id;
 
   // Load the saved products for whoever is logged in, so hearts are filled everywhere.
@@ -187,6 +192,11 @@ export default function Navbar() {
                   {user.role === "admin" && (
                     <li>
                       <Link className="dropdown-item" to="/admin">Admin panel</Link>
+                    </li>
+                  )}
+                  {user.role === "seller" && (
+                    <li>
+                      <Link className="dropdown-item" to="/seller">Seller dashboard</Link>
                     </li>
                   )}
                   <li>

@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAddresses } from "../store/reducers/profileSlice";
+import { sendPasswordReset } from "../store/reducers/emailSlice";
+import { showSuccess } from "../utils/notifications";
 import ProfileForm from "../components/profile/ProfileForm";
 import AddressesList from "../components/profile/AddressesList";
 import SecurityForm from "../components/profile/SecurityForm";
@@ -15,14 +17,24 @@ const TABS = [
 
 export default function Profile() {
   const dispatch = useDispatch();
-  const userId = useSelector((s) => s.auth.user?.id);
+  const user = useSelector((s) => s.auth.user);
+  const emailSendStatus = useSelector((s) => s.email.sendStatus);
   const [tab, setTab] = useState("info");
+  const sendingReset = emailSendStatus === "loading";
 
   useEffect(() => {
-    if (userId === undefined) return;
-    const request = dispatch(fetchAddresses(userId));
+    if (user?.id === undefined) return;
+    const request = dispatch(fetchAddresses(user.id));
     return () => request.abort();
-  }, [dispatch, userId]);
+  }, [dispatch, user?.id]);
+
+  const handleSendResetEmail = () => {
+    if (!user?.email || sendingReset) return;
+    dispatch(sendPasswordReset(user.email))
+      .unwrap()
+      .then(() => dispatch(showSuccess(`Password reset email sent to ${user.email}.`)))
+      .catch(() => {}); // the mock API rarely fails; if it does, the button just re-enables
+  };
 
   return (
     <div className="container py-4">
@@ -74,6 +86,29 @@ export default function Profile() {
               <>
                 <h2 className="h5 mb-3">Change password</h2>
                 <SecurityForm />
+
+                <hr className="my-4" />
+
+                <h2 className="h6 mb-1">Password reset email</h2>
+                <p className="text-secondary small">
+                  Send a mock password reset email to {user?.email ?? "your inbox"} — useful for testing the email
+                  flow without actually changing your password.
+                </p>
+                <button
+                  type="button"
+                  className="btn btn-outline-secondary"
+                  disabled={sendingReset}
+                  onClick={handleSendResetEmail}
+                >
+                  {sendingReset ? (
+                    <>
+                      <span className="spinner-border spinner-border-sm me-2" aria-hidden="true" />
+                      Sending...
+                    </>
+                  ) : (
+                    "Send password reset email"
+                  )}
+                </button>
               </>
             )}
           </div>

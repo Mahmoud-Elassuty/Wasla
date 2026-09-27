@@ -1,6 +1,8 @@
 export const SHIPPING_FEE_EGP = 50;
+
 // Product prices are in USD. Change this rate to match the exchange rate you want to use.
 export const EGP_PER_USD = 50;
+
 export const SHIPPING_FEE = SHIPPING_FEE_EGP / EGP_PER_USD;
 
 export const GOVERNORATES = [
@@ -35,12 +37,17 @@ export const GOVERNORATES = [
 
 const round2 = (n) => Math.round(n * 100) / 100;
 
-// `appliedCoupon` is optional: { code, discount }. Passing nothing keeps the old behavior
-// (shipping added, nothing else subtracted), so existing callers don't need to change.
-export const getOrderTotals = ({ items, subtotal, discount, total }, appliedCoupon = null) => {
+// `appliedCoupon` is optional: { code, discount }.
+// Passing nothing keeps the old behavior:
+// shipping is added and no coupon discount is subtracted.
+export const getOrderTotals = (
+  { items, subtotal, discount, total },
+  appliedCoupon = null,
+) => {
   const shipping = items.length > 0 ? SHIPPING_FEE : 0;
   const couponCode = appliedCoupon?.code ?? null;
   const couponDiscount = appliedCoupon?.discount ?? 0;
+
   return {
     subtotal,
     discount,
@@ -51,7 +58,8 @@ export const getOrderTotals = ({ items, subtotal, discount, total }, appliedCoup
   };
 };
 
-// Shown everywhere with a leading "#": `#${orderNumber(12)}` -> #WSL-00012
+// Shown everywhere with a leading "#":
+// `#${orderNumber(12)}` -> #WSL-00012
 export const orderNumber = (id) => `WSL-${String(id).padStart(5, "0")}`;
 
 export const ORDER_STATUSES = [
@@ -62,20 +70,40 @@ export const ORDER_STATUSES = [
   "cancelled",
 ];
 
+// Valid seller order-status transitions.
+// A seller may only move an order forward through its lifecycle.
+export const NEXT_STATUS_OPTIONS = {
+  pending: ["confirmed", "cancelled"],
+  confirmed: ["shipped"],
+  shipped: ["delivered"],
+  delivered: [],
+  cancelled: [],
+};
+
 export const PAYMENT_METHOD_LABELS = {
-  cod: { label: "Cash on delivery", ar: "الدفع عند الاستلام" },
-  card: { label: "Credit card", ar: "بطاقة ائتمان" },
-  wallet: { label: "Wallet", ar: "محفظة إلكترونية" },
+  cod: {
+    label: "Cash on delivery",
+    ar: "الدفع عند الاستلام",
+  },
+  card: {
+    label: "Credit card",
+    ar: "بطاقة ائتمان",
+  },
+  wallet: {
+    label: "Wallet",
+    ar: "محفظة إلكترونية",
+  },
 };
 
 export const orderItemCount = (order) =>
-  (order.items ?? []).reduce((n, i) => n + i.quantity, 0);
+  (order.items ?? []).reduce((count, item) => count + item.quantity, 0);
 
 const dateFormat = new Intl.DateTimeFormat("en-GB", {
   day: "numeric",
   month: "short",
   year: "numeric",
 });
+
 const dateTimeFormat = new Intl.DateTimeFormat("en-GB", {
   day: "numeric",
   month: "short",
@@ -86,6 +114,10 @@ const dateTimeFormat = new Intl.DateTimeFormat("en-GB", {
 
 export const formatOrderDate = (iso, withTime = false) => {
   const date = new Date(iso);
-  if (Number.isNaN(date.getTime())) return "-";
+
+  if (Number.isNaN(date.getTime())) {
+    return "-";
+  }
+
   return (withTime ? dateTimeFormat : dateFormat).format(date);
 };

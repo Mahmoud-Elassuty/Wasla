@@ -8,6 +8,9 @@ import reviewsReducer from "./reducers/reviewsSlice";
 import couponsReducer from "./reducers/couponsSlice";
 import profileReducer from "./reducers/profileSlice";
 import notificationsReducer from "./reducers/notificationsSlice";
+import emailReducer from "./reducers/emailSlice";
+import paymentReducer from "./reducers/paymentSlice";
+import sellerReducer from "./reducers/sellerSlice";
 import cartReducer, { saveToLocalStorage } from "./reducers/cartSlice";
 
 const store = configureStore({
@@ -22,6 +25,9 @@ const store = configureStore({
     coupons: couponsReducer,
     profile: profileReducer,
     notifications: notificationsReducer,
+    email: emailReducer,
+    payment: paymentReducer,
+    seller: sellerReducer,
   },
 });
 

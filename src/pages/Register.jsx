@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { register, resetStatus } from "../store/reducers/authSlice";
+import { sendWelcomeEmail } from "../store/reducers/emailSlice";
+import { showSuccess } from "../utils/notifications";
 import FormField from "../components/common/FormField";
 
 const validate = ({ name, email, password, confirmPassword }) => {
@@ -45,7 +47,14 @@ export default function Register() {
     const { name, email, password } = form;
     dispatch(register({ name, email, password }))
       .unwrap()
-      .then(() => navigate("/login", { replace: true, state: { registered: true } }))
+      .then((newUser) => {
+        navigate("/login", { replace: true, state: { registered: true } });
+        // Fire-and-forget: don't make the person wait through the mock email delay to log in.
+        dispatch(sendWelcomeEmail(newUser))
+          .unwrap()
+          .then(() => dispatch(showSuccess("Welcome email sent!")))
+          .catch(() => {}); // the account was created either way; a failed mock email isn't fatal
+      })
       .catch(() => {}); // the error message is already in the store
   };
 

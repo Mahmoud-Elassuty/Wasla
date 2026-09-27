@@ -2,8 +2,16 @@ import { useSelector } from "react-redux";
 import { formatPrice } from "../../utils/format";
 import { SHIPPING_FEE_EGP, getOrderTotals } from "../../utils/checkout";
 
+const PAYMENT_LABEL = {
+  cod: "Cash on delivery",
+  credit_card: "Credit / debit card",
+  paypal: "PayPal",
+  wallet: "Digital wallet",
+};
+
 // `children` is rendered under the totals (used for the action buttons).
-export default function OrderSummary({ children }) {
+// `paymentMethod` is optional — only the Payment step has one selected to show.
+export default function OrderSummary({ children, paymentMethod }) {
   const cart = useSelector((s) => s.cart);
   const { coupon, discount: couponDiscount } = useSelector((s) => s.coupons);
   const appliedCoupon = coupon ? { code: coupon.code, discount: couponDiscount } : null;
@@ -33,6 +41,12 @@ export default function OrderSummary({ children }) {
       </ul>
 
       <dl className="d-grid gap-2 mb-0 border-top pt-3">
+        {paymentMethod && (
+          <div className="d-flex justify-content-between">
+            <dt className="fw-normal text-secondary">Payment method</dt>
+            <dd className="mb-0">{PAYMENT_LABEL[paymentMethod] ?? paymentMethod}</dd>
+          </div>
+        )}
         <div className="d-flex justify-content-between">
           <dt className="fw-normal text-secondary">Subtotal</dt>
           <dd className="mb-0">{formatPrice(subtotal)}</dd>

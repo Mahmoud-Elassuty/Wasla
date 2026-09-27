@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from "react";
-import { useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAdminOrders, resetOrdersStatus, updateOrderStatus } from "../../store/reducers/adminSlice";
 import OrderStatus from "../../components/orders/OrderStatus";
@@ -143,19 +143,24 @@ export default function AdminOrders() {
                       <td><OrderStatus status={order.status} /></td>
                       <td className="text-end fw-semibold">{formatPrice(order.total)}</td>
                       <td>
-                        <select
-                          className="form-select form-select-sm"
-                          style={{ minWidth: 140 }}
-                          aria-label={`Update status of order ${orderNumber(order.id)}`}
-                          value={order.status}
-                          disabled={updating}
-                          onChange={(e) => dispatch(updateOrderStatus({ id: order.id, status: e.target.value }))}
-                        >
-                          {!known && <option value={order.status}>{order.status ?? "Unknown"}</option>}
-                          {ORDER_STATUSES.map((s) => (
-                            <option key={s} value={s}>{label(s)}</option>
-                          ))}
-                        </select>
+                        <div className="d-inline-flex gap-2 align-items-center">
+                          <Link to={`/admin/orders/${order.id}`} className="btn btn-sm btn-outline-secondary">
+                            View details
+                          </Link>
+                          <select
+                            className="form-select form-select-sm"
+                            style={{ minWidth: 140 }}
+                            aria-label={`Update status of order ${orderNumber(order.id)}`}
+                            value={order.status}
+                            disabled={updating}
+                            onChange={(e) => dispatch(updateOrderStatus({ id: order.id, status: e.target.value }))}
+                          >
+                            {!known && <option value={order.status}>{order.status ?? "Unknown"}</option>}
+                            {ORDER_STATUSES.map((s) => (
+                              <option key={s} value={s}>{label(s)}</option>
+                            ))}
+                          </select>
+                        </div>
                       </td>
                     </tr>
                   );

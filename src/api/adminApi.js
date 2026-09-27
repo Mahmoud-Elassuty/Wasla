@@ -7,6 +7,13 @@ const send = (method, body) => ({ method, headers: JSON_HEADERS, body: JSON.stri
 // Every customer's orders, newest first.
 export const fetchAllOrders = (signal) => request("/orders?_sort=createdAt&_order=desc", { signal });
 export const fetchAllProducts = (signal) => request("/products", { signal });
+// Needed to resolve a product's seller (store name) on the order details page — no bulk
+// "sellers only" endpoint exists, so this fetches every user and the page filters client-side.
+// Passwords are stripped immediately so they never sit in Redux state.
+export const fetchAllUsers = async (signal) => {
+  const users = await request("/users", { signal });
+  return users.map(({ password: _password, ...user }) => user);
+};
 
 // PATCH: only `status` changes, the rest of the order stays as it is.
 export function updateOrderStatus(id, status) {

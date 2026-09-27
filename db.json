@@ -58,7 +58,9 @@
       "images": [
         "https://cdn.dummyjson.com/product-images/beauty/essence-mascara-lash-princess/1.webp"
       ],
-      "thumbnail": "https://cdn.dummyjson.com/product-images/beauty/essence-mascara-lash-princess/thumbnail.webp"
+      "thumbnail": "https://cdn.dummyjson.com/product-images/beauty/essence-mascara-lash-princess/thumbnail.webp",
+      "sellerId": 3,
+      "active": true
     },
     {
       "id": 2,
@@ -118,7 +120,9 @@
       "images": [
         "https://cdn.dummyjson.com/product-images/beauty/eyeshadow-palette-with-mirror/1.webp"
       ],
-      "thumbnail": "https://cdn.dummyjson.com/product-images/beauty/eyeshadow-palette-with-mirror/thumbnail.webp"
+      "thumbnail": "https://cdn.dummyjson.com/product-images/beauty/eyeshadow-palette-with-mirror/thumbnail.webp",
+      "sellerId": 3,
+      "active": true
     },
     {
       "id": 3,
@@ -360,7 +364,9 @@
         "https://cdn.dummyjson.com/product-images/fragrances/calvin-klein-ck-one/2.webp",
         "https://cdn.dummyjson.com/product-images/fragrances/calvin-klein-ck-one/3.webp"
       ],
-      "thumbnail": "https://cdn.dummyjson.com/product-images/fragrances/calvin-klein-ck-one/thumbnail.webp"
+      "thumbnail": "https://cdn.dummyjson.com/product-images/fragrances/calvin-klein-ck-one/thumbnail.webp",
+      "sellerId": 3,
+      "active": false
     },
     {
       "id": 7,
@@ -918,7 +924,9 @@
         "https://cdn.dummyjson.com/product-images/furniture/wooden-bathroom-sink-with-mirror/2.webp",
         "https://cdn.dummyjson.com/product-images/furniture/wooden-bathroom-sink-with-mirror/3.webp"
       ],
-      "thumbnail": "https://cdn.dummyjson.com/product-images/furniture/wooden-bathroom-sink-with-mirror/thumbnail.webp"
+      "thumbnail": "https://cdn.dummyjson.com/product-images/furniture/wooden-bathroom-sink-with-mirror/thumbnail.webp",
+      "sellerId": 3,
+      "active": true
     },
     {
       "id": 16,
@@ -976,7 +984,9 @@
       "images": [
         "https://cdn.dummyjson.com/product-images/groceries/apple/1.webp"
       ],
-      "thumbnail": "https://cdn.dummyjson.com/product-images/groceries/apple/thumbnail.webp"
+      "thumbnail": "https://cdn.dummyjson.com/product-images/groceries/apple/thumbnail.webp",
+      "sellerId": 3,
+      "active": true
     },
     {
       "id": 17,
@@ -1511,7 +1521,7 @@
       "price": 0.99,
       "discountPercentage": 1,
       "rating": 3.66,
-      "stock": 3,
+      "stock": 6,
       "tags": [
         "vegetables"
       ],
@@ -1559,7 +1569,8 @@
       "images": [
         "https://cdn.dummyjson.com/product-images/groceries/green-chili-pepper/1.webp"
       ],
-      "thumbnail": "https://cdn.dummyjson.com/product-images/groceries/green-chili-pepper/thumbnail.webp"
+      "thumbnail": "https://cdn.dummyjson.com/product-images/groceries/green-chili-pepper/thumbnail.webp",
+      "brand": ""
     },
     {
       "id": 27,
@@ -1825,8 +1836,7 @@
       "name": "Wasla Admin",
       "email": "admin@wasla.local",
       "password": "admin123",
-      "role": "admin",
-      "phone": "01094210986"
+      "role": "admin"
     },
     {
       "id": 2,
@@ -1840,7 +1850,10 @@
       "name": "Wasla Seller",
       "email": "seller@wasla.local",
       "password": "seller123",
-      "role": "seller"
+      "role": "seller",
+      "storeName": "Wasla Seller Store",
+      "storeDescription": "Curated beauty, fragrance and grocery picks, hand-checked before they ship.",
+      "status": "active"
     },
     {
       "name": "Mahmoud Alassiouty",
@@ -1850,16 +1863,6 @@
       "status": "active",
       "createdAt": "2026-09-21T06:35:30.839Z",
       "id": 4
-    },
-    {
-      "name": "mahmoud",
-      "email": "mahmoud@gmail.com",
-      "password": "123456",
-      "role": "customer",
-      "status": "active",
-      "createdAt": "2026-09-23T21:13:38.191Z",
-      "id": 5,
-      "phone": ""
     }
   ],
   "orders": [
@@ -1893,7 +1896,7 @@
       "discount": 2.1,
       "shipping": 1,
       "total": 18.88,
-      "status": "delivered",
+      "status": "pending",
       "createdAt": "2026-09-21T06:37:18.732Z",
       "id": 1
     },
@@ -1927,7 +1930,7 @@
       "discount": 3.64,
       "shipping": 1,
       "total": 17.35,
-      "status": "delivered",
+      "status": "pending",
       "createdAt": "2026-09-21T06:39:32.379Z",
       "id": 2
     },
@@ -1961,7 +1964,7 @@
       "discount": 1.25,
       "shipping": 1,
       "total": 9.7,
-      "status": "shipped",
+      "status": "delivered",
       "createdAt": "2026-09-21T07:05:54.803Z",
       "id": 3
     },
@@ -2003,7 +2006,7 @@
       "discount": 1.91,
       "shipping": 1,
       "total": 149.06,
-      "status": "confirmed",
+      "status": "cancelled",
       "createdAt": "2026-09-21T19:55:12.542Z",
       "id": 4
     },
@@ -2012,88 +2015,45 @@
       "customer": {
         "name": "Wasla Admin",
         "email": "admin@wasla.local",
-        "phone": "+201094210986"
+        "phone": "+201550557634"
       },
       "shippingAddress": {
-        "address": "cairo bank",
-        "city": "menouf",
+        "address": "Egypt Menofia Menouf",
+        "city": "Munuf",
         "governorate": "Monufia",
         "postalCode": "",
         "notes": ""
       },
       "items": [
         {
-          "productId": 8,
-          "title": "Dior J'adore",
-          "thumbnail": "https://cdn.dummyjson.com/product-images/fragrances/dior-j'adore/thumbnail.webp",
-          "price": 45,
-          "listPrice": 89.99,
-          "quantity": 2
-        },
-        {
-          "productId": 2,
-          "title": "Eyeshadow Palette with Mirror",
-          "thumbnail": "https://cdn.dummyjson.com/product-images/beauty/eyeshadow-palette-with-mirror/thumbnail.webp",
-          "price": 16.35,
-          "listPrice": 19.99,
+          "productId": 1,
+          "title": "Essence Mascara Lash Princess",
+          "thumbnail": "https://cdn.dummyjson.com/product-images/beauty/essence-mascara-lash-princess/thumbnail.webp",
+          "price": 8.94,
+          "listPrice": 9.99,
           "quantity": 1
         },
         {
-          "productId": 13,
-          "title": "Bedside Table African Cherry",
-          "thumbnail": "https://cdn.dummyjson.com/product-images/furniture/bedside-table-african-cherry/thumbnail.webp",
-          "price": 242.72,
-          "listPrice": 299.99,
-          "quantity": 2
+          "productId": 26,
+          "title": "Green Chili Pepper",
+          "thumbnail": "https://cdn.dummyjson.com/product-images/groceries/green-chili-pepper/thumbnail.webp",
+          "price": 0.98,
+          "listPrice": 0.99,
+          "quantity": 3
         }
       ],
       "paymentMethod": "cod",
+      "paymentStatus": "pending",
       "currency": "USD",
-      "subtotal": 799.95,
-      "discount": 208.16,
+      "subtotal": 12.96,
+      "discount": 1.08,
       "shipping": 1,
       "couponCode": null,
       "couponDiscount": 0,
-      "total": 592.79,
+      "total": 12.88,
       "status": "delivered",
-      "createdAt": "2026-09-23T21:06:22.023Z",
+      "createdAt": "2026-09-27T11:45:30.862Z",
       "id": 5
-    },
-    {
-      "userId": 5,
-      "customer": {
-        "name": "Mahmoud Alassiouty",
-        "email": "mahmoud@gmail.com",
-        "phone": "+201094210986"
-      },
-      "shippingAddress": {
-        "address": "cairo bank",
-        "city": "menouf",
-        "governorate": "Monufia",
-        "postalCode": "",
-        "notes": ""
-      },
-      "items": [
-        {
-          "productId": 4,
-          "title": "Red Lipstick",
-          "thumbnail": "https://cdn.dummyjson.com/product-images/beauty/red-lipstick/thumbnail.webp",
-          "price": 11.41,
-          "listPrice": 12.99,
-          "quantity": 6
-        }
-      ],
-      "paymentMethod": "cod",
-      "currency": "USD",
-      "subtotal": 77.94,
-      "discount": 9.48,
-      "shipping": 1,
-      "couponCode": null,
-      "couponDiscount": 0,
-      "total": 69.46,
-      "status": "cancelled",
-      "createdAt": "2026-09-23T21:15:16.221Z",
-      "id": 6
     }
   ],
   "reviews": [
@@ -2139,7 +2099,7 @@
       "title": "Perfect for travel",
       "comment": "The mirror is a nice touch and the shades are pigmented. Love it.",
       "verified": true,
-      "helpful": 10,
+      "helpful": 9,
       "createdAt": "2026-05-20",
       "userId": 2,
       "userName": "Wasla Customer"
@@ -2291,18 +2251,6 @@
       "createdAt": "2026-06-20",
       "userId": 2,
       "userName": "Wasla Customer"
-    },
-    {
-      "productId": 4,
-      "userId": 5,
-      "userName": "mahmoud",
-      "rating": 2,
-      "title": "very bad",
-      "comment": "i dont like it",
-      "verified": false,
-      "helpful": 1,
-      "createdAt": "2026-09-24T09:24:45.836Z",
-      "id": 18
     }
   ],
   "wishlist": [
@@ -2322,39 +2270,9 @@
       "id": 3
     },
     {
-      "productId": 9,
-      "userId": 1,
-      "id": 4
-    },
-    {
-      "productId": 7,
-      "userId": 1,
-      "id": 5
-    },
-    {
-      "productId": 3,
-      "userId": 1,
-      "id": 6
-    },
-    {
-      "productId": 4,
-      "userId": 5,
-      "id": 7
-    },
-    {
-      "productId": 17,
-      "userId": 5,
-      "id": 8
-    },
-    {
-      "productId": 2,
-      "userId": 1,
-      "id": 9
-    },
-    {
       "productId": 8,
       "userId": 1,
-      "id": 10
+      "id": 4
     }
   ],
   "sellers": [],
@@ -2429,7 +2347,100 @@
     }
   ],
   "carts": [],
-  "addresses": [],
-  "payments": [],
-  "notifications": []
+  "addresses": [
+    {
+      "id": 1,
+      "userId": 2,
+      "name": "Home",
+      "address": "123 Main Street",
+      "city": "Giza",
+      "governorate": "Giza",
+      "postalCode": "12345",
+      "phone": "01012345678",
+      "isDefault": true
+    },
+    {
+      "id": 2,
+      "userId": 2,
+      "name": "Work",
+      "address": "45 Tahrir Square, Floor 6",
+      "city": "Cairo",
+      "governorate": "Cairo",
+      "postalCode": "11511",
+      "phone": "01098765432",
+      "isDefault": false
+    },
+    {
+      "id": 3,
+      "userId": 4,
+      "name": "Home",
+      "address": "Cairo Bank Street",
+      "city": "Menouf",
+      "governorate": "Monufia",
+      "postalCode": "",
+      "phone": "01094210986",
+      "isDefault": true
+    }
+  ],
+  "payments": [
+    {
+      "id": 1,
+      "orderId": null,
+      "method": "credit_card",
+      "amount": 42.5,
+      "status": "success",
+      "transactionId": "TXN-EXAMPLE1-A1B2",
+      "timestamp": "2026-09-20T10:15:00Z"
+    },
+    {
+      "id": 2,
+      "orderId": null,
+      "method": "paypal",
+      "amount": 18,
+      "status": "failed",
+      "transactionId": null,
+      "timestamp": "2026-09-21T14:02:00Z"
+    }
+  ],
+  "notifications": [],
+  "emails": [
+    {
+      "id": 1,
+      "to": "customer@wasla.local",
+      "subject": "Order Confirmation #WSL-00001",
+      "type": "order_confirmation",
+      "orderId": 1,
+      "sentAt": "2026-09-20T12:00:00Z",
+      "status": "sent",
+      "body": "Hi Wasla Customer,\n\nThanks for your order! We've received order #WSL-00001 and it's being prepared for delivery.\n\nWe'll be in touch to confirm delivery."
+    },
+    {
+      "id": 2,
+      "to": "mahhmoud1772005@gmail.com",
+      "subject": "Welcome to wasla! (وصلة)",
+      "type": "welcome",
+      "sentAt": "2026-09-21T06:35:31.000Z",
+      "status": "sent",
+      "body": "Hi Mahmoud Alassiouty,\n\nWelcome to wasla! Your account is ready — start browsing to find deals across electronics, fashion, home and more."
+    },
+    {
+      "id": 3,
+      "to": "customer@wasla.local",
+      "subject": "Reset your wasla password",
+      "type": "password_reset",
+      "sentAt": "2026-09-23T09:15:00Z",
+      "status": "sent",
+      "body": "We received a request to reset the password for customer@wasla.local.\n\nThis is a mock email — no real reset link is sent, and your password hasn't been changed."
+    },
+    {
+      "to": "admin@wasla.local",
+      "subject": "Order Confirmation #WSL-00005",
+      "type": "order_confirmation",
+      "orderId": 5,
+      "body": "Hi Wasla Admin,\n\nThanks for your order! We've received order #WSL-00005 for $12.88 and it's being prepared for delivery to Munuf, Monufia.\n\nWe'll be in touch at +201550557634 to confirm delivery.",
+      "sentAt": "2026-09-27T11:45:32.410Z",
+      "status": "sent",
+      "id": 4
+    }
+  ]
 }

@@ -1,0 +1,41 @@
+/* ---- Mock redirect/biometric modal (PayPal, Wallet) ---- */
+/* Same visual language as the email preview modal — duplicated here (not imported) so this
+   feature doesn't depend on another feature's stylesheet. */
+@keyframes modal-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes modal-pop-in {
+  from { opacity: 0; transform: translateY(12px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.modal-backdrop-custom {
+  position: fixed; inset: 0; background: rgba(15, 23, 42, 0.55);
+  display: flex; align-items: center; justify-content: center;
+  padding: 1rem; z-index: 1090; animation: modal-fade-in 0.15s ease-out;
+}
+.modal-dialog-custom {
+  width: 100%; max-width: 420px; text-align: center;
+  animation: modal-pop-in 0.2s ease-out;
+}
+@media (prefers-reduced-motion: reduce) {
+  .modal-backdrop-custom, .modal-dialog-custom { animation: none; }
+}
+
+.payment-gateway-icon {
+  width: 64px; height: 64px; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 1.75rem; margin: 0 auto 1rem;
+}
+.payment-gateway-icon.paypal { background: #e8f0fe; color: #003087; }
+.payment-gateway-icon.wallet { background: #eef2f7; color: #191c1d; }
+
+@keyframes biometric-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(30, 58, 138, 0.25); }
+  50% { box-shadow: 0 0 0 10px rgba(30, 58, 138, 0); }
+}
+.payment-gateway-icon.wallet.scanning { animation: biometric-pulse 1.2s ease-out infinite; }
+
+/* ---- Card form ---- */
+.card-number-input { font-family: "SFMono-Regular", Consolas, Menlo, monospace; letter-spacing: 0.04em; }
+.card-brand-icon { font-size: 1.4rem; color: var(--wasla-primary); }

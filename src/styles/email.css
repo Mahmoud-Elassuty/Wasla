@@ -1,0 +1,46 @@
+/* ---- Email preview modal ---- */
+/* This app's other "confirm" flows swap inline buttons rather than opening a dialog, so this is
+   the first real modal in the codebase — its backdrop/dialog styling lives here since nothing
+   existed yet to reuse. */
+@keyframes modal-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes modal-pop-in {
+  from { opacity: 0; transform: translateY(12px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.modal-backdrop-custom {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  z-index: 1090;
+  animation: modal-fade-in 0.15s ease-out;
+}
+
+.modal-dialog-custom {
+  width: 100%;
+  max-width: 560px;
+  max-height: 85vh;
+  overflow-y: auto;
+  animation: modal-pop-in 0.2s ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .modal-backdrop-custom, .modal-dialog-custom { animation: none; }
+}
+
+.email-body-preview {
+  font-family: "SFMono-Regular", Consolas, Menlo, monospace;
+  font-size: 0.85rem;
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+/* ---- Soft brand-tinted badge (email type pills) ---- */
+.bg-wasla-soft { background: color-mix(in srgb, var(--bs-primary) 12%, white); }

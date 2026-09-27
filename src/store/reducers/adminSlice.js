@@ -13,6 +13,8 @@ const makeThunk = (type, call) =>
 
 export const fetchAdminOrders = makeThunk("admin/fetchOrders", (_, signal) => adminApi.fetchAllOrders(signal));
 export const fetchAdminProducts = makeThunk("admin/fetchProducts", (_, signal) => adminApi.fetchAllProducts(signal));
+// Only used to resolve a product's seller/store name on the order details page.
+export const fetchAdminUsers = makeThunk("admin/fetchUsers", (_, signal) => adminApi.fetchAllUsers(signal));
 export const updateOrderStatus = makeThunk("admin/updateOrderStatus", ({ id, status }) =>
   adminApi.updateOrderStatus(id, status)
 );
@@ -52,6 +54,9 @@ const initialState = {
   products: [],
   productsStatus: "idle",
   productsError: null,
+  users: [],
+  usersStatus: "idle", // idle | loading | succeeded | failed
+  usersError: null,
   updatingOrderIds: [], // orders with a status change in flight
   deletingProductIds: [], // products being deleted
   saveStatus: "idle", // create / update product form
@@ -85,6 +90,10 @@ export const adminSlice = createSlice({
     resetProductsStatus(state) {
       state.productsStatus = "idle";
       state.productsError = null;
+    },
+    resetUsersStatus(state) {
+      state.usersStatus = "idle";
+      state.usersError = null;
     },
     resetReviewsStatus(state) {
       state.reviewsStatus = "idle";
@@ -136,6 +145,20 @@ export const adminSlice = createSlice({
         if (action.meta.aborted) return;
         state.productsStatus = "failed";
         state.productsError = errorOf(action);
+      })
+
+      .addCase(fetchAdminUsers.pending, (state) => {
+        state.usersStatus = "loading";
+        state.usersError = null;
+      })
+      .addCase(fetchAdminUsers.fulfilled, (state, { payload }) => {
+        state.usersStatus = "succeeded";
+        state.users = payload;
+      })
+      .addCase(fetchAdminUsers.rejected, (state, action) => {
+        if (action.meta.aborted) return;
+        state.usersStatus = "failed";
+        state.usersError = errorOf(action);
       })
 
       .addCase(updateOrderStatus.pending, (state, { meta }) => {
@@ -301,6 +324,7 @@ export const adminSlice = createSlice({
 export const {
   resetOrdersStatus,
   resetProductsStatus,
+  resetUsersStatus,
   resetReviewsStatus,
   resetCouponsStatus,
   resetCouponSave,

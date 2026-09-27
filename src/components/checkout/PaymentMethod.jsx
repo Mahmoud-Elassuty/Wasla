@@ -1,7 +1,8 @@
 const METHODS = [
-  { id: "cod", label: "Cash on delivery", hint: "Pay in cash when your order arrives.", icon: "bi-cash-coin", enabled: true },
-  { id: "card", label: "Credit card", hint: "Pay online with your card.", icon: "bi-credit-card", enabled: false },
-  { id: "wallet", label: "Wallet", hint: "Pay with a mobile wallet.", icon: "bi-wallet2", enabled: false },
+  { id: "cod", label: "Cash on delivery", hint: "Pay in cash when your order arrives.", icon: "bi-cash-coin" },
+  { id: "credit_card", label: "Credit / Debit card", hint: "Pay online with Visa, Mastercard or Amex.", icon: "bi-credit-card" },
+  { id: "paypal", label: "PayPal", hint: "Pay using your PayPal account.", icon: "bi-paypal" },
+  { id: "wallet", label: "Digital wallet", hint: "Apple Pay or Google Pay.", icon: "bi-wallet2" },
 ];
 
 export default function PaymentMethod({ value, onChange }) {
@@ -9,12 +10,12 @@ export default function PaymentMethod({ value, onChange }) {
     <fieldset>
       <legend className="visually-hidden">Payment method</legend>
       <div className="d-grid gap-2">
-        {METHODS.map(({ id, label, hint, icon, enabled }) => (
+        {METHODS.map(({ id, label, hint, icon }) => (
           <label
             key={id}
             className={`payment-option d-flex align-items-center gap-3 p-3 rounded-3${
               value === id ? " selected" : ""
-            }${enabled ? "" : " disabled"}`}
+            }`}
           >
             <input
               type="radio"
@@ -22,7 +23,6 @@ export default function PaymentMethod({ value, onChange }) {
               className="form-check-input mt-0"
               value={id}
               checked={value === id}
-              disabled={!enabled}
               onChange={() => onChange(id)}
             />
             <i className={`bi ${icon} fs-4 text-wasla`} aria-hidden="true" />
@@ -30,7 +30,6 @@ export default function PaymentMethod({ value, onChange }) {
               <span className="d-block fw-semibold">{label}</span>
               <span className="d-block small text-secondary">{hint}</span>
             </span>
-            {!enabled && <span className="badge text-bg-light border fw-medium">Coming soon</span>}
           </label>
         ))}
       </div>

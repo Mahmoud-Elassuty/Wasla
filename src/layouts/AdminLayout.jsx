@@ -10,6 +10,7 @@ const NAV = [
   { to: "/admin/products", label: "Products", icon: "bi-box-seam" },
   { to: "/admin/reviews", label: "Reviews", icon: "bi-star" },
   { to: "/admin/coupons", label: "Coupons", icon: "bi-ticket-perforated" },
+  { to: "/admin/emails", label: "Emails", icon: "bi-envelope" },
 ];
 
 export default function AdminLayout() {
