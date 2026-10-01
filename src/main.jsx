@@ -6,9 +6,13 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import "./styles/theme.css";
+import "./styles/responsive.css";
 import store from "./store/store";
+import { validateSession } from "./store/reducers/authSlice";
 import router from "./router/router";
 import ToastContainer from "./components/notifications/Toast";
+
+store.dispatch(validateSession()); // sign out a stored user who has since been restricted or deleted
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>

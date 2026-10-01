@@ -1,5 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import * as sellerApi from "../../api/sellerApi";
+import * as productsApi from "../../api/productsApi";
 import { authSlice } from "./authSlice";
 
 const makeThunk = (type, call) =>
@@ -11,11 +12,35 @@ const makeThunk = (type, call) =>
     }
   });
 
-export const fetchSellerProducts = makeThunk("seller/fetchProducts", (sellerId, signal) =>
-  sellerApi.fetchSellerProducts(sellerId, signal)
+export const fetchSellerProducts = makeThunk(
+  "seller/fetchProducts",
+  (sellerId, signal) => sellerApi.fetchSellerProducts(sellerId, signal),
 );
-export const createProduct = makeThunk("seller/createProduct", (data) => sellerApi.createProduct(data));
-export const updateProduct = makeThunk("seller/updateProduct", ({ id, data }) => sellerApi.updateProduct(id, data));
+export const createProduct = makeThunk("seller/createProduct", (data) =>
+  sellerApi.createProduct(data),
+);
+export const updateProduct = makeThunk("seller/updateProduct", ({ id, data }) =>
+  sellerApi.updateProduct(id, data),
+);
+export const updateProductStock = createAsyncThunk(
+  "seller/updateProductStock",
+  async ({ id, stock }, { getState, rejectWithValue }) => {
+    const user = getState().auth.user;
+    const product = getState().seller.products.find(
+      (item) =>
+        String(item.id) === String(id) &&
+        String(item.sellerId) === String(user?.id),
+    );
+    if (user?.role !== "seller" || !product) {
+      return rejectWithValue("You can only restock your own products.");
+    }
+    try {
+      return await productsApi.updateProductStock(product.id, stock);
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  },
+);
 export const deleteProduct = makeThunk("seller/deleteProduct", async (id) => {
   await sellerApi.deleteProduct(id);
   return id;
@@ -23,11 +48,14 @@ export const deleteProduct = makeThunk("seller/deleteProduct", async (id) => {
 
 // `sellerProductIds` (this seller's own product ids) drives the client-side filter — see
 // sellerApi.fetchSellerOrders for why orders can't be queried by sellerId directly.
-export const fetchSellerOrders = makeThunk("seller/fetchOrders", (sellerProductIds, signal) =>
-  sellerApi.fetchSellerOrders(sellerProductIds, signal)
+export const fetchSellerOrders = makeThunk(
+  "seller/fetchOrders",
+  (sellerProductIds, signal) =>
+    sellerApi.fetchSellerOrders(sellerProductIds, signal),
 );
-export const updateOrderStatus = makeThunk("seller/updateOrderStatus", ({ id, status }) =>
-  sellerApi.updateOrderStatus(id, status)
+export const updateOrderStatus = makeThunk(
+  "seller/updateOrderStatus",
+  ({ id, status }) => sellerApi.updateOrderStatus(id, status),
 );
 
 export const updateSellerProfile = createAsyncThunk(
@@ -40,7 +68,7 @@ export const updateSellerProfile = createAsyncThunk(
     } catch (err) {
       return rejectWithValue(err.message);
     }
-  }
+  },
 );
 
 const initialState = {
@@ -123,7 +151,23 @@ export const sellerSlice = createSlice({
       })
       .addCase(updateProduct.fulfilled, (state, { payload }) => {
         state.saveStatus = "succeeded";
-        state.products = state.products.map((p) => (p.id === payload.id ? payload : p));
+        state.products = state.products.map((p) =>
+          p.id === payload.id ? payload : p,
+        );
+      })
+      .addCase(updateProductStock.pending, (state) => {
+        state.saveStatus = "loading";
+        state.saveError = null;
+      })
+      .addCase(updateProductStock.fulfilled, (state, { payload }) => {
+        state.saveStatus = "succeeded";
+        state.products = state.products.map((product) =>
+          String(product.id) === String(payload.id) ? payload : product,
+        );
+      })
+      .addCase(updateProductStock.rejected, (state, action) => {
+        state.saveStatus = "failed";
+        state.saveError = errorOf(action);
       })
       .addCase(updateProduct.rejected, (state, action) => {
         state.saveStatus = "failed";
@@ -139,7 +183,10 @@ export const sellerSlice = createSlice({
         state.products = state.products.filter((p) => p.id !== meta.arg);
       })
       .addCase(deleteProduct.rejected, (state, action) => {
-        state.deletingProductIds = without(state.deletingProductIds, action.meta.arg);
+        state.deletingProductIds = without(
+          state.deletingProductIds,
+          action.meta.arg,
+        );
         state.actionError = `Couldn't delete the product. ${errorOf(action)}`;
       })
 
@@ -165,10 +212,15 @@ export const sellerSlice = createSlice({
         state.updatingOrderIds = without(state.updatingOrderIds, meta.arg.id);
         // The order came back without `sellerItems`/`sellerSubtotal` (a plain PATCH result), so
         // keep those two fields from what we already had rather than losing them.
-        state.orders = state.orders.map((o) => (o.id === payload.id ? { ...o, ...payload } : o));
+        state.orders = state.orders.map((o) =>
+          o.id === payload.id ? { ...o, ...payload } : o,
+        );
       })
       .addCase(updateOrderStatus.rejected, (state, action) => {
-        state.updatingOrderIds = without(state.updatingOrderIds, action.meta.arg.id);
+        state.updatingOrderIds = without(
+          state.updatingOrderIds,
+          action.meta.arg.id,
+        );
         state.actionError = `Couldn't update the order status. ${errorOf(action)}`;
       })
 
@@ -186,6 +238,11 @@ export const sellerSlice = createSlice({
   },
 });
 
-export const { resetProductsStatus, resetOrdersStatus, resetSave, resetProfileSave, clearActionError } =
-  sellerSlice.actions;
+export const {
+  resetProductsStatus,
+  resetOrdersStatus,
+  resetSave,
+  resetProfileSave,
+  clearActionError,
+} = sellerSlice.actions;
 export default sellerSlice.reducer;

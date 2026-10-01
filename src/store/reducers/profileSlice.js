@@ -19,68 +19,117 @@ export const updateProfile = createAsyncThunk(
     } catch (err) {
       return rejectWithValue(err.message);
     }
-  }
+  },
 );
 
 export const fetchAddresses = createAsyncThunk(
   "profile/fetchAddresses",
-  async (userId, { rejectWithValue, signal }) => {
+  async (requestedUserId, { getState, rejectWithValue, signal }) => {
+    const userId = getState().auth.user?.id;
+    if (userId === undefined || !sameId(requestedUserId, userId)) {
+      return rejectWithValue(
+        "You can only load addresses for the signed-in customer.",
+      );
+    }
     try {
-      return await profileApi.fetchAddresses(userId, signal);
+      const addresses = await profileApi.fetchAddresses(userId, signal);
+      return addresses.filter((address) => belongsToUser(address, userId));
     } catch (err) {
       return rejectWithValue(err.message);
     }
-  }
+  },
 );
 
 export const addAddress = createAsyncThunk(
   "profile/addAddress",
   async (addressData, { getState, rejectWithValue }) => {
     const userId = getState().auth.user?.id;
+    if (userId === undefined)
+      return rejectWithValue("Sign in before saving an address.");
+    const addresses = getState().profile.addresses.filter((address) =>
+      belongsToUser(address, userId),
+    );
+    const data = {
+      ...pickAddressFields(addressData),
+      userId,
+      isDefault: Boolean(addressData.isDefault),
+    };
     try {
-      return await profileApi.addAddress({ ...addressData, userId, isDefault: addressData.isDefault ?? false });
+      const save = () => profileApi.addAddress(data);
+      return data.isDefault
+        ? await saveAsDefault(addresses, null, save)
+        : await save();
     } catch (err) {
       return rejectWithValue(err.message);
     }
-  }
+  },
 );
 
 export const updateAddress = createAsyncThunk(
   "profile/updateAddress",
-  async ({ id, data }, { rejectWithValue }) => {
+  async ({ id, data }, { getState, rejectWithValue }) => {
+    const userId = getState().auth.user?.id;
+    const target = getState().profile.addresses.find(
+      (address) => sameId(address.id, id) && belongsToUser(address, userId),
+    );
+    if (!target)
+      return rejectWithValue("Address not found for the signed-in customer.");
+    const patch = pickAddressFields(data);
     try {
-      return await profileApi.updateAddress(id, data);
+      const save = () => profileApi.updateAddress(target.id, patch);
+      return patch.isDefault === true
+        ? await saveAsDefault(
+            getState().profile.addresses.filter((address) =>
+              belongsToUser(address, userId),
+            ),
+            target.id,
+            save,
+          )
+        : await save();
     } catch (err) {
       return rejectWithValue(err.message);
     }
-  }
+  },
 );
 
-export const deleteAddress = createAsyncThunk("profile/deleteAddress", async (id, { rejectWithValue }) => {
-  try {
-    await profileApi.deleteAddress(id);
-    return id;
-  } catch (err) {
-    return rejectWithValue(err.message);
-  }
-});
+export const deleteAddress = createAsyncThunk(
+  "profile/deleteAddress",
+  async (id, { getState, rejectWithValue }) => {
+    const userId = getState().auth.user?.id;
+    const target = getState().profile.addresses.find(
+      (address) => sameId(address.id, id) && belongsToUser(address, userId),
+    );
+    if (!target)
+      return rejectWithValue("Address not found for the signed-in customer.");
+    try {
+      await profileApi.deleteAddress(target.id);
+      return target.id;
+    } catch (err) {
+      return rejectWithValue(err.message);
+    }
+  },
+);
 
 // Only one address can be default at a time: unset whichever one currently is (if any and
 // different), then set the target. Two requests, not a bulk endpoint — json-server has none.
 export const setDefaultAddress = createAsyncThunk(
   "profile/setDefaultAddress",
   async (id, { getState, rejectWithValue }) => {
-    const { addresses } = getState().profile;
-    const target = addresses.find((a) => a.id === id);
-    if (!target) return rejectWithValue("Address not found.");
-    const prevDefault = addresses.find((a) => a.isDefault && a.id !== id);
+    const userId = getState().auth.user?.id;
+    const addresses = getState().profile.addresses.filter((address) =>
+      belongsToUser(address, userId),
+    );
+    const target = addresses.find((address) => sameId(address.id, id));
+    if (!target)
+      return rejectWithValue("Address not found for the signed-in customer.");
     try {
-      if (prevDefault) await profileApi.updateAddress(prevDefault.id, { ...prevDefault, isDefault: false });
-      return await profileApi.updateAddress(id, { ...target, isDefault: true });
+      return await saveAsDefault(addresses, target.id, () =>
+        profileApi.updateAddress(target.id, { isDefault: true }),
+      );
     } catch (err) {
       return rejectWithValue(err.message);
     }
-  }
+  },
 );
 
 export const changePassword = createAsyncThunk(
@@ -93,7 +142,7 @@ export const changePassword = createAsyncThunk(
     } catch (err) {
       return rejectWithValue(err.message);
     }
-  }
+  },
 );
 
 const initialState = {
@@ -115,6 +164,58 @@ const initialState = {
 
 const errorOf = ({ payload, error }) => payload ?? error.message;
 const without = (list, value) => list.filter((v) => v !== value);
+const sameId = (a, b) => String(a) === String(b);
+const belongsToUser = (address, userId) =>
+  userId !== undefined &&
+  userId !== null &&
+  address?.userId !== undefined &&
+  sameId(address.userId, userId);
+const ADDRESS_FIELDS = [
+  "name",
+  "address",
+  "city",
+  "governorate",
+  "postalCode",
+  "phone",
+  "isDefault",
+];
+
+const pickAddressFields = (data) =>
+  Object.fromEntries(
+    ADDRESS_FIELDS.filter((field) => Object.hasOwn(data, field)).map(
+      (field) => [field, data[field]],
+    ),
+  );
+
+async function saveAsDefault(addresses, targetId, save) {
+  const previousDefaults = addresses.filter(
+    (address) => address.isDefault && !sameId(address.id, targetId),
+  );
+  const cleared = [];
+
+  try {
+    for (const address of previousDefaults) {
+      await profileApi.updateAddress(address.id, { isDefault: false });
+      cleared.push(address);
+    }
+    return await save();
+  } catch (error) {
+    let rollbackFailed = false;
+    for (const address of cleared) {
+      try {
+        await profileApi.updateAddress(address.id, { isDefault: true });
+      } catch {
+        rollbackFailed = true;
+      }
+    }
+    if (rollbackFailed) {
+      throw new Error(
+        `${error.message} The previous default could not be restored; refresh addresses and retry.`,
+      );
+    }
+    throw error;
+  }
+}
 
 export const profileSlice = createSlice({
   name: "profile",
@@ -172,6 +273,13 @@ export const profileSlice = createSlice({
       })
       .addCase(addAddress.fulfilled, (state, { payload }) => {
         state.addressSaveStatus = "succeeded";
+        if (payload.isDefault) {
+          state.addresses = state.addresses.map((address) =>
+            belongsToUser(address, payload.userId)
+              ? { ...address, isDefault: false }
+              : address,
+          );
+        }
         state.addresses.push(payload);
       })
       .addCase(addAddress.rejected, (state, action) => {
@@ -185,7 +293,13 @@ export const profileSlice = createSlice({
       })
       .addCase(updateAddress.fulfilled, (state, { payload }) => {
         state.addressSaveStatus = "succeeded";
-        state.addresses = state.addresses.map((a) => (a.id === payload.id ? payload : a));
+        state.addresses = state.addresses.map((address) => {
+          if (sameId(address.id, payload.id)) return payload;
+          if (payload.isDefault && belongsToUser(address, payload.userId)) {
+            return { ...address, isDefault: false };
+          }
+          return address;
+        });
       })
       .addCase(updateAddress.rejected, (state, action) => {
         state.addressSaveStatus = "failed";
@@ -197,11 +311,19 @@ export const profileSlice = createSlice({
         state.actionError = null;
       })
       .addCase(deleteAddress.fulfilled, (state, action) => {
-        state.deletingAddressIds = without(state.deletingAddressIds, action.meta.arg);
-        state.addresses = state.addresses.filter((a) => a.id !== action.payload);
+        state.deletingAddressIds = without(
+          state.deletingAddressIds,
+          action.meta.arg,
+        );
+        state.addresses = state.addresses.filter(
+          (a) => a.id !== action.payload,
+        );
       })
       .addCase(deleteAddress.rejected, (state, action) => {
-        state.deletingAddressIds = without(state.deletingAddressIds, action.meta.arg);
+        state.deletingAddressIds = without(
+          state.deletingAddressIds,
+          action.meta.arg,
+        );
         state.actionError = `Couldn't delete the address. ${errorOf(action)}`;
       })
 
@@ -210,11 +332,21 @@ export const profileSlice = createSlice({
         state.actionError = null;
       })
       .addCase(setDefaultAddress.fulfilled, (state, action) => {
-        state.settingDefaultIds = without(state.settingDefaultIds, action.meta.arg);
-        state.addresses = state.addresses.map((a) => ({ ...a, isDefault: a.id === action.payload.id }));
+        state.settingDefaultIds = without(
+          state.settingDefaultIds,
+          action.meta.arg,
+        );
+        state.addresses = state.addresses.map((address) =>
+          belongsToUser(address, action.payload.userId)
+            ? { ...address, isDefault: sameId(address.id, action.payload.id) }
+            : address,
+        );
       })
       .addCase(setDefaultAddress.rejected, (state, action) => {
-        state.settingDefaultIds = without(state.settingDefaultIds, action.meta.arg);
+        state.settingDefaultIds = without(
+          state.settingDefaultIds,
+          action.meta.arg,
+        );
         state.actionError = `Couldn't set the default address. ${errorOf(action)}`;
       })
 
@@ -232,5 +364,10 @@ export const profileSlice = createSlice({
   },
 });
 
-export const { resetSaveStatus, resetAddressSave, resetPasswordStatus, clearActionError } = profileSlice.actions;
+export const {
+  resetSaveStatus,
+  resetAddressSave,
+  resetPasswordStatus,
+  clearActionError,
+} = profileSlice.actions;
 export default profileSlice.reducer;

@@ -5,7 +5,10 @@ import { fetchCategories, fetchProducts } from "../store/reducers/productsSlice"
 import { getSalePrice, titleCase } from "../utils/format";
 import OffersHeader from "../components/offers/OffersHeader";
 import OffersFilters, { SORTS } from "../components/offers/OffersFilters";
+import MobileFiltersToggle from "../components/common/MobileFiltersToggle";
 import ProductList from "../components/products/ProductList";
+import Pagination, { ResultsSummary } from "../components/common/Pagination";
+import usePagination from "../hooks/usePagination";
 
 const SORT_COMPARE = {
   "discount-desc": (a, b) => (b.discountPercentage || 0) - (a.discountPercentage || 0),
@@ -46,6 +49,7 @@ export default function Offers() {
     setParams(
       (prev) => {
         const next = new URLSearchParams(prev);
+        next.delete("page"); // any filter / sort change goes back to page 1
         if (value) next.set(key, value);
         else next.delete(key);
         return next;
@@ -65,12 +69,18 @@ export default function Offers() {
     return compare ? [...list].sort(compare) : list;
   }, [onOffer, category, minDiscount, sort]);
 
+  // Pagination runs last: after the discount, category and sort selections.
+  const { items: pageItems, page, totalPages, total, start, end, goToPage, resultsRef } = usePagination(visible, {
+    loaded: status === "succeeded",
+  });
+
   return (
     <div className="container py-4">
       <OffersHeader count={onOffer.length} loading={loading} />
 
       <div className="row g-4">
         <div className="col-lg-3">
+          <MobileFiltersToggle active={hasActiveFilters} />
           <OffersFilters
             minDiscount={minDiscount}
             onDiscountChange={(v) => setParam("minDiscount", v)}
@@ -84,10 +94,15 @@ export default function Offers() {
           />
         </div>
 
-        <div className="col-lg-9">
+        <div className="col-lg-9 pagination-results-anchor" ref={resultsRef}>
+          {total > 0 && (
+            <p className="text-secondary small mb-3">
+              <ResultsSummary start={start} end={end} total={total} noun="offers" />
+            </p>
+          )}
           {visible.length !== onOffer.length && onOffer.length > 0 && (
             <p className="text-secondary small mb-3">
-              Showing {visible.length} of {onOffer.length} offers
+              Filtered from {onOffer.length} offers
               <button
                 type="button"
                 className="btn btn-link btn-sm p-0 ms-2 align-baseline"
@@ -98,13 +113,14 @@ export default function Offers() {
             </p>
           )}
           <ProductList
-            products={visible}
+            products={pageItems}
             status={status}
             error={error}
             hasItems={onOffer.length > 0}
             onRetry={() => dispatch(fetchProducts())}
             onReset={resetFilters}
           />
+          <Pagination page={page} totalPages={totalPages} onPageChange={goToPage} />
         </div>
       </div>
     </div>

@@ -7,10 +7,12 @@ import {
   resetProductsStatus,
   resetSave,
   updateProduct,
+  updateProductStock,
 } from "../../store/reducers/adminSlice";
 import { fetchCategories } from "../../store/reducers/productsSlice";
 import FormField from "../../components/common/FormField";
 import { titleCase } from "../../utils/format";
+import { availabilityStatusFromStock } from "../../utils/inventory";
 
 const FIELD_ORDER = ["title", "description", "price", "discountPercentage", "stock", "category", "brand", "images"];
 
@@ -34,6 +36,13 @@ const toForm = (p) => ({
   images: (p?.images?.length ? p.images : p?.thumbnail ? [p.thumbnail] : []).join("\n"),
   brand: p?.brand ?? "",
 });
+
+const isStockOnlyChange = (product, values) => {
+  const initial = toForm(product);
+  return Number(values.stock) !== product.stock &&
+    ["title", "description", "price", "discountPercentage", "category", "images", "brand"]
+      .every((field) => values[field] === initial[field]);
+};
 
 function validate(v) {
   const e = {};
@@ -103,6 +112,16 @@ function ProductFormView({ product }) {
       return;
     }
 
+    if (editing && isStockOnlyChange(product, values)) {
+      try {
+        await dispatch(updateProductStock({ id: product.id, stock: Number(values.stock) })).unwrap();
+        navigate("/admin/products", { state: { notice: "Product stock updated." } });
+      } catch {
+        /* the error message is already in the store */
+      }
+      return;
+    }
+
     const images = parseImages(values.images);
     const imagesChanged = !editing || JSON.stringify(images) !== JSON.stringify(product.images ?? []);
     const data = {
@@ -114,6 +133,7 @@ function ProductFormView({ product }) {
       price: Math.round(Number(values.price) * 100) / 100,
       discountPercentage: values.discountPercentage.trim() === "" ? 0 : Number(values.discountPercentage),
       stock: Number(values.stock),
+      availabilityStatus: availabilityStatusFromStock(Number(values.stock)),
       brand: values.brand.trim(),
       images,
       thumbnail: !imagesChanged && product.thumbnail ? product.thumbnail : images[0],

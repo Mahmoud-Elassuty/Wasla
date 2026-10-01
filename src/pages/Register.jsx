@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, Navigate, useNavigate } from "react-router-dom";
+import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { register, resetStatus } from "../store/reducers/authSlice";
 import { sendWelcomeEmail } from "../store/reducers/emailSlice";
@@ -21,6 +21,7 @@ const validate = ({ name, email, password, confirmPassword }) => {
 export default function Register() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
   const { user, status, error } = useSelector((s) => s.auth);
   const [form, setForm] = useState({ name: "", email: "", password: "", confirmPassword: "" });
   const [errors, setErrors] = useState({});
@@ -48,7 +49,7 @@ export default function Register() {
     dispatch(register({ name, email, password }))
       .unwrap()
       .then((newUser) => {
-        navigate("/login", { replace: true, state: { registered: true } });
+        navigate("/login", { replace: true, state: { registered: true, from: location.state?.from } });
         // Fire-and-forget: don't make the person wait through the mock email delay to log in.
         dispatch(sendWelcomeEmail(newUser))
           .unwrap()

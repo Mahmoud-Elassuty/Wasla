@@ -3,13 +3,22 @@ import { Link } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { removeFromCart, updateQuantity } from "../../store/reducers/cartSlice";
 import { formatPrice } from "../../utils/format";
-import { showInfo } from "../../utils/notifications";
-
-const MAX_QTY = 99;
+import { showError, showInfo } from "../../utils/notifications";
+import { getStockState, isValidStock, safeStock } from "../../utils/inventory";
 
 export default function CartItem({ item }) {
   const dispatch = useDispatch();
-  const max = item.stock ?? MAX_QTY;
+  const max = safeStock(item.stock);
+  const stockState = getStockState(item.stock, item.active !== false);
+  const inventoryWarning = !isValidStock(item.stock)
+    ? "Stock could not be confirmed. Remove this item or retry stock validation."
+    : item.active === false
+      ? "This product is no longer available. Remove it to continue."
+      : max === 0
+        ? "Out of stock. Remove this item to continue."
+        : item.quantity > max
+          ? `Only ${max} item${max === 1 ? " is" : "s are"} available. Reduce the quantity to continue.`
+          : "";
 
   // The input keeps its own text while typing, and commits on blur/Enter.
   // Otherwise clearing the field to type a new number would instantly reset it.
@@ -28,7 +37,12 @@ export default function CartItem({ item }) {
       setDraft(String(item.quantity));
       return;
     }
-    const next = Math.min(Math.max(1, n), max);
+    const next = Math.max(1, n);
+    if (next > max && next >= item.quantity) {
+      dispatch(showError(max > 0 ? `Only ${max} of "${item.title}" are available.` : `"${item.title}" is unavailable.`));
+      setDraft(String(item.quantity));
+      return;
+    }
     setDraft(String(next));
     setQty(next);
   };
@@ -47,8 +61,8 @@ export default function CartItem({ item }) {
       </Link>
 
       <div className="flex-grow-1 min-w-0">
-        <div className="d-flex justify-content-between gap-3">
-          <Link to={`/products/${item.id}`} className="fw-semibold text-body text-decoration-none">
+        <div className="d-flex flex-column flex-sm-row justify-content-between gap-1 gap-sm-3">
+          <Link to={`/products/${item.id}`} className="fw-semibold text-body text-decoration-none text-break">
             {item.title}
           </Link>
           <span className="font-display fw-semibold flex-shrink-0">
@@ -61,7 +75,11 @@ export default function CartItem({ item }) {
           {hasDiscount && <span className="price-old ms-2">{formatPrice(item.listPrice)}</span>}
         </div>
 
-        <div className="d-flex flex-wrap align-items-center gap-3 mt-2">
+        {inventoryWarning && (
+          <p className="small text-danger mt-2 mb-0" role="alert">{inventoryWarning}</p>
+        )}
+
+        <div className="d-flex flex-wrap align-items-center gap-2 gap-sm-3 mt-2">
           <div className="input-group input-group-sm" style={{ width: 120 }}>
             <button
               type="button"
@@ -76,7 +94,7 @@ export default function CartItem({ item }) {
               type="number"
               className="form-control text-center qty-input"
               min={1}
-              max={max}
+              max={max || undefined}
               value={draft}
               onChange={(e) => setDraft(e.target.value)}
               onBlur={commit}
@@ -87,7 +105,7 @@ export default function CartItem({ item }) {
               type="button"
               className="btn btn-outline-secondary"
               onClick={() => setQty(item.quantity + 1)}
-              disabled={item.quantity >= max}
+              disabled={!stockState.purchasable || item.quantity >= max}
               aria-label={`Increase quantity of ${item.title}`}
             >
               <i className="bi bi-plus" />

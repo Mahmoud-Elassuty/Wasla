@@ -1,10 +1,12 @@
-import { useEffect, useState } from "react";
-import { Link, NavLink, useNavigate, useSearchParams } from "react-router-dom";
+import { useEffect } from "react";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../../store/reducers/authSlice";
 import { fetchWishlist } from "../../store/reducers/wishlistSlice";
 import WishlistNotice from "../wishlist/WishlistNotice";
 import NotificationBell from "../notifications/NotificationBell";
+import ProductSearch from "./ProductSearch";
+import CategoriesDropdown from "../category/CategoriesDropdown";
 import { formatPrice } from "../../utils/format";
 
 const links = [
@@ -17,10 +19,6 @@ const links = [
 const PREVIEW_LIMIT = 4;
 
 export default function Navbar() {
-  const [searchParams] = useSearchParams();
-  const urlSearch = searchParams.get("q") ?? searchParams.get("search") ?? "";
-  const [query, setQuery] = useState(urlSearch);
-  const [prevUrlSearch, setPrevUrlSearch] = useState(urlSearch);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const user = useSelector((s) => s.auth.user);
@@ -41,52 +39,28 @@ export default function Navbar() {
     return () => request.abort();
   }, [dispatch, userId]);
 
-  // Keep the navbar box in sync when the search changes in the URL (e.g. typed on the Products page).
-  if (urlSearch !== prevUrlSearch) {
-    setPrevUrlSearch(urlSearch);
-    setQuery(urlSearch);
-  }
-
-  const handleSearch = (e) => {
-    e.preventDefault();
-    const q = query.trim();
-    navigate(q ? `/search?q=${encodeURIComponent(q)}` : "/search");
-  };
-
   const handleLogout = () => {
     dispatch(logout());
     navigate("/");
   };
 
   return (
-    <header className="bg-white border-bottom sticky-top">
+    <header className="site-header product-search-header bg-white border-bottom sticky-top">
       <div className="container">
         <div className="row align-items-center g-2 py-2">
-          <div className="col-6 col-md-auto">
+          <div className="col-auto col-md-auto">
             <Link to="/" className="text-decoration-none d-inline-block lh-1">
               <span className="font-display fs-4 fw-bold text-wasla">wasla</span>{" "}
-              <span className="fw-semibold text-accent" dir="rtl">(وصلة)</span>
+              <span className="brand-ar fw-semibold text-accent" dir="rtl">(وصلة)</span>
               <small className="d-none d-lg-block text-secondary">Your Gateway to Shopping</small>
             </Link>
           </div>
 
           <div className="col-12 col-md order-3 order-md-2">
-            <form className="input-group search-box" onSubmit={handleSearch} role="search">
-              <input
-                type="search"
-                className="form-control"
-                placeholder="Search products, brands, essentials..."
-                aria-label="Search products"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-              />
-              <button className="btn btn-accent px-3" type="submit" aria-label="Search">
-                <i className="bi bi-search" />
-              </button>
-            </form>
+            <ProductSearch />
           </div>
 
-          <div className="col-6 col-md-auto order-2 order-md-3 d-flex justify-content-end align-items-center gap-3">
+          <div className="col col-md-auto order-2 order-md-3 d-flex justify-content-end align-items-center gap-2 gap-sm-3">
             <span className="d-none d-lg-inline small text-secondary">EN | العربية</span>
             <Link
               to="/wishlist"
@@ -176,8 +150,8 @@ export default function Navbar() {
                 </button>
                 <ul className="dropdown-menu dropdown-menu-end">
                   <li className="px-3 py-2">
-                    <div className="fw-semibold small">{user.name}</div>
-                    <div className="text-secondary small">{user.email}</div>
+                    <div className="fw-semibold small text-break">{user.name}</div>
+                    <div className="text-secondary small text-break">{user.email}</div>
                   </li>
                   <li><hr className="dropdown-divider" /></li>
                   <li>
@@ -207,24 +181,29 @@ export default function Navbar() {
                 </ul>
               </div>
             ) : (
-              <Link to="/login" className="btn btn-wasla btn-sm px-3">Log in</Link>
+              <Link to="/login" className="btn btn-wasla btn-sm px-2 px-sm-3 text-nowrap">Log in</Link>
             )}
           </div>
         </div>
       </div>
 
-      <nav className="border-top" aria-label="Main">
-        <div className="container d-flex gap-4">
-          {navLinks.map(({ to, label }) => (
-            <NavLink
-              key={to}
-              to={to}
-              end={to === "/"}
-              className={({ isActive }) => `nav-link-wasla${isActive ? " active" : ""}`}
-            >
-              {label}
-            </NavLink>
-          ))}
+      <nav className="site-nav border-top" aria-label="Main">
+        <div className="container">
+          <div className="site-nav-row d-flex align-items-center gap-2 gap-md-3">
+            <div className="nav-links-scroll gap-3 gap-md-4 py-1 py-md-0">
+              {navLinks.map(({ to, label }) => (
+                <NavLink
+                  key={to}
+                  to={to}
+                  end={to === "/"}
+                  className={({ isActive }) => `nav-link-wasla text-nowrap${isActive ? " active" : ""}`}
+                >
+                  {label}
+                </NavLink>
+              ))}
+            </div>
+            <CategoriesDropdown />
+          </div>
         </div>
       </nav>
       <WishlistNotice />

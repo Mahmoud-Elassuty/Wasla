@@ -24,7 +24,7 @@ export default function OffersFilters({
   onReset,
 }) {
   return (
-    <aside className="offers-filters bg-white border rounded-4 p-3 p-lg-4">
+    <aside id="filters-panel" className="offers-filters collapse d-lg-block bg-white border rounded-4 p-3 p-lg-4">
       <div className="d-flex justify-content-between align-items-center mb-3">
         <h2 className="h6 mb-0">Filters</h2>
         {hasActiveFilters && (

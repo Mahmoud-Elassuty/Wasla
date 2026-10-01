@@ -3,8 +3,13 @@ import { useSearchParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchCategories, fetchProducts } from "../store/reducers/productsSlice";
 import ProductList from "../components/products/ProductList";
+import ProductSearch from "../components/common/ProductSearch";
 import SearchFilters from "../components/search/SearchFilters";
+import MobileFiltersToggle from "../components/common/MobileFiltersToggle";
 import { getSalePrice, titleCase } from "../utils/format";
+import { matchesProductQuery } from "../utils/productSearch";
+import Pagination, { ResultsSummary } from "../components/common/Pagination";
+import usePagination from "../hooks/usePagination";
 import "../styles/search.css";
 
 const SORTS = {
@@ -25,7 +30,7 @@ export default function Products() {
   // Filters live in the URL, so they survive refresh, back/forward and the navbar search.
   // `category` stays a plain (comma-joinable) param name for backward compatibility with
   // existing single-category links, e.g. ProductDetails' "Category: X" link.
-  const search = params.get("search") ?? "";
+  const search = (params.get("search") ?? "").trim();
   const selectedCategories = parseList(params.get("category"));
   const selectedBrands = parseList(params.get("brand"));
   const ratingMin = ["4", "3", "2", "1"].includes(params.get("rating")) ? params.get("rating") : "";
@@ -41,6 +46,7 @@ export default function Products() {
     setParams(
       (prev) => {
         const next = new URLSearchParams(prev);
+        next.delete("page"); // any filter / sort / search change goes back to page 1
         Object.entries(updates).forEach(([key, val]) => {
           if (val === "" || val === null || val === undefined || val === false || val === "featured") {
             next.delete(key);
@@ -102,7 +108,7 @@ export default function Products() {
     const list = items.filter((p) => {
       const price = getSalePrice(p);
       return (
-        (!q || p.title.toLowerCase().includes(q) || p.brand?.toLowerCase().includes(q)) &&
+        (!q || matchesProductQuery(p, q)) &&
         (selectedCategories.length === 0 || selectedCategories.includes(p.category)) &&
         (selectedBrands.length === 0 || selectedBrands.includes(p.brand)) &&
         (!ratingMin || p.rating >= Number(ratingMin)) &&
@@ -115,8 +121,14 @@ export default function Products() {
     return compare ? [...list].sort(compare) : list;
   }, [items, search, selectedCategories, selectedBrands, ratingMin, inStockOnly, priceMin, priceMax, sort]);
 
-  const heading =
-    selectedCategories.length === 1
+  // Pagination runs last: after search, category, brand, rating, stock, price and sort.
+  const { items: pageItems, page, totalPages, total, start, end, goToPage, resultsRef } = usePagination(visible, {
+    loaded: status === "succeeded",
+  });
+
+  const heading = search
+    ? `Search results for “${search}”`
+    : selectedCategories.length === 1
       ? categoryOptions.find((c) => c.slug === selectedCategories[0])?.name ?? titleCase(selectedCategories[0])
       : "All products";
 
@@ -126,32 +138,34 @@ export default function Products() {
         <h1 className="h3 mb-1">{heading}</h1>
         {items.length > 0 && (
           <p className="text-secondary small mb-0">
-            Showing {visible.length} of {items.length} products
+            {total === 0
+              ? search
+                ? `0 products found for “${search}”`
+                : "0 products match your filters"
+              : <ResultsSummary start={start} end={end} total={total} />}
+            {search && total > 0 && ` found for “${search}”`}
+            {search && (
+              <button type="button" className="btn btn-link btn-sm p-0 ms-2 align-baseline" onClick={() => setParam({ search: "" })}>
+                Clear search
+              </button>
+            )}
             {hasActiveFilters && (
               <button type="button" className="btn btn-link btn-sm p-0 ms-2 align-baseline" onClick={resetFilters}>
-                Clear filters
+                {search ? "Clear all filters" : "Clear filters"}
               </button>
             )}
           </p>
         )}
       </div>
 
+      <div className="mb-4">
+        <ProductSearch variant="products-page" />
+      </div>
+
       <div className="row g-2 mb-4">
-        <div className="col-md">
-          <div className="search-box">
-            <input
-              type="search"
-              className="form-control"
-              placeholder="Search by name or brand"
-              aria-label="Search products"
-              value={search}
-              onChange={(e) => setParam({ search: e.target.value })}
-            />
-          </div>
-        </div>
-        <div className="col-md-auto">
+        <div className="d-flex justify-content-end mb-4">
           <select
-            className="form-select"
+            className="form-select w-auto"
             aria-label="Sort products"
             value={sort}
             onChange={(e) => setParam({ sort: e.target.value })}
@@ -167,6 +181,7 @@ export default function Products() {
 
       <div className="row g-4">
         <div className="col-lg-3">
+          <MobileFiltersToggle active={hasActiveFilters} />
           <SearchFilters
             categoryOptions={categoryOptions}
             selectedCategories={selectedCategories}
@@ -186,15 +201,17 @@ export default function Products() {
           />
         </div>
 
-        <div className="col-lg-9">
+        <div className="col-lg-9 pagination-results-anchor" ref={resultsRef}>
           <ProductList
-            products={visible}
+            products={pageItems}
+            searchQuery={search}
             status={status}
             error={error}
             hasItems={items.length > 0}
             onRetry={() => dispatch(fetchProducts())}
-            onReset={resetFilters}
+            onReset={search ? () => setParam({ search: "" }) : resetFilters}
           />
+          <Pagination page={page} totalPages={totalPages} onPageChange={goToPage} />
         </div>
       </div>
     </div>

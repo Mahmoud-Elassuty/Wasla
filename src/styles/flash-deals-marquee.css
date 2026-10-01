@@ -1,0 +1,60 @@
+/* Home Flash Deals carousel. Clipping is on the viewport only, never on the page. */
+.flash-deals-viewport {
+  --deal-w: 11.75rem;
+  --deal-gap: .75rem;
+  position: relative;
+  overflow: hidden;
+  padding-block: .5rem;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 3%, #000 97%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 3%, #000 97%, transparent);
+}
+.flash-deals-track { display: flex; width: max-content; will-change: transform; }
+.flash-deals-group { display: flex; flex: 0 0 auto; padding: 0; }
+.flash-deals-group > li { flex: 0 0 auto; width: var(--deal-w); margin-right: var(--deal-gap); } /* margin (not gap) keeps both groups identical for the -50% loop */
+
+/* Reduced motion: static, manually scrollable strip. */
+.flash-deals-static { --deal-w: 11.75rem; --deal-gap: .75rem; overflow-x: auto; padding-block: .5rem .75rem; scroll-snap-type: x proximity; overscroll-behavior-x: contain; }
+.flash-deals-static .flash-deals-group { width: max-content; }
+.flash-deals-static .flash-deals-group > li { scroll-snap-align: start; }
+
+@media (min-width: 576px) { .flash-deals-viewport, .flash-deals-static { --deal-w: 13rem; --deal-gap: .85rem; } }
+@media (min-width: 992px) { .flash-deals-viewport, .flash-deals-static { --deal-w: 15rem; --deal-gap: 1rem; } }
+
+.flash-deal-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  border: 1px solid #eeedf4;
+  border-radius: 1rem;
+  background: #fff;
+  box-shadow: 0 .3rem 1rem rgba(27, 36, 74, .06);
+  transition: box-shadow .15s, border-color .15s;
+}
+.flash-deal-card:hover { border-color: #d9def2; box-shadow: 0 .6rem 1.4rem rgba(27, 36, 74, .11); }
+
+.flash-deal-media { position: relative; aspect-ratio: 4 / 3; margin: .5rem .5rem 0; overflow: hidden; border-radius: .8rem; background: #f5f5f7; }
+.flash-deal-media img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.flash-deal-media-fallback { display: flex; width: 100%; height: 100%; align-items: center; justify-content: center; color: #9aa3b8; font-size: 1.8rem; }
+.flash-deal-badge { position: absolute; top: .45rem; left: .45rem; padding: .2rem .55rem; border-radius: 999px; background: var(--wasla-accent); color: #fff; font-size: .75rem; font-weight: 700; line-height: 1.2; }
+
+.flash-deal-body { display: flex; flex: 1 1 auto; flex-direction: column; gap: .35rem; padding: .65rem .75rem .8rem; }
+.flash-deal-meta { display: flex; align-items: center; justify-content: space-between; gap: .5rem; min-width: 0; font-size: .72rem; }
+.flash-deal-brand { min-width: 0; overflow: hidden; color: #6b7280; text-overflow: ellipsis; white-space: nowrap; }
+.flash-deal-stock { flex: 0 0 auto; font-weight: 600; white-space: nowrap; }
+.flash-deal-stock.is-in { color: #198754; }
+.flash-deal-stock.is-low { color: #997404; }
+
+.flash-deal-title { margin: 0; font-size: .9rem; font-weight: 600; line-height: 1.3; min-height: 2.6em; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.flash-deal-link { color: #191c1d; text-decoration: none; }
+.flash-deal-link::after { content: ""; position: absolute; inset: 0; z-index: 1; border-radius: inherit; } /* whole card is the tap target */
+.flash-deal-link:focus-visible { outline: none; }
+.flash-deal-link:focus-visible::after { outline: 3px solid var(--wasla-primary); outline-offset: -3px; border-radius: 1rem; }
+
+.flash-deal-prices { display: flex; flex-wrap: wrap; align-items: baseline; column-gap: .5rem; margin-top: auto; }
+.flash-deal-price { color: var(--wasla-primary); font-size: 1.1rem; font-weight: 700; }
+.flash-deal-cta { display: flex; align-items: center; justify-content: center; margin-top: .25rem; padding: .45rem .75rem; border-radius: .7rem; background: var(--wasla-accent); color: #fff; font-size: .85rem; font-weight: 600; }
+.flash-deal-card:hover .flash-deal-cta { background: var(--wasla-accent-dark); }
+
+@media (prefers-reduced-motion: reduce) { .flash-deal-card { transition: none; } }

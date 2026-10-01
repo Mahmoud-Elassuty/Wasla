@@ -5,6 +5,7 @@ import {
   removeAuthUser,
   setAuthUser,
 } from "../../utils/localStorage";
+import { showError } from "../../utils/notifications";
 
 export const login = createAsyncThunk(
   "auth/login",
@@ -77,6 +78,28 @@ export const authSlice = createSlice({
 export const logout = () => (dispatch) => {
   removeAuthUser();
   dispatch(authSlice.actions.clearUser());
+};
+
+// Re-checks the stored user against db.json. A restricted / soft-deleted / removed account is logged
+// out with a message. If the server can't be reached the session is kept (no lock-outs on a hiccup).
+export const validateSession = () => async (dispatch, getState) => {
+  const user = getState().auth.user;
+  if (!user) return;
+  let status;
+  try {
+    status = await authApi.fetchSessionStatus(user.id);
+  } catch {
+    return;
+  }
+  if (status === "active") return;
+  if (getState().auth.user?.id !== user.id) return; // already logged out / switched user meanwhile
+  dispatch(logout());
+  dispatch(
+    showError(
+      status === "missing" ? "This account no longer exists." : authApi.blockedMessage(status),
+      "Signed out"
+    )
+  );
 };
 
 export const { resetStatus } = authSlice.actions;

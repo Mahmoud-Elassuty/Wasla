@@ -12,11 +12,49 @@
 .admin-nav-link.disabled { opacity: 0.5; cursor: not-allowed; }
 .admin-nav-link.disabled:hover { background: transparent; color: #374151; }
 
+@media (max-width: 991.98px) {
+  /* Compact top bar that stays reachable; the menu opens as a panel over the content
+     (instead of pushing the page down) and never permanently covers it. */
+  .admin-sidebar {
+    position: sticky;
+    top: 0;
+    z-index: 1030;
+    padding: 0.6rem 1rem;
+  }
+  .admin-nav-collapse {
+    display: none;
+  }
+  .admin-nav-collapse.show {
+    position: absolute;
+    inset-inline: 0;
+    top: 100%;
+    display: flex;
+    flex-direction: column;
+    max-height: calc(100dvh - 4rem);
+    padding: 0.85rem 1rem 1rem;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    background: #fff;
+    border-bottom: 1px solid var(--wasla-border);
+    box-shadow: 0 1rem 1.5rem rgba(15, 23, 42, 0.12);
+  }
+  .admin-nav { flex-direction: column; }
+  .admin-main { padding: 1.25rem 0.85rem; }
+}
+@media (max-width: 575.98px) {
+  .admin-main { padding: 1rem 0.75rem; }
+  /* two-up stat cards: icon on its own row so label and value get the full card width */
+  .stat-card { padding: 0.85rem; }
+  .stat-card > .d-flex { flex-direction: column-reverse; align-items: flex-start !important; gap: 0.5rem !important; }
+  .stat-card .stat-icon { width: 34px; height: 34px; font-size: 1rem; }
+  .stat-card .fs-2 { font-size: 1.3rem !important; white-space: nowrap; }
+}
+
 @media (min-width: 992px) {
   .admin-shell { grid-template-columns: 250px minmax(0, 1fr); }
   .admin-sidebar {
     position: sticky; top: 0; height: 100vh; display: flex; flex-direction: column;
-    border-bottom: 0; border-right: 1px solid var(--wasla-border);
+    border-bottom: 0; border-inline-end: 1px solid var(--wasla-border);
   }
   .admin-nav { flex-direction: column; }
   .admin-main { padding: 2rem; }

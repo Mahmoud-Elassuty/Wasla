@@ -67,7 +67,7 @@ function OrderView({ order }) {
 
           <div className="row g-4">
             <div className="col-md-6">
-              <section className="bg-white border rounded-4 p-4 h-100">
+              <section className="bg-white border rounded-4 p-3 p-sm-4 h-100">
                 <h2 className="h5 mb-3">Customer</h2>
                 <p className="fw-semibold mb-1">{customer.name ?? "-"}</p>
                 <p className="mb-1 text-break">{customer.email ?? "-"}</p>
@@ -75,7 +75,7 @@ function OrderView({ order }) {
               </section>
             </div>
             <div className="col-md-6">
-              <section className="bg-white border rounded-4 p-4 h-100">
+              <section className="bg-white border rounded-4 p-3 p-sm-4 h-100">
                 <h2 className="h5 mb-3">Shipping address</h2>
                 <p className="mb-1">{ship.address ?? "-"}</p>
                 <p className="mb-1">
@@ -93,7 +93,7 @@ function OrderView({ order }) {
         </div>
 
         <div className="col-lg-4">
-          <aside className="checkout-summary bg-white border rounded-4 p-4" aria-label="Order summary">
+          <aside className="checkout-summary bg-white border rounded-4 p-3 p-sm-4" aria-label="Order summary">
             <h2 className="h5 mb-3">Order summary</h2>
             <dl className="d-grid gap-2 mb-0">
               <div className="d-flex justify-content-between">

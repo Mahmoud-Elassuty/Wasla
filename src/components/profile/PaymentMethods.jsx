@@ -58,7 +58,7 @@ export default function PaymentMethods() {
       )}
 
       {cards.map((card) => (
-        <div key={card.id} className="d-flex justify-content-between align-items-center border rounded-4 p-3 mb-3">
+        <div key={card.id} className="d-flex flex-wrap justify-content-between align-items-center gap-2 border rounded-4 p-3 mb-3">
           <div className="d-flex align-items-center gap-3">
             <i className="bi bi-credit-card-2-front fs-4 text-wasla" aria-hidden="true" />
             <div>

@@ -21,3 +21,6 @@ export async function deleteReview(id) {
 // PUT replaces the whole review, so pass the complete object (existing fields + your changes).
 export const updateReview = (id, reviewData) =>
   request(`/reviews/${encodeURIComponent(id)}`, send("PUT", reviewData));
+
+export const fetchAllReviews = (signal) =>
+  request("/reviews?_sort=createdAt&_order=desc", { signal });

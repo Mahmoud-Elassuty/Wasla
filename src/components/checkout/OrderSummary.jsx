@@ -18,7 +18,7 @@ export default function OrderSummary({ children, paymentMethod }) {
   const { subtotal, discount, shipping, couponCode, total } = getOrderTotals(cart, appliedCoupon);
 
   return (
-    <aside className="checkout-summary bg-white border rounded-4 p-4" aria-label="Order summary">
+    <aside className="checkout-summary bg-white border rounded-4 p-3 p-sm-4" aria-label="Order summary">
       <h2 className="h5 mb-3">Order summary</h2>
 
       <ul className="list-unstyled mb-3">

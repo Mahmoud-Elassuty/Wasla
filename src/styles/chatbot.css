@@ -1,0 +1,68 @@
+/* ---- Wasla Assistant (floating chat) ---- */
+.chat-fab {
+  position: fixed; z-index: 1040;
+  inset-inline-end: 1rem; bottom: 1rem;
+  width: 56px; height: 56px; border: 0; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--wasla-primary); color: #fff; font-size: 1.5rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2), 0 4px 6px -4px rgba(0, 0, 0, 0.15);
+  transition: background-color 0.15s, transform 0.15s;
+}
+.chat-fab:hover { background: var(--wasla-primary-dark); transform: translateY(-1px); }
+.chat-fab:focus-visible, .chat-window .btn:focus-visible { outline: 3px solid var(--wasla-accent); outline-offset: 2px; }
+
+.chat-window {
+  position: fixed; z-index: 1040;
+  inset-inline-end: 1rem; bottom: 1rem;
+  width: 380px; max-width: calc(100vw - 2rem);
+  height: 560px; max-height: calc(100dvh - 2rem);
+  display: flex; flex-direction: column; overflow: hidden;
+  background: #fff; border: 1px solid var(--wasla-border); border-radius: 1rem;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+}
+.chat-header { background: var(--wasla-primary); color: #fff; }
+.chat-header .btn { color: #fff; }
+.chat-header .btn:hover { background: rgba(255, 255, 255, 0.15); }
+
+.chat-messages { flex: 1 1 auto; min-height: 0; overflow-y: auto; background: var(--wasla-surface); overscroll-behavior: contain; }
+
+.chat-bubble {
+  max-width: 85%; padding: 0.5rem 0.8rem; border-radius: 1rem;
+  font-size: 0.9rem; line-height: 1.45;
+  white-space: pre-wrap; overflow-wrap: anywhere;
+}
+.chat-bubble.user { background: var(--wasla-primary); color: #fff; border-end-end-radius: 0.25rem; }
+.chat-bubble.assistant { background: #fff; color: #191c1d; border: 1px solid var(--wasla-border); border-end-start-radius: 0.25rem; }
+.chat-bubble.error { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; border-end-start-radius: 0.25rem; }
+
+.chat-input { resize: none; max-height: 7rem; }
+
+@media (max-width: 575.98px) {
+  /* --bottom-nav-offset is set by MainLayout's .has-mobile-nav (0px where the bar is hidden) */
+  .chat-fab {
+    inset-inline-end: 0.75rem;
+    bottom: calc(var(--bottom-nav-offset, 0px) + 0.75rem);
+    width: 48px;
+    height: 48px;
+    font-size: 1.3rem;
+  }
+  .chat-window {
+    inset-inline: 0.5rem;
+    bottom: calc(var(--bottom-nav-offset, 0px) + 0.5rem);
+    width: auto;
+    max-width: none;
+    height: min(560px, calc(100dvh - var(--bottom-nav-offset, 0px) - 1rem));
+    max-height: calc(100dvh - var(--bottom-nav-offset, 0px) - 1rem);
+  }
+}
+@media (min-width: 576px) and (max-width: 767.98px) {
+  .chat-fab { bottom: calc(var(--bottom-nav-offset, 0px) + 1rem); }
+  .chat-window {
+    bottom: calc(var(--bottom-nav-offset, 0px) + 1rem);
+    max-height: calc(100dvh - var(--bottom-nav-offset, 0px) - 2rem);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .chat-fab { transition: none; }
+  .chat-fab:hover { transform: none; }
+}

@@ -1,6 +1,6 @@
 import ProductCard from "./ProductCard";
 
-const GRID = "row row-cols-1 row-cols-sm-2 row-cols-lg-3 row-cols-xl-4 g-3";
+const GRID = "row row-cols-2 row-cols-lg-3 row-cols-xl-4 g-2 g-sm-3";
 
 const Skeleton = () => (
   <div className="bg-white border rounded-4 p-3 h-100 placeholder-glow" aria-hidden="true">
@@ -13,7 +13,7 @@ const Skeleton = () => (
 );
 
 // products = filtered list to show; hasItems = whether anything was loaded at all
-export default function ProductList({ products, status, error, hasItems, onRetry, onReset }) {
+export default function ProductList({ products, status, error, hasItems, onRetry, onReset, searchQuery = "" }) {
   if (!hasItems && status === "failed") {
     return (
       <div className="alert alert-danger d-flex flex-wrap justify-content-between align-items-center gap-2" role="alert">
@@ -40,13 +40,19 @@ export default function ProductList({ products, status, error, hasItems, onRetry
   if (products.length === 0) {
     return (
       <div className="text-center py-5">
-        <p className="h5 mb-1">{hasItems ? "No products match your search" : "No products yet"}</p>
+        <p className="h5 mb-1">
+          {searchQuery
+            ? <>No products match &ldquo;{searchQuery}&rdquo;</>
+            : hasItems
+              ? "No products match your search"
+              : "No products yet"}
+        </p>
         <p className="text-secondary">
-          {hasItems ? "Try a different keyword or category." : "Check back soon."}
+          {searchQuery ? "Clear the search to browse products matching your other filters." : hasItems ? "Try a different keyword or category." : "Check back soon."}
         </p>
         {hasItems && (
           <button type="button" className="btn btn-wasla" onClick={onReset}>
-            Clear filters
+            {searchQuery ? "Clear search" : "Clear filters"}
           </button>
         )}
       </div>

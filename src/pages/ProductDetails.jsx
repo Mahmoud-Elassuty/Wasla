@@ -5,6 +5,7 @@ import { clearSelectedProduct, fetchProductById } from "../store/reducers/produc
 import { addToCart, selectItemQuantity } from "../store/reducers/cartSlice";
 import { fetchReviews } from "../store/reducers/reviewsSlice";
 import { formatPrice, getSalePrice, titleCase } from "../utils/format";
+import { getStockState, safeStock } from "../utils/inventory";
 import useWishlist from "../hooks/useWishlist";
 import AverageRating from "../components/reviews/AverageRating";
 import ReviewForm from "../components/reviews/ReviewForm";
@@ -31,15 +32,17 @@ function ProductView({ product, backTo }) {
   const gallery = product.images?.length ? product.images : [product.thumbnail];
   const sale = getSalePrice(product);
   const discount = Math.round(product.discountPercentage || 0);
-  const inStock = product.stock > 0;
-  const remaining = Math.max(0, product.stock - inCart); // what can still be added
+  const stockState = getStockState(product.stock, product.active !== false);
+  const stockCount = safeStock(product.stock);
+  const inStock = stockState.purchasable;
+  const remaining = Math.max(0, stockCount - inCart); // what can still be added
   const atLimit = inStock && remaining === 0;
   const qtyToAdd = Math.min(qty, Math.max(1, remaining));
-  const stock = !inStock
-    ? { cls: "stock-out", label: "Out of stock" }
-    : product.stock <= 10
-      ? { cls: "stock-low", label: `Only ${product.stock} left` }
-      : { cls: "stock-ok", label: "In stock" };
+  const stockClass = stockState.level === "in"
+    ? "stock-ok"
+    : stockState.level === "low"
+      ? "stock-low"
+      : "stock-out";
 
   const info = [
     { icon: "bi-truck", text: product.shippingInformation },
@@ -80,6 +83,7 @@ function ProductView({ product, backTo }) {
         listPrice: product.price,
         thumbnail: product.thumbnail,
         stock: product.stock,
+        active: product.active !== false,
         quantity: qtyToAdd,
       })
     );
@@ -140,7 +144,7 @@ function ProductView({ product, backTo }) {
                 ({reviews.length} review{reviews.length === 1 ? "" : "s"})
               </span>
             )}
-            <span className={`stock-badge ${stock.cls}`}>{stock.label}</span>
+            <span className={`stock-badge ${stockClass}`}>{stockState.label}</span>
           </div>
 
           <div className="d-flex flex-wrap align-items-baseline gap-2 mb-3">

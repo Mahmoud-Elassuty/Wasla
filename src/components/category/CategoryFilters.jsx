@@ -12,8 +12,6 @@ export const SORTS = {
 // Price range is edited locally (draft) and only pushed up to the URL when the user hits
 // "Apply", so dragging the slider doesn't re-filter/re-render on every pixel of movement.
 export default function CategoryFilters({
-  search,
-  onSearchChange,
   sort,
   onSortChange,
   bounds, // { min, max } across all products in this category
@@ -47,7 +45,7 @@ export default function CategoryFilters({
   const rightPct = ((draftMax - bounds.min) / rangeSpan) * 100;
 
   return (
-    <aside className="category-filters bg-white border rounded-4 p-3 p-lg-4">
+    <aside id="filters-panel" className="category-filters collapse d-lg-block bg-white border rounded-4 p-3 p-lg-4">
       <div className="d-flex justify-content-between align-items-center mb-3">
         <h2 className="h6 mb-0">Filters</h2>
         {hasActiveFilters && (
@@ -55,22 +53,6 @@ export default function CategoryFilters({
             Clear all
           </button>
         )}
-      </div>
-
-      <div className="mb-3">
-        <label htmlFor="category-search" className="form-label small fw-semibold">
-          Search
-        </label>
-        <div className="search-box">
-          <input
-            id="category-search"
-            type="search"
-            className="form-control"
-            placeholder="Search in this category"
-            value={search}
-            onChange={(e) => onSearchChange(e.target.value)}
-          />
-        </div>
       </div>
 
       <div className="mb-4">

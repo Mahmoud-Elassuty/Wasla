@@ -1,0 +1,51 @@
+/* Product pagination (Products, Category and Offers pages). */
+
+/* Keeps the top of the results clear of the sticky header when we scroll to it. */
+.pagination-results-anchor { scroll-margin-top: 9rem; }
+
+.wasla-pagination .pagination {
+  --bs-pagination-color: var(--wasla-primary);
+  --bs-pagination-hover-color: var(--wasla-primary-dark);
+  --bs-pagination-hover-bg: var(--wasla-surface);
+  --bs-pagination-hover-border-color: var(--wasla-border);
+  --bs-pagination-focus-color: var(--wasla-primary-dark);
+  --bs-pagination-focus-bg: var(--wasla-surface);
+  --bs-pagination-focus-box-shadow: 0 0 0 0.2rem rgba(249, 115, 22, 0.3);
+  --bs-pagination-active-bg: var(--wasla-primary);
+  --bs-pagination-active-border-color: var(--wasla-primary);
+  --bs-pagination-border-color: var(--wasla-border);
+  --bs-pagination-disabled-color: #9ca3af;
+  --bs-pagination-border-radius: 0.5rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+.wasla-pagination .page-link {
+  display: inline-flex;
+  min-width: 2.5rem;
+  min-height: 2.5rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.6rem;
+  border-radius: var(--bs-pagination-border-radius);
+  font-weight: 600;
+  line-height: 1;
+}
+.wasla-pagination .page-item:not(:first-child) .page-link { margin-left: 0; }
+.wasla-pagination .page-item:first-child .page-link,
+.wasla-pagination .page-item:last-child .page-link { border-radius: var(--bs-pagination-border-radius); }
+.wasla-pagination .page-item.active .page-link { color: #fff; }
+.wasla-pagination .pagination-ellipsis .page-link { min-width: 1.75rem; padding-inline: 0.2rem; border-color: transparent; background: transparent; }
+
+/* Phones: Previous / Next become icon-only (their aria-labels stay), and everything must fit 320-375px. */
+@media (max-width: 575.98px) {
+  .wasla-pagination .pagination { gap: 0.2rem; }
+  .wasla-pagination .page-link { min-width: 2.2rem; min-height: 2.2rem; padding-inline: 0.35rem; }
+  .wasla-pagination .pagination-label { display: none; }
+  .wasla-pagination .pagination-ellipsis .page-link { min-width: 1.25rem; }
+}
+/* Very narrow phones: keep first, last and current page only; Previous / Next reach the rest. */
+@media (max-width: 399.98px) {
+  .wasla-pagination .pagination-optional { display: none; }
+}

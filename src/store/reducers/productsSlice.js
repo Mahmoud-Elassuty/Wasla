@@ -11,13 +11,14 @@ const makeThunk = (type, call) =>
   });
 
 export const fetchProducts = makeThunk("products/fetchAll", (_, signal) =>
-  productsApi.fetchProducts(signal)
+  productsApi.fetchProducts(signal),
 );
 export const fetchProductById = makeThunk("products/fetchById", (id, signal) =>
-  productsApi.fetchProductById(id, signal)
+  productsApi.fetchProductById(id, signal),
 );
-export const fetchCategories = makeThunk("products/fetchCategories", (_, signal) =>
-  productsApi.fetchCategories(signal)
+export const fetchCategories = makeThunk(
+  "products/fetchCategories",
+  (_, signal) => productsApi.fetchCategories(signal),
 );
 
 const initialState = {
@@ -40,6 +41,18 @@ export const productsSlice = createSlice({
       state.selectedProduct = null;
       state.detailsStatus = "idle";
       state.detailsError = null;
+    },
+    productStockUpdated(state, { payload }) {
+      const applyStock = (product) =>
+        product && String(product.id) === String(payload.id)
+          ? {
+              ...product,
+              stock: payload.stock,
+              availabilityStatus: payload.availabilityStatus,
+            }
+          : product;
+      state.items = state.items.map(applyStock);
+      state.selectedProduct = applyStock(state.selectedProduct);
     },
   },
   extraReducers: (builder) => {
@@ -78,5 +91,6 @@ export const productsSlice = createSlice({
   },
 });
 
-export const { clearSelectedProduct } = productsSlice.actions;
+export const { clearSelectedProduct, productStockUpdated } =
+  productsSlice.actions;
 export default productsSlice.reducer;

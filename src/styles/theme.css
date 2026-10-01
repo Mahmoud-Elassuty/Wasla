@@ -128,7 +128,7 @@ h1, h2, h3, h4, h5, h6, .font-display {
 }
 .cart-thumb.sm { width: 44px; height: 44px; border-radius: 0.5rem; }
 .cart-thumb img { width: 100%; height: 100%; object-fit: contain; padding: 0.25rem; }
-.cart-dropdown { width: 340px; max-width: calc(100vw - 2rem); }
+.cart-dropdown { width: 340px; max-width: calc(100vw - 1rem); }
 @media (min-width: 992px) {
   .cart-summary { position: sticky; top: 8.5rem; }
 }
@@ -161,3 +161,41 @@ h1, h2, h3, h4, h5, h6, .font-display {
 .status-delivered { background: #ecfdf5; color: #065f46; }
 .status-cancelled { background: #fef2f2; color: #991b1b; }
 .status-unknown { background: #f3f4f6; color: #374151; }
+
+/* ---- Global Responsive Helpers ---- */
+img, svg, video, canvas, audio, iframe, embed, object {
+  max-width: 100%;
+}
+
+.nav-links-scroll {
+  display: flex;
+  align-items: center;
+  overflow-x: auto;
+  overflow-y: hidden;
+  white-space: nowrap;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.nav-links-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+@media (max-width: 575.98px) {
+  /* Must stay >= half of the widest phone row gutter (.g-4 = 0.75rem), otherwise every
+     .row pokes out of the container and the page scrolls sideways. */
+  .container {
+    padding-inline: 0.75rem;
+  }
+  .thumb-btn {
+    width: 56px;
+    height: 56px;
+  }
+}
+
+@media (max-width: 375px) {
+  .btn-lg {
+    padding-inline: 0.75rem;
+    font-size: 1rem;
+  }
+}
+

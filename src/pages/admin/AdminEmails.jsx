@@ -38,11 +38,6 @@ export default function AdminEmails() {
         )}
       </div>
 
-      <p className="text-secondary small">
-        json-server can't send real mail — every "sent" email below was only ever written to{" "}
-        <code>db.json</code>. Nothing leaves this app.
-      </p>
-
       <div className="row g-2 mb-3">
         <div className="col-md-4 col-lg-3">
           <select className="form-select" aria-label="Filter by type" value={type} onChange={(e) => setType(e.target.value)}>

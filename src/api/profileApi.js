@@ -1,21 +1,41 @@
 import { request } from "./http";
 
 const JSON_HEADERS = { "Content-Type": "application/json" };
-const send = (method, body) => ({ method, headers: JSON_HEADERS, body: JSON.stringify(body) });
+const send = (method, body) => ({
+  method,
+  headers: JSON_HEADERS,
+  body: JSON.stringify(body),
+});
+const ADDRESS_FIELDS = [
+  "name",
+  "address",
+  "city",
+  "governorate",
+  "postalCode",
+  "phone",
+  "isDefault",
+];
 
 // PATCH, not PUT: the client only ever holds the password-stripped user record (see authApi's
 // withoutPassword), so a full PUT would silently wipe fields we don't have — password, role,
 // status, createdAt. PATCH touches only the fields being changed, same as adminApi.updateOrderStatus.
-export const updateProfile = (id, data) => request(`/users/${encodeURIComponent(id)}`, send("PATCH", data));
+export const updateProfile = (id, data) =>
+  request(`/users/${encodeURIComponent(id)}`, send("PATCH", data));
 
 export const fetchAddresses = (userId, signal) =>
   request(`/addresses?userId=${encodeURIComponent(userId)}`, { signal });
 
-export const addAddress = (addressData) => request("/addresses", send("POST", addressData));
+export const addAddress = (addressData) =>
+  request("/addresses", send("POST", addressData));
 
-// PUT replaces the whole address, so pass the complete object (existing fields + your changes).
-export const updateAddress = (id, addressData) =>
-  request(`/addresses/${encodeURIComponent(id)}`, send("PUT", addressData));
+export const updateAddress = (id, addressData) => {
+  const patch = Object.fromEntries(
+    ADDRESS_FIELDS.filter((field) => Object.hasOwn(addressData, field)).map(
+      (field) => [field, addressData[field]],
+    ),
+  );
+  return request(`/addresses/${encodeURIComponent(id)}`, send("PATCH", patch));
+};
 
 // Already deleted (404) counts as success.
 export async function deleteAddress(id) {
@@ -33,5 +53,8 @@ export async function changePassword({ userId, currentPassword, newPassword }) {
   const query = new URLSearchParams({ id: userId, password: currentPassword });
   const [match] = await request(`/users?${query}`);
   if (!match) throw new Error("Current password is incorrect.");
-  await request(`/users/${encodeURIComponent(userId)}`, send("PATCH", { password: newPassword }));
+  await request(
+    `/users/${encodeURIComponent(userId)}`,
+    send("PATCH", { password: newPassword }),
+  );
 }

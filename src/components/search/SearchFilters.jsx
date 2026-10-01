@@ -41,7 +41,7 @@ export default function SearchFilters({
   const rightPct = ((draftMax - bounds.min) / rangeSpan) * 100;
 
   return (
-    <aside className="filters-sidebar bg-white border rounded-4 p-3 p-lg-4">
+    <aside id="filters-panel" className="filters-sidebar collapse d-lg-block bg-white border rounded-4 p-3 p-lg-4">
       <div className="d-flex justify-content-between align-items-center mb-3">
         <h2 className="h6 mb-0">Filters</h2>
         {hasActiveFilters && (

@@ -11,7 +11,7 @@ export default function CartSummary() {
   const total = Math.max(0, cartTotal - couponDiscount);
 
   return (
-    <aside className="cart-summary bg-white border rounded-4 p-4" aria-label="Order summary">
+    <aside className="cart-summary bg-white border rounded-4 p-3 p-sm-4" aria-label="Order summary">
       <h2 className="h5 mb-3">Order summary</h2>
 
       <dl className="d-grid gap-2 mb-0">

@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { flushSync } from "react-dom";
-import { Link, Navigate, useLocation } from "react-router-dom";
+import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { clearCart } from "../store/reducers/cartSlice";
+import { clearCart, validateCartInventory } from "../store/reducers/cartSlice";
 import { createOrder, resetCreateStatus } from "../store/reducers/ordersSlice";
 import { sendOrderConfirmation } from "../store/reducers/emailSlice";
 import { redeemCoupon } from "../store/reducers/couponsSlice";
@@ -17,8 +17,9 @@ import { getOrderTotals, orderNumber } from "../utils/checkout";
 import { showError, showSuccess } from "../utils/notifications";
 import "../styles/payment.css";
 
-function OrderPlaced({ order }) {
+function OrderPlaced({ order, inventoryFailures = [] }) {
   const paidOnline = order.paymentMethod !== "cod";
+  const isGuest = order.isGuest === true;
   return (
     <div className="container py-5 text-center">
       <i className="bi bi-check-circle-fill fs-1 text-success" aria-hidden="true" />
@@ -35,9 +36,27 @@ function OrderPlaced({ order }) {
         We'll call {order.customer.phone} to confirm delivery to {order.shippingAddress.city},{" "}
         {order.shippingAddress.governorate}.
       </p>
+      {inventoryFailures.length > 0 && (
+        <div className="alert alert-warning text-start mx-auto" role="alert" style={{ maxWidth: 620 }}>
+          <p className="fw-semibold mb-1">The order was placed, but some stock updates failed.</p>
+          <ul className="mb-0">
+            {inventoryFailures.map((failure) => <li key={failure}>{failure}</li>)}
+          </ul>
+          <p className="small mb-0 mt-2">Do not retry this order. Contact support to reconcile inventory.</p>
+        </div>
+      )}
+      {isGuest && (
+        <p className="text-secondary small">
+          A confirmation is being sent to <strong>{order.customer.email}</strong>. Keep your order number
+          for reference.
+        </p>
+      )}
       <div className="d-flex flex-wrap justify-content-center gap-2">
-        <Link to={`/orders/${order.id}`} className="btn btn-accent px-4">View order</Link>
-        <Link to="/products" className="btn btn-outline-secondary px-4">Continue shopping</Link>
+        {/* Order history is for signed-in customers only, so guests don't get this link. */}
+        {!isGuest && <Link to={`/orders/${order.id}`} className="btn btn-accent px-4">View order</Link>}
+        <Link to="/products" className={`btn px-4 ${isGuest ? "btn-accent" : "btn-outline-secondary"}`}>
+          Continue shopping
+        </Link>
       </div>
     </div>
   );
@@ -45,6 +64,7 @@ function OrderPlaced({ order }) {
 
 export default function Payment() {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const location = useLocation();
   const shipping = location.state?.shipping;
 
@@ -56,6 +76,11 @@ export default function Payment() {
 
   const [method, setMethod] = useState("cod");
   const [placedOrder, setPlacedOrder] = useState(null);
+  const [inventoryFailures, setInventoryFailures] = useState([]);
+  // Redux status only flips on the next render, so a fast double click could otherwise slip through.
+  const submittingRef = useRef(false);
+  const completedOrderIdRef = useRef(null);
+  const isGuest = !user;
 
   const appliedCoupon = coupon ? { code: coupon.code, discount: couponDiscount } : null;
   const { total } = getOrderTotals(cart, appliedCoupon);
@@ -73,8 +98,11 @@ export default function Payment() {
   }, [method, dispatch]);
 
   const submitOrder = async ({ paymentMethod, transactionId, paymentStatus: payStatus }) => {
+    if (completedOrderIdRef.current !== null) return null;
     const order = {
-      userId: user.id,
+      // Guest orders have no account: userId stays null and the contact details live on the order.
+      userId: isGuest ? null : user.id,
+      ...(isGuest ? { isGuest: true } : {}),
       customer: {
         name: shipping.fullName,
         email: shipping.email.toLowerCase(),
@@ -105,12 +133,19 @@ export default function Payment() {
     };
 
     try {
-      const created = await dispatch(createOrder(order)).unwrap();
+      const placement = await dispatch(createOrder(order)).unwrap();
+      const created = placement.order;
+      completedOrderIdRef.current = created.id;
+      setInventoryFailures(placement.inventoryFailures);
       // Show the confirmation first, so emptying the cart doesn't flash the "empty cart" screen.
       flushSync(() => setPlacedOrder(created));
       dispatch(clearCart());
       if (appliedCoupon) dispatch(redeemCoupon());
-      dispatch(showSuccess(`Order #${orderNumber(created.id)} placed.`));
+      if (placement.inventoryFailures.length === 0) {
+        dispatch(showSuccess(`Order #${orderNumber(created.id)} placed.`));
+      } else {
+        dispatch(showError(`Order #${orderNumber(created.id)} was placed, but some stock updates failed. Do not retry this order.`));
+      }
       // Fire-and-forget: the confirmation screen shouldn't wait through the mock email delay.
       dispatch(sendOrderConfirmation(created))
         .unwrap()
@@ -118,20 +153,46 @@ export default function Payment() {
         .catch(() => {}); // the order itself already succeeded; a failed mock email isn't fatal
       return created;
     } catch (err) {
-      dispatch(showError(typeof err === "string" ? err : "Couldn't place your order. Please try again."));
+      const message = typeof err === "string" ? err : "Couldn't place your order. Please try again.";
+      dispatch(showError(message));
+      if (
+        message.includes("Return to your cart") ||
+        message.includes("Stock for") ||
+        message.includes("Current stock could not be checked")
+      ) navigate("/cart");
       return null;
     }
   };
 
-  const handleCod = () => {
-    if (!user || busy) return;
-    submitOrder({ paymentMethod: "cod", paymentStatus: "pending" });
+  const checkInventory = async () => {
+    try {
+      const result = await dispatch(validateCartInventory()).unwrap();
+      if (result.issues.length === 0) return true;
+      dispatch(showError(result.issues.join(" ")));
+    } catch (error) {
+      dispatch(showError(typeof error === "string" ? error : "Current stock could not be checked."));
+    }
+    navigate("/cart");
+    return false;
+  };
+
+  const handleCod = async () => {
+    if (busy || submittingRef.current) return;
+    submittingRef.current = true;
+    try {
+      if (!(await checkInventory())) return;
+      await submitOrder({ paymentMethod: "cod", paymentStatus: "pending" });
+    } finally {
+      submittingRef.current = false;
+    }
   };
 
   // Shared by card/PayPal/wallet: run the mock gateway, then place the order and link the two.
   const handleGatewayPayment = async (methodKey) => {
-    if (!user || busy) return;
+    if (busy || submittingRef.current) return;
+    submittingRef.current = true;
     try {
+      if (!(await checkInventory())) return;
       const transaction = await dispatch(processPayment({ method: methodKey, amount: total })).unwrap();
       const created = await submitOrder({
         paymentMethod: methodKey,
@@ -141,10 +202,12 @@ export default function Payment() {
       if (created) dispatch(linkPaymentToOrder({ paymentId: transaction.id, orderId: created.id }));
     } catch {
       // the decline reason is already in the store and shown next to the active method
+    } finally {
+      submittingRef.current = false;
     }
   };
 
-  if (placedOrder) return <OrderPlaced order={placedOrder} />;
+  if (placedOrder) return <OrderPlaced order={placedOrder} inventoryFailures={inventoryFailures} />;
 
   if (!shipping) return <Navigate to="/checkout" replace />;
 
@@ -163,15 +226,27 @@ export default function Payment() {
     <div className="container py-4">
       <h1 className="h3 mb-1">Payment Method</h1>
       <p className="text-secondary small mb-4">Step 2 of 2 — Payment</p>
+      {orderError && (
+        <div className="alert alert-danger d-flex flex-wrap justify-content-between align-items-center gap-2" role="alert">
+          <span>{orderError}</span>
+          <Link to="/cart" className="btn btn-sm btn-outline-danger">Review cart</Link>
+        </div>
+      )}
 
       <div className="row g-4">
         <div className="col-lg-7">
-          <section className="bg-white border rounded-4 p-4 mb-4">
-            <div className="d-flex justify-content-between align-items-start mb-3">
+          <section className="bg-white border rounded-4 p-3 p-sm-4 mb-4">
+            <div className="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-3">
               <h2 className="h6 mb-0">Shipping to</h2>
-              <Link to="/checkout" className="small">Edit</Link>
+              <Link
+                to="/checkout"
+                state={isGuest ? { guest: true, shipping } : undefined}
+                className="small"
+              >
+                Edit
+              </Link>
             </div>
-            <p className="small text-secondary mb-0">
+            <p className="small text-secondary text-break mb-0">
               {shipping.fullName} &middot; {shipping.phone}
               <br />
               {shipping.address}, {shipping.city}, {shipping.governorate}
@@ -179,7 +254,7 @@ export default function Payment() {
             </p>
           </section>
 
-          <section className="bg-white border rounded-4 p-4 mb-4">
+          <section className="bg-white border rounded-4 p-3 p-sm-4 mb-4">
             <h2 className="h5 mb-3">Payment method</h2>
             <PaymentMethod value={method} onChange={busy ? () => {} : setMethod} />
           </section>
@@ -190,11 +265,6 @@ export default function Payment() {
                 <p className="text-secondary small mb-3">
                   Pay {formatPrice(total)} in cash when your order arrives.
                 </p>
-                {orderError && (
-                  <div className="alert alert-danger py-2" role="alert">
-                    {orderError}
-                  </div>
-                )}
                 <button type="button" className="btn btn-accent btn-lg w-100" disabled={busy} onClick={handleCod}>
                   {creatingOrder ? (
                     <>
@@ -212,7 +282,7 @@ export default function Payment() {
               <CreditCardForm
                 amount={total}
                 processing={busy}
-                error={paymentError || orderError}
+                error={paymentError}
                 onSubmit={() => handleGatewayPayment("credit_card")}
               />
             )}
@@ -221,7 +291,7 @@ export default function Payment() {
               <PaypalButton
                 amount={total}
                 processing={busy}
-                error={paymentError || orderError}
+                error={paymentError}
                 onConfirm={() => handleGatewayPayment("paypal")}
               />
             )}
@@ -230,7 +300,7 @@ export default function Payment() {
               <WalletButton
                 amount={total}
                 processing={busy}
-                error={paymentError || orderError}
+                error={paymentError}
                 onConfirm={() => handleGatewayPayment("wallet")}
               />
             )}

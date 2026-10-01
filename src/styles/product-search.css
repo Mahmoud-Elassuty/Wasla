@@ -1,0 +1,116 @@
+.site-header.product-search-header {
+  z-index: 1045;
+}
+
+.product-search {
+  position: relative;
+  z-index: 1;
+  min-width: 0;
+}
+
+.product-search-products-page {
+  width: 100%;
+  z-index: 10;
+}
+
+.product-search-menu {
+  position: absolute;
+  z-index: 1050;
+  inset: calc(100% + 0.35rem) 0 auto;
+  max-height: min(70vh, 26rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 0.35rem;
+  border: 1px solid var(--wasla-border);
+  border-radius: 0.5rem;
+  background: #fff;
+  box-shadow: 0 0.5rem 1.25rem rgba(15, 23, 42, 0.16);
+}
+
+.product-search-option {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  min-height: 3.75rem;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.45rem;
+  border: 0;
+  border-radius: 0.35rem;
+  background: transparent;
+  color: inherit;
+  text-align: start;
+}
+
+.product-search-option:hover,
+.product-search-option[aria-selected="true"] {
+  background: var(--wasla-surface);
+}
+
+.product-search-image {
+  width: 2.75rem;
+  height: 2.75rem;
+  flex: 0 0 2.75rem;
+  border-radius: 0.25rem;
+  background: #f5f5f7;
+  object-fit: contain;
+}
+
+.product-search-image-empty {
+  display: grid;
+  place-items: center;
+  color: var(--bs-secondary-color);
+}
+
+.product-search-copy {
+  display: flex;
+  min-width: 0;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.product-search-title,
+.product-search-subtitle {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.product-search-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.product-search-subtitle {
+  color: var(--bs-secondary-color);
+  font-size: 0.75rem;
+}
+
+.product-search-price {
+  flex: 0 0 auto;
+  font-size: 0.85rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+@media (max-width: 399.98px) {
+  .product-search-option {
+    gap: 0.45rem;
+    padding-inline: 0.3rem;
+  }
+
+  .product-search-image {
+    width: 2.4rem;
+    height: 2.4rem;
+    flex-basis: 2.4rem;
+  }
+
+  .product-search-title {
+    font-size: 0.82rem;
+  }
+
+  .product-search-price {
+    font-size: 0.78rem;
+  }
+}

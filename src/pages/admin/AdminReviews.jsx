@@ -1,19 +1,32 @@
 import { useEffect, useMemo, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import {
+  clearActionError,
   deleteReview,
   fetchAdminReviews,
   resetReviewsStatus,
+  updateReviewHomepage,
   updateReviewStatus,
 } from "../../store/reducers/adminSlice";
 import { fetchProducts } from "../../store/reducers/productsSlice";
-import { useDispatch, useSelector } from "react-redux";
 import RatingStars from "../../components/reviews/RatingStars";
+
+const isHomepageFeatured = (review) => Boolean(review.verified) && review.homepageFeatured !== false;
+const newestFirst = (a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
+
+function sortHomepageReviews(reviews) {
+  const baseline = [...reviews].filter(isHomepageFeatured).sort(newestFirst);
+  const baselinePositions = new Map(baseline.map((review, index) => [String(review.id), index]));
+  return baseline.sort((a, b) => {
+    const aOrder = Number.isFinite(Number(a.homepageOrder)) ? Number(a.homepageOrder) : baselinePositions.get(String(a.id));
+    const bOrder = Number.isFinite(Number(b.homepageOrder)) ? Number(b.homepageOrder) : baselinePositions.get(String(b.id));
+    return aOrder - bOrder || newestFirst(a, b);
+  });
+}
 
 export default function AdminReviews() {
   const dispatch = useDispatch();
-  const { reviews, reviewsStatus, reviewsError, deletingReviewIds, updatingReviewIds } = useSelector(
-    (s) => s.admin
-  );
+  const { reviews, reviewsStatus, reviewsError, deletingReviewIds, updatingReviewIds, actionError } = useSelector((s) => s.admin);
   const products = useSelector((s) => s.products.items);
   const [rating, setRating] = useState("");
   const [productId, setProductId] = useState("");
@@ -32,189 +45,117 @@ export default function AdminReviews() {
     if (products.length === 0) dispatch(fetchProducts());
   }, [dispatch, products.length]);
 
-  const productTitle = (id) => products.find((p) => p.id === id)?.title ?? `Product #${id}`;
-
+  const productTitle = (id) => products.find((product) => String(product.id) === String(id))?.title ?? `Product #${id}`;
   const productOptions = useMemo(
-    () => [...new Set(reviews.map((r) => r.productId))].map((id) => ({ id, title: productTitle(id) })),
+    () => [...new Set(reviews.map((review) => review.productId))].map((id) => ({ id, title: productTitle(id) })),
     [reviews, products]
   );
-
+  const homeReviews = useMemo(() => sortHomepageReviews(reviews), [reviews]);
+  const homePosition = useMemo(() => new Map(homeReviews.map((review, index) => [String(review.id), index])), [homeReviews]);
   const visible = useMemo(
-    () =>
-      reviews.filter(
-        (r) =>
-          (!rating || r.rating === Number(rating)) &&
-          (!productId || r.productId === Number(productId)) &&
-          (!verified || (verified === "verified" ? r.verified : !r.verified))
-      ),
-    [reviews, rating, productId, verified]
+    () => reviews.filter((review) =>
+      (!rating || Number(review.rating) === Number(rating)) &&
+      (!productId || String(review.productId) === productId) &&
+      (!verified || (verified === "verified" ? review.verified : !review.verified))
+    ).sort((a, b) => {
+      const aPosition = homePosition.get(String(a.id));
+      const bPosition = homePosition.get(String(b.id));
+      if (aPosition !== undefined && bPosition !== undefined) return aPosition - bPosition;
+      if (aPosition !== undefined) return -1;
+      if (bPosition !== undefined) return 1;
+      return newestFirst(a, b);
+    }),
+    [reviews, rating, productId, verified, homePosition]
   );
-
   const hasReviews = reviews.length > 0;
   const loading = !hasReviews && (reviewsStatus === "idle" || reviewsStatus === "loading");
   const failed = !hasReviews && reviewsStatus === "failed";
 
+  const toggleHomepageReview = (review) => {
+    if (!review.verified || updatingReviewIds.length > 0) return;
+    const featured = isHomepageFeatured(review);
+    const currentOrder = homeReviews.map((item, index) => Number.isFinite(Number(item.homepageOrder)) ? Number(item.homepageOrder) : index);
+    const nextOrder = currentOrder.length ? Math.max(...currentOrder) + 1 : 0;
+    dispatch(updateReviewHomepage({
+      id: review.id,
+      data: { homepageFeatured: !featured, ...(!featured ? { homepageOrder: nextOrder } : {}) },
+    }));
+  };
+
+  const moveHomepageReview = (review, direction) => {
+    if (updatingReviewIds.length > 0) return;
+    const current = homePosition.get(String(review.id));
+    const next = current + direction;
+    if (current === undefined || next < 0 || next >= homeReviews.length) return;
+    const reordered = [...homeReviews];
+    [reordered[current], reordered[next]] = [reordered[next], reordered[current]];
+    const changed = [reordered[current], reordered[next]];
+    changed.forEach((item) => {
+      const order = reordered.findIndex((candidate) => String(candidate.id) === String(item.id));
+      dispatch(updateReviewHomepage({ id: item.id, data: { homepageOrder: order } }));
+    });
+  };
+
   return (
     <>
-      <div className="mb-4">
-        <p className="eyebrow mb-1">Reviews management</p>
-        <h1 className="h3 mb-1">إدارة التقييمات</h1>
-        {hasReviews && (
-          <p className="small text-secondary mb-0">
-            Showing {visible.length} of {reviews.length} reviews
-          </p>
-        )}
+      <div className="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-4">
+        <div>
+          <p className="eyebrow mb-1">Reviews management</p>
+          <h1 className="h3 mb-1">إدارة التقييمات</h1>
+          {hasReviews && <p className="small text-secondary mb-0">{homeReviews.length} review{homeReviews.length === 1 ? "" : "s"} shown on the homepage · use the arrows to change their order</p>}
+        </div>
       </div>
 
+      {actionError && (
+        <div className="alert alert-danger d-flex justify-content-between align-items-center gap-2" role="alert">
+          <span>{actionError}</span><button type="button" className="btn-close" aria-label="Dismiss" onClick={() => dispatch(clearActionError())} />
+        </div>
+      )}
+
       <div className="row g-2 mb-3">
-        <div className="col-md-4 col-lg-3">
-          <select
-            className="form-select"
-            aria-label="Filter by rating"
-            value={rating}
-            onChange={(e) => setRating(e.target.value)}
-          >
-            <option value="">All ratings</option>
-            {[5, 4, 3, 2, 1].map((n) => (
-              <option key={n} value={n}>
-                {n} star{n === 1 ? "" : "s"}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="col-md-4 col-lg-3">
-          <select
-            className="form-select"
-            aria-label="Filter by product"
-            value={productId}
-            onChange={(e) => setProductId(e.target.value)}
-          >
-            <option value="">All products</option>
-            {productOptions.map(({ id, title }) => (
-              <option key={id} value={id}>
-                {title}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="col-md-4 col-lg-3">
-          <select
-            className="form-select"
-            aria-label="Filter by verified status"
-            value={verified}
-            onChange={(e) => setVerified(e.target.value)}
-          >
-            <option value="">All statuses</option>
-            <option value="verified">Verified</option>
-            <option value="unverified">Unverified</option>
-          </select>
-        </div>
+        <div className="col-md-4 col-lg-3"><select className="form-select" aria-label="Filter by rating" value={rating} onChange={(event) => setRating(event.target.value)}><option value="">All ratings</option>{[5, 4, 3, 2, 1].map((number) => <option key={number} value={number}>{number} star{number === 1 ? "" : "s"}</option>)}</select></div>
+        <div className="col-md-4 col-lg-3"><select className="form-select" aria-label="Filter by product" value={productId} onChange={(event) => setProductId(event.target.value)}><option value="">All products</option>{productOptions.map(({ id, title }) => <option key={id} value={id}>{title}</option>)}</select></div>
+        <div className="col-md-4 col-lg-3"><select className="form-select" aria-label="Filter by verified status" value={verified} onChange={(event) => setVerified(event.target.value)}><option value="">All statuses</option><option value="verified">Verified</option><option value="unverified">Unverified</option></select></div>
       </div>
 
       {failed ? (
-        <div
-          className="alert alert-danger d-flex flex-wrap justify-content-between align-items-center gap-2"
-          role="alert"
-        >
-          <span>{reviewsError || "We couldn't load the reviews."}</span>
-          <button
-            type="button"
-            className="btn btn-sm btn-outline-danger"
-            onClick={() => dispatch(fetchAdminReviews())}
-          >
-            Try again
-          </button>
-        </div>
+        <div className="alert alert-danger d-flex flex-wrap justify-content-between align-items-center gap-2" role="alert"><span>{reviewsError || "We couldn't load the reviews."}</span><button type="button" className="btn btn-sm btn-outline-danger" onClick={() => dispatch(fetchAdminReviews())}>Try again</button></div>
       ) : loading ? (
-        <div className="admin-card p-4 placeholder-glow" aria-busy="true" aria-label="Loading reviews">
-          {Array.from({ length: 6 }, (_, i) => (
-            <span key={i} className="placeholder d-block col-12 mb-3" style={{ height: 32 }} />
-          ))}
-        </div>
+        <div className="admin-card p-4 placeholder-glow" aria-busy="true" aria-label="Loading reviews">{Array.from({ length: 6 }, (_, index) => <span key={index} className="placeholder d-block col-12 mb-3" style={{ height: 32 }} />)}</div>
       ) : (
         <div className="admin-card">
           <div className="table-responsive">
             <table className="table admin-table align-middle mb-0">
-              <thead>
-                <tr>
-                  <th>Product</th>
-                  <th>User</th>
-                  <th>Rating</th>
-                  <th>Review</th>
-                  <th>Date</th>
-                  <th>Status</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
+              <thead><tr><th>Product</th><th>User</th><th>Rating</th><th>Review</th><th>Date</th><th>Status</th><th>Homepage</th><th>Actions</th></tr></thead>
               <tbody>
-                {visible.map((r) => {
-                  const deleting = deletingReviewIds.includes(r.id);
-                  const updating = updatingReviewIds.includes(r.id);
+                {visible.map((review) => {
+                  const deleting = deletingReviewIds.includes(review.id);
+                  const updating = updatingReviewIds.includes(review.id);
+                  const featured = isHomepageFeatured(review);
+                  const position = homePosition.get(String(review.id));
                   return (
-                    <tr key={r.id}>
-                      <td>{productTitle(r.productId)}</td>
-                      <td>{r.userName}</td>
-                      <td><RatingStars value={r.rating} size="0.85rem" /></td>
-                      <td style={{ maxWidth: 280 }}>
-                        <div className="fw-semibold text-truncate">{r.title}</div>
-                        <div className="small text-secondary text-truncate">{r.comment}</div>
-                      </td>
-                      <td className="text-nowrap">{new Date(r.createdAt).toLocaleDateString()}</td>
-                      <td>
-                        <button
-                          type="button"
-                          className={`badge rounded-pill border-0 ${r.verified ? "stock-ok" : "stock-low"}`}
-                          disabled={updating}
-                          onClick={() => dispatch(updateReviewStatus({ id: r.id, verified: !r.verified }))}
-                        >
-                          {updating ? "Saving..." : r.verified ? "Verified" : "Unverified"}
-                        </button>
+                    <tr key={review.id}>
+                      <td>{productTitle(review.productId)}</td>
+                      <td>{review.userName || "Wasla customer"}</td>
+                      <td><RatingStars value={review.rating} size="0.85rem" /></td>
+                      <td style={{ maxWidth: 280 }}><div className="fw-semibold text-truncate">{review.title || "Customer review"}</div><div className="small text-secondary text-truncate">{review.comment}</div></td>
+                      <td className="text-nowrap">{review.createdAt ? new Date(review.createdAt).toLocaleDateString() : "—"}</td>
+                      <td><button type="button" className={`badge rounded-pill border-0 ${review.verified ? "stock-ok" : "stock-low"}`} disabled={updating} onClick={() => dispatch(updateReviewStatus({ id: review.id, verified: !review.verified }))}>{updating ? "Saving…" : review.verified ? "Verified" : "Unverified"}</button></td>
+                      <td className="text-nowrap">
+                        <div className="d-flex align-items-center gap-1">
+                          <button type="button" className={`btn btn-sm ${featured ? "btn-success" : "btn-outline-secondary"}`} disabled={!review.verified || updatingReviewIds.length > 0} onClick={() => toggleHomepageReview(review)} title={!review.verified ? "Verify this review before featuring it" : undefined}>
+                            {updating ? "Saving…" : featured ? "Shown" : "Show"}
+                          </button>
+                          {featured && <span className="d-inline-flex gap-1 ms-1"><button type="button" className="btn btn-sm btn-outline-secondary" aria-label={`Move review by ${review.userName || "Wasla customer"} up`} disabled={position === 0 || updatingReviewIds.length > 0} onClick={() => moveHomepageReview(review, -1)}><i className="bi bi-arrow-up" aria-hidden="true" /></button><button type="button" className="btn btn-sm btn-outline-secondary" aria-label={`Move review by ${review.userName || "Wasla customer"} down`} disabled={position === homeReviews.length - 1 || updatingReviewIds.length > 0} onClick={() => moveHomepageReview(review, 1)}><i className="bi bi-arrow-down" aria-hidden="true" /></button></span>}
+                        </div>
                       </td>
                       <td className="text-nowrap">
-                        {confirmingId === r.id ? (
-                          <span className="d-inline-flex align-items-center gap-2">
-                            <span className="small">Delete?</span>
-                            <button
-                              type="button"
-                              className="btn btn-sm btn-danger"
-                              disabled={deleting}
-                              onClick={() => {
-                                dispatch(deleteReview(r.id));
-                                setConfirmingId(null);
-                              }}
-                            >
-                              Yes
-                            </button>
-                            <button
-                              type="button"
-                              className="btn btn-sm btn-outline-secondary"
-                              onClick={() => setConfirmingId(null)}
-                            >
-                              No
-                            </button>
-                          </span>
-                        ) : (
-                          <button
-                            type="button"
-                            className="btn btn-sm btn-outline-danger"
-                            disabled={deleting}
-                            aria-label={`Delete review by ${r.userName}`}
-                            onClick={() => setConfirmingId(r.id)}
-                          >
-                            {deleting ? "Deleting..." : "Delete"}
-                          </button>
-                        )}
+                        {confirmingId === review.id ? <span className="d-inline-flex align-items-center gap-2"><span className="small">Delete?</span><button type="button" className="btn btn-sm btn-danger" disabled={deleting} onClick={() => { dispatch(deleteReview(review.id)); setConfirmingId(null); }}>Yes</button><button type="button" className="btn btn-sm btn-outline-secondary" onClick={() => setConfirmingId(null)}>No</button></span> : <button type="button" className="btn btn-sm btn-outline-danger" disabled={deleting} aria-label={`Delete review by ${review.userName}`} onClick={() => setConfirmingId(review.id)}>{deleting ? "Deleting…" : "Delete"}</button>}
                       </td>
                     </tr>
                   );
                 })}
-                {visible.length === 0 && (
-                  <tr>
-                    <td colSpan={7} className="text-center text-secondary py-5">
-                      {hasReviews ? "No reviews match your filters." : "No reviews yet."}
-                    </td>
-                  </tr>
-                )}
+                {visible.length === 0 && <tr><td colSpan={8} className="text-center text-secondary py-5">{hasReviews ? "No reviews match your filters." : "No reviews yet."}</td></tr>}
               </tbody>
             </table>
           </div>

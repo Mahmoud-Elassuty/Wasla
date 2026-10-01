@@ -23,8 +23,13 @@ import AdminReviews from "../pages/admin/AdminReviews";
 import AdminCoupons from "../pages/admin/AdminCoupons";
 import AdminCouponForm from "../pages/admin/AdminCouponForm";
 import AdminEmails from "../pages/admin/AdminEmails";
+import AdminUsers from "../pages/admin/Users";
+import AdminUserDetails from "../pages/admin/UserDetails";
+import AdminBanners from "../pages/admin/AdminBanners";
+import BannerForm from "../pages/admin/BannerForm";
 import ProductDetails from "../pages/ProductDetails";
 import Category from "../pages/Category";
+import Categories from "../pages/Categories";
 import Offers from "../pages/Offers";
 import Search from "../pages/Search";
 import SellerLayout from "../layouts/SellerLayout";
@@ -44,16 +49,19 @@ const router = createBrowserRouter([
       { index: true, element: <Home /> },
       { path: "products", element: <Products /> },
       { path: "products/:id", element: <ProductDetails /> },
+      { path: "categories", element: <Categories /> },
       { path: "category/:slug", element: <Category /> },
       { path: "offers", element: <Offers /> },
       { path: "search", element: <Search /> },
       { path: "cart", element: <Cart /> },
+      // Guest checkout: these two are open to visitors. Checkout shows a sign-in / guest choice,
+      // and Payment sends the visitor back to Checkout if there are no shipping details.
+      { path: "checkout", element: <Checkout /> },
+      { path: "payment", element: <Payment /> },
       {
         // everything below needs a logged-in user
         element: <ProtectedRoute />,
         children: [
-          { path: "checkout", element: <Checkout /> },
-          { path: "payment", element: <Payment /> },
           { path: "orders", element: <Orders /> },
           { path: "orders/:id", element: <OrderDetails /> },
           { path: "wishlist", element: <Wishlist /> },
@@ -83,7 +91,12 @@ const router = createBrowserRouter([
       { path: "coupons", element: <AdminCoupons /> },
       { path: "coupons/new", element: <AdminCouponForm /> },
       { path: "coupons/:id/edit", element: <AdminCouponForm /> },
+      { path: "users", element: <AdminUsers /> },
+      { path: "users/:id", element: <AdminUserDetails /> },
       { path: "emails", element: <AdminEmails /> },
+      { path: "banners", element: <AdminBanners /> },
+      { path: "banners/new", element: <BannerForm /> },
+      { path: "banners/:id/edit", element: <BannerForm /> },
     ],
   },
   {

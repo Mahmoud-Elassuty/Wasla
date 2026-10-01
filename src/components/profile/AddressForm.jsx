@@ -5,7 +5,7 @@ import { GOVERNORATES } from "../../utils/checkout";
 const PHONE_RE = /^(\+?20|0)?1[0125]\d{8}$/; // Egyptian mobile: 010 / 011 / 012 / 015
 const FIELD_ORDER = ["name", "phone", "governorate", "city", "postalCode", "address"];
 
-const EMPTY = { name: "", address: "", city: "", governorate: "", postalCode: "", phone: "" };
+const EMPTY = { name: "", address: "", city: "", governorate: "", postalCode: "", phone: "", isDefault: false };
 
 const validate = (v) => {
   const e = {};
@@ -29,8 +29,9 @@ export default function AddressForm({ initialValues, onSubmit, onCancel, saving 
   const [values, setValues] = useState({ ...EMPTY, ...initialValues });
   const [errors, setErrors] = useState({});
 
-  const handleChange = ({ target: { name, value } }) => {
-    setValues((v) => ({ ...v, [name]: value }));
+  const handleChange = ({ target }) => {
+    const { name, type, value, checked } = target;
+    setValues((v) => ({ ...v, [name]: type === "checkbox" ? checked : value }));
     setErrors((e) => ({ ...e, [name]: undefined }));
   };
 
@@ -44,17 +45,22 @@ export default function AddressForm({ initialValues, onSubmit, onCancel, saving 
       document.getElementById(`addr-${firstInvalid}`)?.focus();
       return;
     }
-    onSubmit(Object.fromEntries(Object.entries(values).map(([k, v]) => [k, v.trim()])));
+    onSubmit(
+      Object.keys(EMPTY).reduce((clean, key) => {
+        clean[key] = typeof values[key] === "string" ? values[key].trim() : Boolean(values[key]);
+        return clean;
+      }, {})
+    );
   };
 
-  const field = (name) => ({ id: `addr-${name}`, value: values[name], onChange: handleChange, error: errors[name] });
+  const field = (name) => ({ id: `addr-${name}`, name, value: values[name], onChange: handleChange, error: errors[name] });
 
   return (
     <form onSubmit={handleSubmit} noValidate className="address-form border rounded-4 p-3 p-md-4 mb-3 bg-white">
       <fieldset disabled={saving} className="border-0 p-0 m-0">
         <div className="row gx-3">
           <div className="col-md-6">
-            <FormField {...field("name")} label="Label" placeholder="Home, Work..." maxLength={40} />
+            <FormField {...field("name")} label="Name" placeholder="Home, Work..." maxLength={40} />
           </div>
           <div className="col-md-6">
             <FormField {...field("phone")} type="tel" label="Phone" placeholder="01012345678" autoComplete="tel" />
@@ -87,6 +93,19 @@ export default function AddressForm({ initialValues, onSubmit, onCancel, saving 
               autoComplete="street-address"
             />
           </div>
+        </div>
+        <div className="form-check mb-3">
+          <input
+            id="addr-isDefault"
+            name="isDefault"
+            type="checkbox"
+            className="form-check-input"
+            checked={Boolean(values.isDefault)}
+            onChange={handleChange}
+          />
+          <label htmlFor="addr-isDefault" className="form-check-label">
+            Set as default address
+          </label>
         </div>
       </fieldset>
 

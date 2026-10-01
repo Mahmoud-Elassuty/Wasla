@@ -8,12 +8,14 @@ import {
   setDefaultAddress,
   updateAddress,
 } from "../../store/reducers/profileSlice";
+import { showSuccess } from "../../utils/notifications";
 import AddressForm from "./AddressForm";
 
 export default function AddressesList() {
   const dispatch = useDispatch();
+  const userId = useSelector((s) => s.auth.user?.id);
   const {
-    addresses,
+    addresses: storedAddresses,
     addressesStatus,
     addressesError,
     addressSaveStatus,
@@ -25,13 +27,19 @@ export default function AddressesList() {
   const [mode, setMode] = useState(null); // null | "add" | address.id being edited
   const [confirmingId, setConfirmingId] = useState(null);
   const saving = addressSaveStatus === "loading";
+  const addresses = userId === undefined
+    ? []
+    : storedAddresses.filter((address) => String(address.userId) === String(userId));
+  const actionsBusy = saving || settingDefaultIds.length > 0 || deletingAddressIds.length > 0;
 
   const openAdd = () => {
     dispatch(resetAddressSave());
+    dispatch(clearActionError());
     setMode("add");
   };
   const openEdit = (id) => {
     dispatch(resetAddressSave());
+    dispatch(clearActionError());
     setMode(id);
   };
   const closeForm = () => {
@@ -39,11 +47,21 @@ export default function AddressesList() {
     setMode(null);
   };
 
-  const handleAdd = (values) => dispatch(addAddress(values)).unwrap().then(closeForm).catch(() => {});
-  const handleEdit = (id, existing) => (values) =>
-    dispatch(updateAddress({ id, data: { ...existing, ...values, id } }))
+  const handleAdd = (values) =>
+    dispatch(addAddress(values))
       .unwrap()
-      .then(closeForm)
+      .then((address) => {
+        dispatch(showSuccess(`Address "${address.name}" saved.`));
+        closeForm();
+      })
+      .catch(() => {});
+  const handleEdit = (id) => (values) =>
+    dispatch(updateAddress({ id, data: values }))
+      .unwrap()
+      .then((address) => {
+        dispatch(showSuccess(`Address "${address.name}" updated.`));
+        closeForm();
+      })
       .catch(() => {});
 
   const loading = addresses.length === 0 && (addressesStatus === "idle" || addressesStatus === "loading");
@@ -88,7 +106,7 @@ export default function AddressesList() {
             saving={saving}
             error={addressSaveError}
             onCancel={closeForm}
-            onSubmit={handleEdit(address.id, address)}
+            onSubmit={handleEdit(address.id)}
           />
         ) : (
           <div key={address.id} className="address-card border rounded-4 p-3 mb-3 bg-white">
@@ -108,13 +126,18 @@ export default function AddressesList() {
                 <button
                   type="button"
                   className="btn btn-sm btn-outline-secondary"
-                  disabled={settingDefaultIds.includes(address.id)}
-                  onClick={() => dispatch(setDefaultAddress(address.id))}
+                  disabled={actionsBusy}
+                  onClick={() =>
+                    dispatch(setDefaultAddress(address.id))
+                      .unwrap()
+                      .then(() => dispatch(showSuccess(`"${address.name}" is now your default address.`)))
+                      .catch(() => {})
+                  }
                 >
                   {settingDefaultIds.includes(address.id) ? "Saving..." : "Set as default"}
                 </button>
               )}
-              <button type="button" className="btn btn-sm btn-outline-secondary" onClick={() => openEdit(address.id)}>
+              <button type="button" className="btn btn-sm btn-outline-secondary" onClick={() => openEdit(address.id)} disabled={actionsBusy}>
                 Edit
               </button>
               {confirmingId === address.id ? (
@@ -123,15 +146,20 @@ export default function AddressesList() {
                   <button
                     type="button"
                     className="btn btn-sm btn-danger"
-                    disabled={deletingAddressIds.includes(address.id)}
+                    disabled={actionsBusy}
                     onClick={() => {
-                      dispatch(deleteAddress(address.id));
-                      setConfirmingId(null);
+                      dispatch(deleteAddress(address.id))
+                        .unwrap()
+                        .then(() => {
+                          setConfirmingId(null);
+                          dispatch(showSuccess("Address deleted."));
+                        })
+                        .catch(() => {});
                     }}
                   >
                     Yes
                   </button>
-                  <button type="button" className="btn btn-sm btn-outline-secondary" onClick={() => setConfirmingId(null)}>
+                  <button type="button" className="btn btn-sm btn-outline-secondary" onClick={() => setConfirmingId(null)} disabled={actionsBusy}>
                     No
                   </button>
                 </span>
@@ -139,7 +167,7 @@ export default function AddressesList() {
                 <button
                   type="button"
                   className="btn btn-sm btn-outline-danger"
-                  disabled={deletingAddressIds.includes(address.id)}
+                  disabled={actionsBusy}
                   onClick={() => setConfirmingId(address.id)}
                 >
                   {deletingAddressIds.includes(address.id) ? "Deleting..." : "Delete"}

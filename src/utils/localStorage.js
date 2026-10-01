@@ -1,4 +1,4 @@
-const KEYS = { user: "wasla_user", cart: "wasla_cart", recentSearches: "wasla_recent_searches" };
+const KEYS = { user: "wasla_user", cart: "wasla_cart", recentSearches: "wasla_recent_searches", chat: "wasla_chat" };
 
 const read = (key) => {
   try {
@@ -32,6 +32,31 @@ export const removeAuthUser = () => remove(KEYS.user);
 export const getCart = () => read(KEYS.cart);
 export const setCart = (cart) => write(KEYS.cart, cart);
 export const removeCart = () => remove(KEYS.cart);
+
+// Chat history: only well-formed { id, role, content } messages survive a reload.
+export const CHAT_MAX_MESSAGES = 50;
+export const getChat = () => {
+  const saved = read(KEYS.chat);
+  if (!Array.isArray(saved)) return [];
+  return saved
+    .filter(
+      (m) =>
+        m != null &&
+        (m.role === "user" || m.role === "assistant") &&
+        typeof m.content === "string" &&
+        m.content.trim() !== "" &&
+        (typeof m.id === "string" || typeof m.id === "number")
+    )
+    .map(({ id, role, content, createdAt }) => ({
+      id,
+      role,
+      content,
+      createdAt: typeof createdAt === "string" ? createdAt : null,
+    }))
+    .slice(-CHAT_MAX_MESSAGES);
+};
+export const setChat = (messages) => write(KEYS.chat, messages);
+export const removeChat = () => remove(KEYS.chat);
 
 const RECENT_SEARCHES_LIMIT = 5;
 export const getRecentSearches = () => read(KEYS.recentSearches) ?? [];

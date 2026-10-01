@@ -65,22 +65,28 @@ function OrderView({ order, sellerOf, updating }) {
             <ul className="list-unstyled mb-0">
               {items.map((item, i) => (
                 <li key={`${item.productId}-${i}`} className="cart-item d-flex gap-3 py-3">
-                  <Link to={`/products/${item.productId}`} className="cart-thumb flex-shrink-0">
-                    <img src={item.thumbnail} alt="" />
+                  <Link to={`/products/${item?.productId ?? ""}`} className="cart-thumb flex-shrink-0">
+                    {item?.thumbnail ? (
+                      <img src={item.thumbnail} alt="" />
+                    ) : (
+                      <span className="d-flex h-100 align-items-center justify-content-center text-secondary" aria-label="Product image unavailable">
+                        <i className="bi bi-image" aria-hidden="true" />
+                      </span>
+                    )}
                   </Link>
                   <div className="flex-grow-1 min-w-0">
-                    <Link to={`/products/${item.productId}`} className="fw-semibold text-body text-decoration-none">
-                      {item.title ?? "-"}
+                    <Link to={`/products/${item?.productId ?? ""}`} className="fw-semibold text-body text-decoration-none">
+                      {item?.title ?? "Product unavailable"}
                     </Link>
                     <div className="small text-secondary">
-                      {formatPrice(item.price)} × {item.quantity}
+                      {formatPrice(item?.price ?? 0)} × {item?.quantity ?? 0}
                     </div>
                     <div className="small text-secondary">
-                      Sold by: {sellerOf(item.productId)}
+                      Sold by: {sellerOf(item?.productId)}
                     </div>
                   </div>
                   <span className="font-display fw-semibold flex-shrink-0">
-                    {formatPrice(item.price * item.quantity)}
+                    {formatPrice((item?.price ?? 0) * (item?.quantity ?? 0))}
                   </span>
                 </li>
               ))}
@@ -93,7 +99,10 @@ function OrderView({ order, sellerOf, updating }) {
           <div className="row g-4">
             <div className="col-md-6">
               <section className="bg-white border rounded-4 p-4 h-100">
-                <h2 className="h5 mb-3">Customer</h2>
+                <h2 className="h5 mb-3">
+                  Customer
+                  {order.isGuest && <span className="badge rounded-pill stock-low ms-2 fs-6">Guest</span>}
+                </h2>
                 <p className="fw-semibold mb-1">{customer.name ?? "-"}</p>
                 <p className="mb-1 text-break">{customer.email ?? "-"}</p>
                 <p className="mb-0" dir="ltr">{customer.phone ?? "-"}</p>
@@ -102,6 +111,8 @@ function OrderView({ order, sellerOf, updating }) {
             <div className="col-md-6">
               <section className="bg-white border rounded-4 p-4 h-100">
                 <h2 className="h5 mb-3">Shipping address</h2>
+                <p className="fw-semibold mb-1">{ship.recipientName ?? ship.fullName ?? ship.name ?? customer.name ?? "-"}</p>
+                <p className="mb-1" dir="ltr">{ship.phone ?? customer.phone ?? "-"}</p>
                 <p className="mb-1">{ship.address ?? "-"}</p>
                 <p className="mb-1">
                   {[ship.city, ship.governorate].filter(Boolean).join(", ") || "-"}

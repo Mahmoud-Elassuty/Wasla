@@ -14,7 +14,7 @@ export default function OrderCard({ order }) {
     <article className="bg-white border rounded-4 p-3 p-md-4">
       <div className="d-flex flex-wrap justify-content-between align-items-start gap-2">
         <div>
-          <h2 className="h6 font-display mb-1">#{orderNumber(order.id)}</h2>
+          <h2 className="h6 font-display text-break mb-1">#{orderNumber(order.id)}</h2>
           <p className="small text-secondary mb-0">
             {formatOrderDate(order.createdAt)} · {count} {count === 1 ? "item" : "items"}
           </p>
@@ -33,7 +33,7 @@ export default function OrderCard({ order }) {
         </div>
       )}
 
-      <div className="d-flex justify-content-between align-items-center border-top pt-3">
+      <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 border-top pt-3">
         <div>
           <span className="small text-secondary d-block">Total</span>
           <span className="font-display fs-5 fw-semibold">{formatPrice(order.total)}</span>

@@ -114,16 +114,16 @@ export default function SellerDashboard() {
       )}
 
       <div className="row g-3 mb-2">
-        <div className="col-sm-6 col-xl-3">
+        <div className="col-6 col-xl-3">
           <StatCard label="Total products" value={stats.totalProducts} icon="bi-box-seam" tone="stat-purple" loading={productsLoading} />
         </div>
-        <div className="col-sm-6 col-xl-3">
+        <div className="col-6 col-xl-3">
           <StatCard label="Total orders" value={stats.totalOrders} icon="bi-receipt" tone="stat-blue" loading={ordersLoading} />
         </div>
-        <div className="col-sm-6 col-xl-3">
+        <div className="col-6 col-xl-3">
           <StatCard label="Pending orders" value={stats.pending} icon="bi-hourglass-split" tone="stat-orange" loading={ordersLoading} />
         </div>
-        <div className="col-sm-6 col-xl-3">
+        <div className="col-6 col-xl-3">
           <StatCard label="Total revenue" value={formatPrice(stats.revenue)} icon="bi-cash-stack" tone="stat-green" loading={ordersLoading} />
         </div>
       </div>

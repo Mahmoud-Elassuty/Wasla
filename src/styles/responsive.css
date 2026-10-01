@@ -1,0 +1,194 @@
+/* =====================================================================
+   Wasla responsive / mobile UX layer (loaded after theme.css).
+   Breakpoints (Bootstrap's own, plus one for 320px phones):
+     max 359.98px  very small phones (320px)
+     max 575.98px  phones
+     max 767.98px  phones + small tablets  -> bottom nav, compact navbar
+     max 991.98px  tablets                 -> collapsible sidebars / filters
+   Desktop (>= 992px) is intentionally untouched.
+   ===================================================================== */
+
+:root {
+  --mobile-nav-h: 3.75rem;
+  --bottom-nav-offset: 0px; /* becomes bar height + safe area where the bar is shown */
+}
+
+/* ---- Long text: wrap instead of overflowing (never affects text that already fits) ---- */
+main :where(h1, h2, h3, h4, h5, h6, p, li, dt, dd, label, td, th, a, .alert, .badge) {
+  overflow-wrap: break-word;
+}
+main :where(td, th) { min-width: 0; }
+
+/* ---- Mobile bottom navigation ---- */
+.mobile-bottom-nav {
+  position: fixed;
+  inset-inline: 0;
+  bottom: 0;
+  /* Above page content, below the sticky header (1020) so its dropdowns win, and far below
+     modals (1055), toasts (1080) and the chat launcher/window (1040). */
+  z-index: 1015;
+  background: #fff;
+  border-top: 1px solid var(--wasla-border);
+  box-shadow: 0 -0.25rem 1rem rgba(15, 23, 42, 0.06);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+.mobile-bottom-nav-list {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  height: var(--mobile-nav-h);
+  padding: 0;
+}
+.mobile-bottom-nav-item { min-width: 0; }
+.mobile-bottom-nav-link {
+  position: relative;
+  display: flex;
+  height: 100%;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.2rem;
+  color: #6b7280;
+  font-size: 0.68rem;
+  font-weight: 600;
+  line-height: 1;
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.mobile-bottom-nav-link:hover { color: var(--wasla-primary); }
+.mobile-bottom-nav-link.active { color: var(--wasla-primary); }
+.mobile-bottom-nav-link.active::before {
+  position: absolute;
+  top: 0;
+  width: 1.75rem;
+  height: 3px;
+  border-radius: 0 0 3px 3px;
+  background: var(--wasla-accent);
+  content: "";
+}
+.mobile-bottom-nav-link:focus-visible {
+  outline: 3px solid var(--wasla-accent);
+  outline-offset: -3px;
+  border-radius: 0.5rem;
+}
+.mobile-bottom-nav-icon { position: relative; font-size: 1.3rem; line-height: 1; }
+.mobile-bottom-nav-badge {
+  position: absolute;
+  top: -0.45rem;
+  inset-inline-start: 55%;
+  min-width: 1.1rem;
+  height: 1.1rem;
+  padding: 0 0.3rem;
+  border-radius: 999px;
+  background: var(--wasla-accent);
+  color: #fff;
+  font-size: 0.62rem;
+  font-weight: 700;
+  line-height: 1.1rem;
+  text-align: center;
+}
+.mobile-bottom-nav-label {
+  max-width: 100%;
+  padding-inline: 0.15rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 767.98px) {
+  /* Reserve room so neither the page nor the footer ends up behind the bar. */
+  .has-mobile-nav {
+    --bottom-nav-offset: calc(var(--mobile-nav-h) + env(safe-area-inset-bottom, 0px));
+    padding-bottom: var(--bottom-nav-offset);
+  }
+}
+@media (max-width: 359.98px) {
+  .mobile-bottom-nav-link { font-size: 0.62rem; }
+  .mobile-bottom-nav-icon { font-size: 1.2rem; }
+}
+
+/* ---- Public navbar ---- */
+@media (max-width: 767.98px) {
+  .site-header .icon-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2.25rem;
+    min-height: 2.25rem;
+  }
+  .site-header .nav-link-wasla {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.5rem;
+    padding-block: 0;
+  }
+  .site-header .nav-links-scroll { scroll-snap-type: x proximity; }
+  .site-header .nav-link-wasla { scroll-snap-align: start; }
+}
+@media (max-width: 399.98px) {
+  .site-header .brand-ar { display: none; } /* keeps logo + 4 controls on one row at 320-390px */
+}
+/* Header dropdowns (cart preview, notifications, account) must never run off-screen. */
+@media (max-width: 575.98px) {
+  .site-header .dropdown-menu { max-width: calc(100vw - 1rem); }
+  .site-header .cart-dropdown,
+  .site-header .notification-dropdown { width: min(340px, calc(100vw - 1rem)); }
+}
+
+/* ---- Forms: comfortable touch sizes, no iOS focus-zoom ---- */
+@media (max-width: 767.98px) {
+  .form-control, .form-select,
+  .form-control-sm, .form-select-sm { font-size: 1rem; }
+  .btn-sm { min-height: 2.25rem; }
+  .form-check-input { width: 1.2em; height: 1.2em; }
+}
+
+/* ---- Product cards & grids ---- */
+.product-price { font-size: 1.25rem; }
+@media (max-width: 575.98px) {
+  .product-price { font-size: 1.05rem; }
+  .product-card-title { font-size: 0.9rem; }
+  .product-card .btn { font-size: 0.85rem; padding-inline: 0.5rem; }
+  .product-card .rating-badge { padding-inline: 0.4rem; font-size: 0.72rem; }
+  .product-card .home-deal-cart-btn { width: 2.4rem; height: 2.4rem; }
+}
+
+/* ---- Home ---- */
+@media (max-width: 575.98px) {
+  /* Two-up category cards: stack icon over text so names have room */
+  .home-category-card { flex-direction: column; align-items: flex-start; justify-content: center; min-height: 0; }
+  .home-category-copy { width: 100%; }
+  .home-collection-card h2 { max-width: none; }
+  .home-hero-stats { gap: 1rem !important; }
+  .home-hero-copy .btn { flex: 1 1 auto; }
+  .home-section-heading { align-items: flex-start !important; }
+}
+.home-page { overflow-x: visible; } /* the real overflow sources are fixed at the element level */
+
+/* ---- Cart, checkout, orders ---- */
+@media (max-width: 359.98px) {
+  .cart-thumb { width: 60px; height: 60px; }
+  .cart-item { gap: 0.6rem !important; }
+}
+.payment-option { min-height: 3.5rem; }
+.payment-option > .flex-grow-1 { min-width: 0; }
+.checkout-summary dd, .cart-summary dd { text-align: end; }
+
+/* ---- Shared sticky offsets: header is sticky on all sizes, so only lg+ sticks sidebars ---- */
+
+/* ---- Toasts: bottom sheet style on phones, above the bottom bar ---- */
+@media (max-width: 575.98px) {
+  .toast-stack {
+    top: auto;
+    bottom: calc(var(--mobile-nav-h) + env(safe-area-inset-bottom, 0px) + 0.75rem);
+    inset-inline: 0.75rem;
+    width: auto;
+    flex-direction: column-reverse;
+  }
+}
+
+/* ---- Tables (Admin / Seller): the scroll happens inside .table-responsive, never on the page ---- */
+.table-responsive { max-width: 100%; -webkit-overflow-scrolling: touch; }
+.admin-table td, .admin-table th { vertical-align: middle; }
+@media (max-width: 767.98px) {
+  .admin-table td .btn { white-space: nowrap; }
+}

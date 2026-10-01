@@ -1,5 +1,6 @@
 import { request } from "./http";
 import { ORDER_STATUSES } from "../utils/checkout";
+import { USER_STATUSES } from "../utils/users";
 
 const JSON_HEADERS = { "Content-Type": "application/json" };
 const send = (method, body) => ({ method, headers: JSON_HEADERS, body: JSON.stringify(body) });
@@ -14,6 +15,18 @@ export const fetchAllUsers = async (signal) => {
   const users = await request("/users", { signal });
   return users.map(({ password: _password, ...user }) => user);
 };
+
+// Saved addresses of one user (read-only, for the user details page).
+export const fetchUserAddresses = (userId, signal) =>
+  request(`/addresses?userId=${encodeURIComponent(userId)}`, { signal });
+
+// PATCH: only the user's `status` changes (active | restricted | deleted). Never PUT: the client only
+// holds the password-stripped record, so a PUT would wipe the password. Users are never DELETEd.
+export async function updateUserStatus(id, status) {
+  if (!USER_STATUSES.includes(status)) throw new Error(`Invalid user status: ${status}`);
+  const { password: _password, ...user } = await request(`/users/${encodeURIComponent(id)}`, send("PATCH", { status }));
+  return user;
+}
 
 // PATCH: only `status` changes, the rest of the order stays as it is.
 export function updateOrderStatus(id, status) {
@@ -51,6 +64,8 @@ export async function deleteReview(id) {
 // PATCH: this schema's "status" is the review's verified flag — only that changes.
 export const updateReviewStatus = (id, verified) =>
   request(`/reviews/${encodeURIComponent(id)}`, send("PATCH", { verified }));
+export const updateReviewHomepage = (id, data) =>
+  request(`/reviews/${encodeURIComponent(id)}`, send("PATCH", data));
 
 export const fetchCoupons = (signal) => request("/coupons", { signal });
 

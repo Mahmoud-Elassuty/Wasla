@@ -16,7 +16,7 @@ export default function AverageRating({ average, count, distribution }) {
         </p>
       </div>
 
-      <div className="flex-grow-1" style={{ minWidth: 220 }}>
+      <div className="flex-grow-1" style={{ minWidth: "min(220px, 100%)" }}>
         {[5, 4, 3, 2, 1].map((star) => {
           const n = distribution[star] || 0;
           const pct = count ? Math.round((n / count) * 100) : 0;

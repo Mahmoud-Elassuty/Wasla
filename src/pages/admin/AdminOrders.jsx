@@ -136,7 +136,10 @@ export default function AdminOrders() {
                     <tr key={order.id}>
                       <td className="fw-semibold">#{orderNumber(order.id)}</td>
                       <td>
-                        <div>{order.customer?.name ?? "-"}</div>
+                        <div>
+                          {order.customer?.name ?? "-"}
+                          {order.isGuest && <span className="badge rounded-pill stock-low ms-2">Guest</span>}
+                        </div>
                         <div className="small text-secondary">{order.customer?.email}</div>
                       </td>
                       <td className="text-nowrap">{formatOrderDate(order.createdAt)}</td>
