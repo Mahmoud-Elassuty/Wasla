@@ -4657,7 +4657,7 @@
       "price": 1799.99,
       "discountPercentage": 11.14,
       "rating": 3.95,
-      "stock": 45,
+      "stock": 44,
       "tags": [
         "laptops"
       ],
@@ -4840,7 +4840,7 @@
       "price": 1499.99,
       "discountPercentage": 11.89,
       "rating": 2.67,
-      "stock": 74,
+      "stock": 73,
       "tags": [
         "laptops"
       ],
@@ -4964,7 +4964,7 @@
       "price": 24.99,
       "discountPercentage": 0.94,
       "rating": 3.18,
-      "stock": 90,
+      "stock": 89,
       "tags": [
         "clothing",
         "men's t-shirts"
@@ -6448,6 +6448,38 @@
       "status": "active",
       "createdAt": "2026-09-21T06:35:30.839Z",
       "id": 4
+    },
+    {
+      "name": "Mahmoud",
+      "email": "mm@gmail.com",
+      "password": "mm12345",
+      "role": "customer",
+      "status": "active",
+      "createdAt": "2026-10-02T15:56:43.468Z",
+      "interests": [
+        "laptops",
+        "mens-shirts",
+        "mens-shoes",
+        "smartphones"
+      ],
+      "onboardingCompleted": true,
+      "id": 5,
+      "phone": ""
+    },
+    {
+      "name": "Ahmed",
+      "email": "ahmed@gmail.com",
+      "password": "Ahmed123",
+      "role": "customer",
+      "status": "active",
+      "createdAt": "2026-10-02T19:36:31.426Z",
+      "interests": [
+        "laptops",
+        "mens-shirts",
+        "smartphones"
+      ],
+      "onboardingCompleted": true,
+      "id": 6
     }
   ],
   "orders": [
@@ -6855,6 +6887,120 @@
       "status": "pending",
       "createdAt": "2026-10-01T14:32:08.365Z",
       "id": 10
+    },
+    {
+      "userId": 5,
+      "customer": {
+        "name": "mm",
+        "email": "mm@gmail.com",
+        "phone": "+201550557634"
+      },
+      "shippingAddress": {
+        "address": "Egypt Menofia Menouf",
+        "city": "Munuf",
+        "governorate": "Monufia",
+        "postalCode": "",
+        "notes": ""
+      },
+      "items": [
+        {
+          "productId": 79,
+          "title": "Asus Zenbook Pro Dual Screen Laptop",
+          "thumbnail": "https://cdn.dummyjson.com/product-images/laptops/asus-zenbook-pro-dual-screen-laptop/thumbnail.webp",
+          "price": 1599.47,
+          "listPrice": 1799.99,
+          "quantity": 1
+        }
+      ],
+      "paymentMethod": "wallet",
+      "paymentStatus": "paid",
+      "transactionId": "TXN-MUR5EI8W-NL7P",
+      "currency": "USD",
+      "subtotal": 1799.99,
+      "discount": 200.52,
+      "shipping": 1,
+      "couponCode": null,
+      "couponDiscount": 0,
+      "total": 1600.47,
+      "status": "pending",
+      "createdAt": "2026-10-02T15:59:01.899Z",
+      "id": 11
+    },
+    {
+      "userId": 6,
+      "customer": {
+        "name": "Ahmed",
+        "email": "ahmed@gmail.com",
+        "phone": "01550557634"
+      },
+      "shippingAddress": {
+        "address": "Elgala2 Street",
+        "city": "Shbien",
+        "governorate": "Monufia",
+        "postalCode": "",
+        "notes": ""
+      },
+      "items": [
+        {
+          "productId": 84,
+          "title": "Gigabyte Aorus Men Tshirt",
+          "thumbnail": "https://cdn.dummyjson.com/product-images/mens-shirts/gigabyte-aorus-men-tshirt/thumbnail.webp",
+          "price": 24.76,
+          "listPrice": 24.99,
+          "quantity": 1
+        }
+      ],
+      "paymentMethod": "paypal",
+      "paymentStatus": "paid",
+      "transactionId": "TXN-MURDAUHD-R1KV",
+      "currency": "USD",
+      "subtotal": 24.99,
+      "discount": 0.23,
+      "shipping": 1,
+      "couponCode": null,
+      "couponDiscount": 0,
+      "total": 25.76,
+      "status": "delivered",
+      "createdAt": "2026-10-02T19:40:08.068Z",
+      "id": 12
+    },
+    {
+      "userId": 6,
+      "customer": {
+        "name": "Ahmed",
+        "email": "ahmed@gmail.com",
+        "phone": "01550557634"
+      },
+      "shippingAddress": {
+        "address": "Elgala2 Street",
+        "city": "Shbien",
+        "governorate": "Monufia",
+        "postalCode": "",
+        "notes": ""
+      },
+      "items": [
+        {
+          "productId": 82,
+          "title": "New DELL XPS 13 9300 Laptop",
+          "thumbnail": "https://cdn.dummyjson.com/product-images/laptops/new-dell-xps-13-9300-laptop/thumbnail.webp",
+          "price": 1321.64,
+          "listPrice": 1499.99,
+          "quantity": 1
+        }
+      ],
+      "paymentMethod": "wallet",
+      "paymentStatus": "paid",
+      "transactionId": "TXN-MUSAEY49-AJUE",
+      "currency": "USD",
+      "subtotal": 1499.99,
+      "discount": 178.35,
+      "shipping": 1,
+      "couponCode": null,
+      "couponDiscount": 0,
+      "total": 1322.64,
+      "status": "pending",
+      "createdAt": "2026-10-03T11:07:06.723Z",
+      "id": 13
     }
   ],
   "reviews": [
@@ -7083,29 +7229,9 @@
       "id": 3
     },
     {
-      "productId": 9,
-      "userId": 1,
+      "productId": 84,
+      "userId": 6,
       "id": 4
-    },
-    {
-      "productId": 7,
-      "userId": 1,
-      "id": 5
-    },
-    {
-      "productId": 3,
-      "userId": 1,
-      "id": 6
-    },
-    {
-      "productId": 123,
-      "userId": 1,
-      "id": 7
-    },
-    {
-      "productId": 51,
-      "userId": 1,
-      "id": 8
     }
   ],
   "coupons": [
@@ -7223,6 +7349,17 @@
       "isDefault": true,
       "userId": 1,
       "id": 4
+    },
+    {
+      "name": "Ahmed Mohamed",
+      "address": "Elgala2 Street",
+      "city": "Shbien",
+      "governorate": "Monufia",
+      "postalCode": "",
+      "phone": "01550557634",
+      "isDefault": true,
+      "userId": 6,
+      "id": 5
     }
   ],
   "payments": [
@@ -7322,6 +7459,33 @@
       "transactionId": "TXN-MUPMUWSM-R77L",
       "timestamp": "2026-10-01T14:32:08.326Z",
       "id": 11
+    },
+    {
+      "method": "wallet",
+      "amount": 1600.47,
+      "orderId": 11,
+      "status": "success",
+      "transactionId": "TXN-MUR5EI8W-NL7P",
+      "timestamp": "2026-10-02T15:59:01.856Z",
+      "id": 12
+    },
+    {
+      "method": "paypal",
+      "amount": 25.76,
+      "orderId": 12,
+      "status": "success",
+      "transactionId": "TXN-MURDAUHD-R1KV",
+      "timestamp": "2026-10-02T19:40:08.017Z",
+      "id": 13
+    },
+    {
+      "method": "wallet",
+      "amount": 1322.64,
+      "orderId": 13,
+      "status": "success",
+      "transactionId": "TXN-MUSAEY49-AJUE",
+      "timestamp": "2026-10-03T11:07:06.681Z",
+      "id": 14
     }
   ],
   "notifications": [],
@@ -7413,6 +7577,54 @@
       "sentAt": "2026-10-01T14:32:10.030Z",
       "status": "sent",
       "id": 9
+    },
+    {
+      "to": "mm@gmail.com",
+      "subject": "Welcome to wasla! (وصلة)",
+      "type": "welcome",
+      "body": "Hi mm,\n\nWelcome to wasla! Your account is ready — start browsing to find deals across electronics, fashion, home and more.",
+      "sentAt": "2026-10-02T15:56:45.067Z",
+      "status": "sent",
+      "id": 10
+    },
+    {
+      "to": "mm@gmail.com",
+      "subject": "Order Confirmation #WSL-00011",
+      "type": "order_confirmation",
+      "orderId": 11,
+      "body": "Hi mm,\n\nThanks for your order! We've received order #WSL-00011 for $1,600.47 and it's being prepared for delivery to Munuf, Monufia.\n\nWe'll be in touch at +201550557634 to confirm delivery.",
+      "sentAt": "2026-10-02T15:59:03.622Z",
+      "status": "sent",
+      "id": 11
+    },
+    {
+      "to": "ahmed@gmail.com",
+      "subject": "Welcome to wasla! (وصلة)",
+      "type": "welcome",
+      "body": "Hi Ahmed,\n\nWelcome to wasla! Your account is ready — start browsing to find deals across electronics, fashion, home and more.",
+      "sentAt": "2026-10-02T19:36:32.965Z",
+      "status": "sent",
+      "id": 12
+    },
+    {
+      "to": "ahmed@gmail.com",
+      "subject": "Order Confirmation #WSL-00012",
+      "type": "order_confirmation",
+      "orderId": 12,
+      "body": "Hi Ahmed,\n\nThanks for your order! We've received order #WSL-00012 for $25.76 and it's being prepared for delivery to Shbien, Monufia.\n\nWe'll be in touch at 01550557634 to confirm delivery.",
+      "sentAt": "2026-10-02T19:40:09.773Z",
+      "status": "sent",
+      "id": 13
+    },
+    {
+      "to": "ahmed@gmail.com",
+      "subject": "Order Confirmation #WSL-00013",
+      "type": "order_confirmation",
+      "orderId": 13,
+      "body": "Hi Ahmed,\n\nThanks for your order! We've received order #WSL-00013 for $1,322.64 and it's being prepared for delivery to Shbien, Monufia.\n\nWe'll be in touch at 01550557634 to confirm delivery.",
+      "sentAt": "2026-10-03T11:07:08.371Z",
+      "status": "sent",
+      "id": 14
     }
   ],
   "banners": [
@@ -7446,11 +7658,11 @@
       "subtitle": "Limited-time markdowns across the catalog — while stock lasts.",
       "image": "https://cdn.dummyjson.com/product-images/furniture/knoll-saarinen-executive-conference-chair/1.webp",
       "buttonText": "View Offers",
-      "buttonLink": "/offers",
+      "buttonLink": "/category/furniture",
       "status": "active",
       "sortOrder": 3,
       "createdAt": "2026-09-25T09:00:00.000Z",
-      "updatedAt": "2026-09-29T13:51:31.227Z"
+      "updatedAt": "2026-10-02T15:43:13.764Z"
     }
   ]
 }

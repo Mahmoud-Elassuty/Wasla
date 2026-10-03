@@ -16,6 +16,9 @@ const links = [
   { to: "/cart", label: "Cart" },
 ];
 
+// Desktop text link (the bottom nav covers Wishlist on phones). Sits right before Admin.
+const wishlistLink = { to: "/wishlist", label: "Wishlist" };
+
 const PREVIEW_LIMIT = 4;
 
 export default function Navbar() {
@@ -26,10 +29,10 @@ export default function Navbar() {
   const wishlistCount = useSelector((s) => s.wishlist.items.length);
   const navLinks =
     user?.role === "admin"
-      ? [...links, { to: "/admin", label: "Admin" }]
+      ? [...links, wishlistLink, { to: "/admin", label: "Admin" }]
       : user?.role === "seller"
-        ? [...links, { to: "/seller", label: "Seller Dashboard" }]
-        : links;
+        ? [...links, wishlistLink, { to: "/seller", label: "Seller Dashboard" }]
+        : [...links, wishlistLink];
   const userId = user?.id;
 
   // Load the saved products for whoever is logged in, so hearts are filled everywhere.
@@ -47,7 +50,7 @@ export default function Navbar() {
   return (
     <header className="site-header product-search-header bg-white border-bottom sticky-top">
       <div className="container">
-        <div className="row align-items-center g-2 py-2">
+        <div className="site-header-top row align-items-center g-2 py-2">
           <div className="col-auto col-md-auto">
             <Link to="/" className="text-decoration-none d-inline-block lh-1">
               <span className="font-display fs-4 fw-bold text-wasla">wasla</span>{" "}
@@ -74,7 +77,6 @@ export default function Navbar() {
                 </span>
               )}
             </Link>
-
             <NotificationBell />
 
             <div className="dropdown">
@@ -160,9 +162,6 @@ export default function Navbar() {
                   <li>
                     <Link className="dropdown-item" to="/orders">My orders</Link>
                   </li>
-                  <li>
-                    <Link className="dropdown-item" to="/wishlist">Wishlist</Link>
-                  </li>
                   {user.role === "admin" && (
                     <li>
                       <Link className="dropdown-item" to="/admin">Admin panel</Link>
@@ -189,8 +188,8 @@ export default function Navbar() {
 
       <nav className="site-nav border-top" aria-label="Main">
         <div className="container">
-          <div className="site-nav-row d-flex align-items-center gap-2 gap-md-3">
-            <div className="nav-links-scroll gap-3 gap-md-4 py-1 py-md-0">
+          <div className="site-nav-row site-nav-row-mobile-categories d-flex align-items-center gap-2 gap-md-3">
+            <div className="nav-links-scroll gap-3 gap-md-4 py-1 py-md-0 d-none d-md-flex">
               {navLinks.map(({ to, label }) => (
                 <NavLink
                   key={to}
@@ -203,6 +202,14 @@ export default function Navbar() {
               ))}
             </div>
             <CategoriesDropdown />
+            {user?.role === "admin" && (
+              <NavLink
+                to="/admin"
+                className={({ isActive }) => `nav-link-wasla text-nowrap d-md-none${isActive ? " active" : ""}`}
+              >
+                Admin
+              </NavLink>
+            )}
           </div>
         </div>
       </nav>

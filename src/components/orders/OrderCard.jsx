@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import OrderStatus from "./OrderStatus";
 import { formatPrice } from "../../utils/format";
 import { formatOrderDate, orderItemCount, orderNumber } from "../../utils/checkout";
@@ -6,9 +6,12 @@ import { formatOrderDate, orderItemCount, orderNumber } from "../../utils/checko
 const MAX_THUMBS = 4;
 
 export default function OrderCard({ order }) {
+  const { search } = useLocation();
+  const fromProfile = new URLSearchParams(search).get("from") === "profile";
   const items = order.items ?? [];
   const count = orderItemCount(order);
   const extra = items.length - MAX_THUMBS;
+  const detailsTo = `/orders/${order.id}${fromProfile ? "?from=profile" : ""}`;
 
   return (
     <article className="bg-white border rounded-4 p-3 p-md-4">
@@ -38,7 +41,7 @@ export default function OrderCard({ order }) {
           <span className="small text-secondary d-block">Total</span>
           <span className="font-display fs-5 fw-semibold">{formatPrice(order.total)}</span>
         </div>
-        <Link to={`/orders/${order.id}`} className="btn btn-outline-secondary">
+        <Link to={detailsTo} className="btn btn-outline-secondary">
           View details
         </Link>
       </div>

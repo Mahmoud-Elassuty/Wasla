@@ -1,19 +1,22 @@
 import { useEffect } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useSearchParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { clearCurrentOrder, fetchOrderById } from "../store/reducers/ordersSlice";
 import OrderStatus from "../components/orders/OrderStatus";
 import { formatPrice } from "../utils/format";
 import { PAYMENT_METHOD_LABELS, formatOrderDate, orderItemCount, orderNumber } from "../utils/checkout";
+import ProfileReturnLink from "../components/common/ProfileReturnLink";
 
-const BackLink = () => (
+const BackLink = ({ fromProfile = false }) => fromProfile ? (
+  <ProfileReturnLink />
+) : (
   <Link to="/orders" className="btn btn-outline-secondary">
     <i className="bi bi-arrow-left me-1" aria-hidden="true" />
     Back to orders
   </Link>
 );
 
-function OrderView({ order }) {
+function OrderView({ order, fromProfile }) {
   const { customer = {}, shippingAddress: ship = {}, items = [] } = order;
   const payment = PAYMENT_METHOD_LABELS[order.paymentMethod] ?? { label: order.paymentMethod ?? "-", ar: null };
   const count = orderItemCount(order);
@@ -31,7 +34,7 @@ function OrderView({ order }) {
             <OrderStatus status={order.status} />
           </div>
         </div>
-        <BackLink />
+        <BackLink fromProfile={fromProfile} />
       </div>
 
       <div className="row g-4">
@@ -136,6 +139,7 @@ function OrderView({ order }) {
 
 export default function OrderDetails() {
   const { id } = useParams();
+  const [searchParams] = useSearchParams();
   const dispatch = useDispatch();
   const userId = useSelector((s) => s.auth.user?.id);
   const { currentOrder, detailsStatus, detailsError } = useSelector((s) => s.orders);
@@ -149,17 +153,18 @@ export default function OrderDetails() {
   }, [dispatch, id]);
 
   const order = currentOrder && String(currentOrder.id) === id ? currentOrder : null;
+  const fromProfile = searchParams.get("from") === "profile";
 
   // Only the owner may see an order. Someone else's order looks exactly like a missing one.
   // (JSON Server can't enforce this: a real backend must check ownership itself.)
-  if (order && String(order.userId) === String(userId)) return <OrderView order={order} />;
+  if (order && String(order.userId) === String(userId)) return <OrderView order={order} fromProfile={fromProfile} />;
 
   if (order || detailsStatus === "failed") {
     return (
       <div className="container py-5 text-center">
         <h1 className="h4">We couldn't find this order</h1>
         <p className="text-secondary">{order ? "Order not found." : detailsError}</p>
-        <BackLink />
+        <BackLink fromProfile={fromProfile} />
       </div>
     );
   }

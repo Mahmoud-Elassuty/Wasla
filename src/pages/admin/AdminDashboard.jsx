@@ -4,15 +4,19 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   fetchAdminOrders,
   fetchAdminProducts,
+  fetchAdminUsers,
   resetOrdersStatus,
   resetProductsStatus,
+  resetUsersStatus,
 } from "../../store/reducers/adminSlice";
+import AnalyticsOverview from "../../components/admin/AnalyticsOverview";
+import { ADMIN_LOW_STOCK_THRESHOLD, isLowStock } from "../../utils/adminAnalytics";
 import OrderStatus from "../../components/orders/OrderStatus";
 import { formatPrice } from "../../utils/format";
 import { formatOrderDate, orderNumber } from "../../utils/checkout";
 
 const RECENT_LIMIT = 8;
-const LOW_STOCK_LIMIT = 10; // "low" means this many units or fewer
+const LOW_STOCK_LIMIT = ADMIN_LOW_STOCK_THRESHOLD; // shared with the analytics Low stock KPI
 
 function StatCard({ label, value, icon, tone, loading }) {
   return (
@@ -39,19 +43,23 @@ function StatCard({ label, value, icon, tone, loading }) {
 export default function AdminDashboard() {
   const dispatch = useDispatch();
   const userName = useSelector((s) => s.auth.user?.name);
-  const { orders, ordersStatus, ordersError, products, productsStatus, productsError } = useSelector((s) => s.admin);
+  const { orders, ordersStatus, ordersError, products, productsStatus, productsError, users, usersStatus } = useSelector((s) => s.admin);
 
   const load = () => {
     dispatch(fetchAdminOrders());
     dispatch(fetchAdminProducts());
+    dispatch(fetchAdminUsers());
   };
 
   useEffect(() => {
     const a = dispatch(fetchAdminOrders());
     const b = dispatch(fetchAdminProducts());
+    const c = dispatch(fetchAdminUsers());
     return () => {
       a.abort();
       b.abort();
+      c.abort();
+      dispatch(resetUsersStatus());
       dispatch(resetOrdersStatus());
       dispatch(resetProductsStatus());
     };
@@ -72,12 +80,13 @@ export default function AdminDashboard() {
     [orders]
   );
   const lowStock = useMemo(
-    () => products.filter((p) => p.stock <= LOW_STOCK_LIMIT).sort((a, b) => a.stock - b.stock).slice(0, 5),
+    () => products.filter(isLowStock).sort((a, b) => a.stock - b.stock).slice(0, 5),
     [products]
   );
 
   const ordersLoading = orders.length === 0 && (ordersStatus === "idle" || ordersStatus === "loading");
   const productsLoading = products.length === 0 && (productsStatus === "idle" || productsStatus === "loading");
+  const usersLoading = users.length === 0 && (usersStatus === "idle" || usersStatus === "loading");
   const failed =
     (ordersStatus === "failed" && orders.length === 0) || (productsStatus === "failed" && products.length === 0);
 
@@ -111,6 +120,15 @@ export default function AdminDashboard() {
         </div>
       </div>
       <p className="small text-secondary mb-4">Revenue doesn't include cancelled orders.</p>
+
+      <AnalyticsOverview
+        orders={orders}
+        products={products}
+        users={users}
+        ordersLoading={ordersLoading}
+        productsLoading={productsLoading}
+        usersLoading={usersLoading}
+      />
 
       <div className="row g-4">
         <div className="col-xl-8">

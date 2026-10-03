@@ -1,185 +1,682 @@
-/* Category image cards, Navbar Categories menu and the /categories page. */
+/* =========================================================
+   CATEGORY IMAGE CARDS
+   NAVBAR CATEGORIES MENU
+   /categories PAGE
+   ========================================================= */
 
-/* ---- Image card (Home section + /categories page) ---- */
+
+/* =========================================================
+   Category Image Card
+   ========================================================= */
+
 .category-image-card {
   display: flex;
+
+  width: 100%;
   height: 100%;
   min-width: 0;
+
   flex-direction: column;
+
   overflow: hidden;
+
   border: 1px solid #eeedf4;
   border-radius: 1rem;
+
   background: #fff;
   color: inherit;
+
   text-decoration: none;
-  transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease;
+
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease,
+    border-color 0.18s ease;
+
   -webkit-tap-highlight-color: transparent;
 }
+
 .category-image-card:hover {
-  transform: translateY(-3px);
+  transform: translateY(-4px);
+
   border-color: #d9def2;
-  box-shadow: 0 0.8rem 1.7rem rgba(23, 38, 90, 0.1);
+
+  box-shadow:
+    0 0.8rem 1.7rem rgba(23, 38, 90, 0.1);
+
   color: inherit;
 }
-.category-image-card:active { transform: translateY(-1px); }
+
+.category-image-card:active {
+  transform: translateY(-1px);
+}
+
 .category-image-card:focus-visible {
   outline: 3px solid var(--wasla-accent);
   outline-offset: 3px;
 }
+
+
+/* =========================================================
+   Category Image
+   ========================================================= */
+
 .category-image-card-media {
   position: relative;
+
   display: block;
-  aspect-ratio: 4 / 3;
+
+  aspect-ratio: 16 / 10;
+
   overflow: hidden;
-  background: linear-gradient(135deg, #f3f5fc, #fff3ea);
+
+  background: linear-gradient(
+    135deg,
+    #f3f5fc,
+    #fff3ea
+  );
 }
+
 .category-image-card-media img {
   display: block;
+
   width: 100%;
   height: 100%;
-  object-fit: cover;
+
+  /*
+   * contain prevents product images from being cropped.
+   * Better for e-commerce category/product images.
+   */
+  object-fit: contain;
+
+  padding: 0.5rem;
+
   transition: transform 0.35s ease;
 }
-.category-image-card:hover .category-image-card-media img { transform: scale(1.05); }
+
+.category-image-card:hover
+.category-image-card-media img {
+  transform: scale(1.035);
+}
+
+
+/* =========================================================
+   Category Image Fallback
+   ========================================================= */
+
 .category-img-fallback {
   display: grid;
+
   width: 100%;
   height: 100%;
+
   place-items: center;
+
   color: var(--wasla-primary);
+
   font-size: 2.25rem;
+
   line-height: 1;
 }
+
+
+/* =========================================================
+   Category Card Body
+   ========================================================= */
+
 .category-image-card-body {
   display: flex;
+
   min-height: 3.5rem;
+
   align-items: center;
   justify-content: space-between;
+
   gap: 0.5rem;
+
   padding: 0.75rem 0.9rem;
 }
+
 .category-image-card-copy {
   display: flex;
+
   min-width: 0;
+
   flex-direction: column;
+
   gap: 0.15rem;
 }
+
 .category-image-card-copy strong {
   overflow-wrap: anywhere;
+
+  color: #111827;
+
   font-size: 1rem;
+  font-weight: 600;
+
   line-height: 1.25;
 }
-.category-image-card-copy small { color: var(--bs-secondary-color); font-size: 0.78rem; }
+
+.category-image-card-copy small {
+  color: var(--bs-secondary-color);
+
+  font-size: 0.78rem;
+}
+
+
+/* =========================================================
+   Category Card Arrow
+   ========================================================= */
+
 .category-image-card-arrow {
   flex: 0 0 auto;
+
   color: #8b91a5;
-  transition: transform 0.16s ease, color 0.16s ease;
+
+  transition:
+    transform 0.18s ease,
+    color 0.18s ease;
 }
-.category-image-card:hover .category-image-card-arrow,
-.category-image-card:focus-visible .category-image-card-arrow {
+
+.category-image-card:hover
+.category-image-card-arrow,
+.category-image-card:focus-visible
+.category-image-card-arrow {
   color: var(--wasla-accent-dark);
+
   transform: translate(2px, -2px);
 }
-.category-image-card.is-compact .category-image-card-body { padding: 0.6rem 0.7rem; }
-.category-image-card.is-compact .category-image-card-copy strong { font-size: 0.95rem; }
-.category-image-card-body .placeholder { height: 1rem; }
-@media (max-width: 575.98px) {
-  .category-image-card { border-radius: 0.85rem; }
-  .category-image-card-body { min-height: 3.25rem; padding: 0.6rem 0.65rem; gap: 0.3rem; }
-  .category-image-card-copy strong { font-size: 0.92rem; }
-  .category-image-card-arrow { display: none; }
-}
-@media (prefers-reduced-motion: reduce) {
-  .category-image-card,
-  .category-image-card-media img,
-  .category-image-card-arrow { transition: none; }
-  .category-image-card:hover,
-  .category-image-card:active { transform: none; }
-  .category-image-card:hover .category-image-card-media img { transform: none; }
+
+
+/* =========================================================
+   Compact Category Card
+   ========================================================= */
+
+.category-image-card.is-compact
+.category-image-card-body {
+  padding: 0.6rem 0.7rem;
 }
 
-/* ---- Home: "Show More Categories" action ---- */
-.home-categories-more { margin-top: 1.5rem; text-align: center; }
+.category-image-card.is-compact
+.category-image-card-copy strong {
+  font-size: 0.95rem;
+}
 
-/* ---- Navbar: main links on the left, Categories menu on the right ---- */
-.site-nav-row { padding-block: 0.25rem; }
-.site-nav-row > .nav-links-scroll { flex: 1 1 auto; min-width: 0; }
-.site-nav-row > .categories-dropdown { flex: 0 0 auto; }
+.category-image-card-body .placeholder {
+  height: 1rem;
+}
+
+
+/* =========================================================
+   Categories Grid
+   ========================================================= */
+
+/*
+  Desktop:
+  5 cards per row
+
+  Large tablet:
+  4 cards
+
+  Tablet:
+  3 cards
+
+  Mobile:
+  2 cards
+
+  Very small mobile:
+  1 card
+*/
+
+.categories-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(5, minmax(0, 1fr));
+
+  gap: 1.25rem;
+
+  width: 100%;
+}
+
+
+/* =========================================================
+   Categories Grid Responsive
+   ========================================================= */
+
+@media (max-width: 1199.98px) {
+  .categories-grid {
+    grid-template-columns:
+      repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 991.98px) {
+  .categories-grid {
+    grid-template-columns:
+      repeat(3, minmax(0, 1fr));
+
+    gap: 1rem;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .categories-grid {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+
+    gap: 0.85rem;
+  }
+}
+
+@media (max-width: 479.98px) {
+  .categories-grid {
+    grid-template-columns: 1fr;
+
+    gap: 0.85rem;
+  }
+}
+
+
+/* =========================================================
+   Home - Show More Categories
+   ========================================================= */
+
+.home-categories-more {
+  margin-top: 1.5rem;
+
+  text-align: center;
+}
+
+
+/* =========================================================
+   Navbar Layout
+   ========================================================= */
+
+.site-nav-row {
+  padding-block: 0.25rem;
+}
+
+.site-nav-row > .nav-links-scroll {
+  flex: 1 1 auto;
+
+  min-width: 0;
+}
+
+.site-nav-row > .categories-dropdown {
+  flex: 0 0 auto;
+}
+
+
+/* =========================================================
+   Categories Toggle
+   ========================================================= */
+
 .categories-toggle {
   display: inline-flex;
+
   min-height: 2.25rem;
+
   align-items: center;
+
   gap: 0.4rem;
+
   padding: 0.25rem 0.8rem;
+
   border: 1px solid var(--wasla-border);
+
   border-radius: 999px;
+
   background: #fff;
+
   color: var(--wasla-primary);
+
   font-size: 0.9rem;
   font-weight: 600;
+
   white-space: nowrap;
+
+  transition:
+    border-color 0.16s ease,
+    background-color 0.16s ease,
+    color 0.16s ease;
 }
+
 .categories-toggle:hover,
-.categories-toggle.show { border-color: var(--wasla-accent); background: #fff7f0; color: var(--wasla-primary); }
-.categories-toggle:focus-visible { outline: 3px solid var(--wasla-accent); outline-offset: 2px; }
-.categories-toggle-chevron { font-size: 0.7rem; transition: transform 0.16s ease; }
-.categories-toggle.show .categories-toggle-chevron { transform: rotate(180deg); }
-@media (max-width: 359.98px) {
-  .categories-toggle { padding-inline: 0.6rem; font-size: 0.82rem; gap: 0.3rem; }
+.categories-toggle.show {
+  border-color: var(--wasla-accent);
+
+  background: #fff7f0;
+
+  color: var(--wasla-primary);
 }
+
+.categories-toggle:focus-visible {
+  outline: 3px solid var(--wasla-accent);
+
+  outline-offset: 2px;
+}
+
+
+/* =========================================================
+   Categories Toggle Chevron
+   ========================================================= */
+
+.categories-toggle-chevron {
+  font-size: 0.7rem;
+
+  transition: transform 0.16s ease;
+}
+
+.categories-toggle.show
+.categories-toggle-chevron {
+  transform: rotate(180deg);
+}
+
+
+/* =========================================================
+   Categories Dropdown Menu
+   ========================================================= */
 
 .categories-menu {
-  width: min(34rem, calc(100vw - 1rem));
-  max-height: min(70vh, 30rem);
+  width: min(
+    34rem,
+    calc(100vw - 1rem)
+  );
+
+  max-height: min(
+    70vh,
+    30rem
+  );
+
   padding: 0.5rem;
+
   border: 1px solid var(--wasla-border);
+
   border-radius: 0.75rem;
+
   background: #fff;
-  box-shadow: 0 0.75rem 1.75rem rgba(15, 23, 42, 0.16);
+
+  box-shadow:
+    0 0.75rem 1.75rem rgba(15, 23, 42, 0.16);
 }
-/* Only the category list scrolls; "View All Categories" stays pinned and visible. */
-.categories-menu.show { display: flex; flex-direction: column; }
-.categories-menu-scroll { min-height: 0; flex: 1 1 auto; overflow-y: auto; overscroll-behavior: contain; }
+
+
+/* =========================================================
+   Categories Menu Layout
+   ========================================================= */
+
+.categories-menu.show {
+  display: flex;
+
+  flex-direction: column;
+}
+
+
+/*
+  Only the category list scrolls.
+  Footer / View All Categories stays visible.
+*/
+
+.categories-menu-scroll {
+  min-height: 0;
+
+  flex: 1 1 auto;
+
+  overflow-y: auto;
+
+  overscroll-behavior: contain;
+
+  scrollbar-width: thin;
+}
+
+
+/* =========================================================
+   Categories Menu Grid
+   ========================================================= */
+
 .categories-menu-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr);
+
+  grid-template-columns:
+    minmax(0, 1fr);
+
   gap: 0.15rem;
+
   margin: 0;
   padding: 0;
+
   list-style: none;
 }
+
 @media (min-width: 576px) {
-  .categories-menu-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .categories-menu-grid {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
 }
+
+
+/* =========================================================
+   Categories Menu Item
+   ========================================================= */
+
 .categories-menu-item {
   display: flex;
+
   min-height: 2.9rem;
   min-width: 0;
+
   align-items: center;
+
   gap: 0.6rem;
+
   padding: 0.35rem 0.5rem;
+
   border-radius: 0.5rem;
+
   color: #1f2937;
+
   text-decoration: none;
+
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
 }
+
 .categories-menu-item:hover,
-.categories-menu-item:focus-visible { background: var(--wasla-surface); color: var(--wasla-primary); }
-.categories-menu-item:focus-visible { outline: 2px solid var(--wasla-accent); outline-offset: -2px; }
+.categories-menu-item:focus-visible {
+  background: var(--wasla-surface);
+
+  color: var(--wasla-primary);
+}
+
+.categories-menu-item:focus-visible {
+  outline: 2px solid var(--wasla-accent);
+
+  outline-offset: -2px;
+}
+
+
+/* =========================================================
+   Categories Menu Thumbnail
+   ========================================================= */
+
 .categories-menu-thumb {
   display: block;
+
   width: 2.25rem;
   height: 2.25rem;
-  flex: 0 0 2.25rem;
-  overflow: hidden;
-  border-radius: 0.5rem;
-  background: linear-gradient(135deg, #f3f5fc, #fff3ea);
-}
-.categories-menu-thumb img { display: block; width: 100%; height: 100%; object-fit: cover; }
-.categories-menu-thumb .category-img-fallback { font-size: 1.1rem; }
-.categories-menu-copy { display: flex; min-width: 0; flex-direction: column; line-height: 1.2; }
-.categories-menu-name { overflow: hidden; font-size: 0.9rem; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
-.categories-menu-copy small { color: var(--bs-secondary-color); font-size: 0.72rem; }
-.categories-menu-footer { flex: 0 0 auto; margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid var(--wasla-border); }
 
-/* ---- /categories page ---- */
-.categories-page { min-width: 0; }
+  flex: 0 0 2.25rem;
+
+  overflow: hidden;
+
+  border-radius: 0.5rem;
+
+  background: linear-gradient(
+    135deg,
+    #f3f5fc,
+    #fff3ea
+  );
+}
+
+.categories-menu-thumb img {
+  display: block;
+
+  width: 100%;
+  height: 100%;
+
+  object-fit: cover;
+}
+
+.categories-menu-thumb
+.category-img-fallback {
+  font-size: 1.1rem;
+}
+
+
+/* =========================================================
+   Categories Menu Text
+   ========================================================= */
+
+.categories-menu-copy {
+  display: flex;
+
+  min-width: 0;
+
+  flex-direction: column;
+
+  line-height: 1.2;
+}
+
+.categories-menu-name {
+  overflow: hidden;
+
+  color: #1f2937;
+
+  font-size: 0.9rem;
+
+  font-weight: 600;
+
+  text-overflow: ellipsis;
+
+  white-space: nowrap;
+}
+
+.categories-menu-copy small {
+  color: var(--bs-secondary-color);
+
+  font-size: 0.72rem;
+}
+
+
+/* =========================================================
+   Categories Menu Footer
+   ========================================================= */
+
+.categories-menu-footer {
+  flex: 0 0 auto;
+
+  margin-top: 0.5rem;
+
+  padding-top: 0.5rem;
+
+  border-top: 1px solid var(--wasla-border);
+}
+
+
+/* =========================================================
+   /categories Page
+   ========================================================= */
+
+.categories-page {
+  min-width: 0;
+}
+
+
+/* =========================================================
+   Mobile Category Cards
+   ========================================================= */
+
+@media (max-width: 575.98px) {
+
+  .category-image-card {
+    border-radius: 0.85rem;
+  }
+
+  .category-image-card-media {
+    aspect-ratio: 16 / 10;
+  }
+
+  .category-image-card-media img {
+    padding: 0.35rem;
+  }
+
+  .category-image-card-body {
+    min-height: 3.25rem;
+
+    padding: 0.6rem 0.65rem;
+
+    gap: 0.3rem;
+  }
+
+  .category-image-card-copy strong {
+    font-size: 0.92rem;
+  }
+
+  .category-image-card-copy small {
+    font-size: 0.72rem;
+  }
+
+  .category-image-card-arrow {
+    display: none;
+  }
+}
+
+
+/* =========================================================
+   Very Small Screens
+   ========================================================= */
+
+@media (max-width: 359.98px) {
+
+  .categories-toggle {
+    padding-inline: 0.6rem;
+
+    font-size: 0.82rem;
+
+    gap: 0.3rem;
+  }
+
+  .category-image-card-body {
+    padding-inline: 0.6rem;
+  }
+}
+
+
+/* =========================================================
+   Reduced Motion
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+  .category-image-card,
+  .category-image-card-media img,
+  .category-image-card-arrow,
+  .categories-toggle,
+  .categories-menu-item {
+    transition: none;
+  }
+
+  .category-image-card:hover,
+  .category-image-card:active {
+    transform: none;
+  }
+
+  .category-image-card:hover
+  .category-image-card-media img {
+    transform: none;
+  }
+}

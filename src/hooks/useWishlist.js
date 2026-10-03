@@ -21,8 +21,10 @@ export default function useWishlist(productId) {
       navigate("/login", { state: { from: location } });
       return;
     }
-    if (pending) return;
-    dispatch(wished ? removeFromWishlist(productId) : addToWishlist(productId));
+    if (pending) return null;
+    return dispatch(
+      wished ? removeFromWishlist(productId) : addToWishlist(productId),
+    );
   };
 
   return { wished, pending, toggle };

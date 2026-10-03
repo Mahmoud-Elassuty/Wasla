@@ -3,7 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { addToCart, selectItemQuantity } from "../../store/reducers/cartSlice";
 import { formatPrice, getSalePrice, titleCase } from "../../utils/format";
-import { showError, showInfo, showSuccess } from "../../utils/notifications";
+import { showError, showSuccess } from "../../utils/notifications";
 import { getStockState, safeStock } from "../../utils/inventory";
 import useWishlist from "../../hooks/useWishlist";
 import "../../styles/wishlist.css";
@@ -54,13 +54,17 @@ export default function ProductCard({ product, imageFallback = false, homeDeal =
     dispatch(showSuccess(`Added "${product.title}" to cart.`));
   };
 
-  const handleToggleWish = () => {
+  const handleToggleWish = async () => {
+    if (!user) {
+      toggleWish();
+      return;
+    }
     const willRemove = wished; // current (pre-toggle) state, captured before the toggle fires
-    toggleWish();
-    if (!user) return; // guest gets redirected to login instead — no toast
+    const action = await toggleWish();
+    if (action?.meta.requestStatus !== "fulfilled") return;
     dispatch(
       willRemove
-        ? showInfo(`Removed "${product.title}" from wishlist.`)
+        ? showSuccess(`Removed "${product.title}" from wishlist.`)
         : showSuccess(`Added "${product.title}" to wishlist.`)
     );
   };

@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchOrders, resetListStatus, selectOrdersByUserId } from "../store/reducers/ordersSlice";
 import OrderCard from "../components/orders/OrderCard";
+import ProfileReturnLink from "../components/common/ProfileReturnLink";
+import { useSearchParams } from "react-router-dom";
 
 const Skeleton = () => (
   <div className="bg-white border rounded-4 p-4 placeholder-glow" aria-hidden="true">
@@ -15,6 +17,7 @@ const Skeleton = () => (
 
 export default function Orders() {
   const dispatch = useDispatch();
+  const [searchParams] = useSearchParams();
   const userId = useSelector((s) => s.auth.user?.id);
   const orders = useSelector((s) => selectOrdersByUserId(s, userId));
   const { status, error } = useSelector((s) => s.orders);
@@ -70,8 +73,13 @@ export default function Orders() {
   return (
     <div className="container py-4">
       <div className="mb-4">
-        <p className="eyebrow mb-1">My orders</p>
-        <h1 className="h3 mb-1">طلباتي</h1>
+        <div className="d-flex flex-wrap justify-content-between align-items-start gap-3">
+          <div>
+            <p className="eyebrow mb-1">My orders</p>
+            <h1 className="h3 mb-1">طلباتي</h1>
+          </div>
+          {searchParams.get("from") === "profile" && <ProfileReturnLink />}
+        </div>
         {hasOrders && (
           <p className="small text-secondary mb-0">
             {orders.length} {orders.length === 1 ? "order" : "orders"}

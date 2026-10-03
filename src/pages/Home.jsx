@@ -65,7 +65,7 @@ function HomeHero({ banner, productCount, categoryCount }) {
     <section className="container home-section-top">
       <div className="home-hero rounded-4 overflow-hidden">
         <div className="row align-items-stretch g-0">
-          <div className="col-lg-7">
+          <div className="col-md-7">
             <motion.div className="home-hero-copy h-100 p-4 p-md-5 d-flex flex-column justify-content-center" variants={heroTextGroup} initial="hidden" animate="show">
               <motion.span className="home-hero-eyebrow align-self-start mb-3" variants={heroTextItem}>
                 <i className="bi bi-stars me-2" aria-hidden="true" />Discover Wasla
@@ -88,7 +88,7 @@ function HomeHero({ banner, productCount, categoryCount }) {
               )}
             </motion.div>
           </div>
-          <div className="col-lg-5 d-flex">
+          <div className="col-md-5 d-flex">
             <motion.div className="home-hero-art position-relative" variants={heroArtVariants} initial="hidden" animate="show">
               {banner ? <HeroImage key={banner.id} banner={banner} /> : (
                 <div className="home-hero-art-fallback d-flex align-items-center justify-content-center" aria-hidden="true">

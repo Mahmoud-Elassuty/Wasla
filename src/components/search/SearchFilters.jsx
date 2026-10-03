@@ -22,6 +22,10 @@ export default function SearchFilters({
   onApplyPrice,
   hasActiveFilters,
   onClearAll,
+  filtersOpen = false,
+  isMobileDrawer = false,
+  onClose,
+  onApplyAndClose,
 }) {
   const [draftMin, setDraftMin] = useState(priceValue.min);
   const [draftMax, setDraftMax] = useState(priceValue.max);
@@ -41,14 +45,41 @@ export default function SearchFilters({
   const rightPct = ((draftMax - bounds.min) / rangeSpan) * 100;
 
   return (
-    <aside id="filters-panel" className="filters-sidebar collapse d-lg-block bg-white border rounded-4 p-3 p-lg-4">
-      <div className="d-flex justify-content-between align-items-center mb-3">
-        <h2 className="h6 mb-0">Filters</h2>
+    <>
+      {filtersOpen && isMobileDrawer && (
+        <button
+          type="button"
+          className="filters-drawer-backdrop"
+          aria-label="Close product filters"
+          tabIndex={-1}
+          onClick={onClose}
+        />
+      )}
+      <aside
+        id="filters-panel"
+        className={`filters-sidebar bg-white border rounded-4 p-3 p-lg-4${filtersOpen ? " is-open" : ""}`}
+        role={filtersOpen && isMobileDrawer ? "dialog" : undefined}
+        aria-modal={filtersOpen && isMobileDrawer ? "true" : undefined}
+        aria-labelledby="filters-panel-title"
+      >
+      <div className="filters-panel-header d-flex justify-content-between align-items-center mb-3">
+        <h2 id="filters-panel-title" className="h6 mb-0">Filters</h2>
+        <div className="d-flex align-items-center gap-3">
         {hasActiveFilters && (
-          <button type="button" className="btn btn-link btn-sm p-0" onClick={onClearAll}>
+          <button type="button" className="btn btn-link btn-sm p-0 filters-clear-desktop" onClick={onClearAll}>
             Clear all
           </button>
         )}
+          <button
+            id="filters-panel-close"
+            type="button"
+            className="btn btn-sm btn-outline-secondary d-md-none"
+            aria-label="Close product filters"
+            onClick={onClose}
+          >
+            <i className="bi bi-x-lg" aria-hidden="true" />
+          </button>
+        </div>
       </div>
 
       {categoryOptions.length > 0 && (
@@ -176,6 +207,16 @@ export default function SearchFilters({
           In stock only
         </label>
       </div>
-    </aside>
+
+      <div className="filters-panel-actions d-md-none d-flex gap-2">
+        <button type="button" className="btn btn-outline-secondary flex-fill" disabled={!hasActiveFilters} onClick={onClearAll}>
+          Clear filters
+        </button>
+        <button type="button" className="btn btn-accent flex-fill" onClick={onApplyAndClose}>
+          Apply filters
+        </button>
+      </div>
+      </aside>
+    </>
   );
 }

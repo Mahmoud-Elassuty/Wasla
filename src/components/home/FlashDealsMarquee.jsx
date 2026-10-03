@@ -1,15 +1,32 @@
-import { useEffect, useMemo, useRef } from "react";
-import { useLocation } from "react-router-dom";
-import { animate, motion, useMotionValue, useReducedMotion, useTransform } from "motion/react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { getSalePrice } from "../../utils/format";
 import { getStockState } from "../../utils/inventory";
-import FlashDealCard from "./FlashDealCard";
+import ProductCard from "../products/ProductCard";
 import "../../styles/flash-deals-marquee.css";
 
 const MAX_DEALS = 30;
-const MIN_CARDS_PER_GROUP = 8; // one group must be wider than the widest viewport so the loop never shows a gap
 
 const isPositiveNumber = (value) => typeof value === "number" && Number.isFinite(value) && value > 0;
+
+function getCardsPerPage() {
+  if (typeof window === "undefined") return 4;
+  if (window.innerWidth < 768) return 2;
+  if (window.innerWidth < 1024) return 2;
+  return 4;
+}
+
+function useCardsPerPage() {
+  const [cardsPerPage, setCardsPerPage] = useState(getCardsPerPage);
+
+  useEffect(() => {
+    const updateCardsPerPage = () => setCardsPerPage(getCardsPerPage());
+    window.addEventListener("resize", updateCardsPerPage);
+    return () => window.removeEventListener("resize", updateCardsPerPage);
+  }, []);
+
+  return cardsPerPage;
+}
 
 // Real, currently purchasable discounted products only; read-only derivation from catalog data.
 // Sort: highest discount, then rating (desc), then title A-Z.
@@ -34,91 +51,82 @@ function buildFlashDeals(products) {
 
 export default function FlashDealsMarquee({ products }) {
   const prefersReducedMotion = useReducedMotion();
-  const location = useLocation();
-  const backTo = `${location.pathname}${location.search}`;
   const deals = useMemo(() => buildFlashDeals(products), [products]);
-
-  // Filler copies (only when there are few deals) are purely visual and never exposed to assistive tech.
-  const fillerCount = deals.length === 0 ? 0 : Math.max(0, MIN_CARDS_PER_GROUP - deals.length);
-  const duration = Math.min(75, Math.max(60, (deals.length + fillerCount) * 2.5)); // seconds per full loop
-
-  const progress = useMotionValue(0); // 0 -> -50 (%) across two identical groups = exactly one group width
-  const x = useTransform(progress, (value) => `${value}%`);
-  const controlsRef = useRef(null);
+  const cardsPerPage = useCardsPerPage();
+  const [activePage, setActivePage] = useState(0);
   const viewportRef = useRef(null);
-  const hoverRef = useRef(false);
-  const focusRef = useRef(false);
+  const pages = useMemo(() => {
+    const pageCount = Math.ceil(deals.length / cardsPerPage);
+    return Array.from({ length: pageCount }, (_, index) =>
+      deals.slice(index * cardsPerPage, (index + 1) * cardsPerPage)
+    );
+  }, [deals, cardsPerPage]);
+  const pageCount = pages.length;
+  const currentPage = pageCount > 0 ? activePage % pageCount : 0;
+  const currentDeals = pages[currentPage] ?? [];
 
-  const hasDeals = deals.length > 0;
   useEffect(() => {
-    if (prefersReducedMotion || !hasDeals) return undefined;
-    progress.set(0);
-    const controls = animate(progress, -50, { duration, ease: "linear", repeat: Infinity, repeatType: "loop" });
-    controlsRef.current = controls;
-    return () => { controls.stop(); controlsRef.current = null; };
-  }, [prefersReducedMotion, hasDeals, duration, progress]);
+    if (activePage >= pageCount) setActivePage(0);
+  }, [activePage, pageCount]);
 
-  const syncPlayback = () => {
-    const controls = controlsRef.current;
-    if (!controls) return;
-    if (hoverRef.current || focusRef.current) controls.pause();
-    else controls.play();
-  };
+  useEffect(() => {
+    if (pageCount <= 1) return undefined;
+    const timerId = window.setInterval(() => {
+      if (viewportRef.current?.contains(document.activeElement)) return;
+      setActivePage((page) => (page + 1) % pageCount);
+    }, 4000);
+    return () => window.clearInterval(timerId);
+  }, [pageCount]);
 
-  if (!hasDeals) {
+  if (deals.length === 0) {
     return <div className="home-empty-state">There are no discounted products right now. Browse the full catalog instead.</div>;
   }
 
-  if (prefersReducedMotion) {
-    return (
-      <div className="flash-deals-static" role="region" aria-label="Flash deals">
-        <ul className="flash-deals-group list-unstyled mb-0">
-          {deals.map((product) => (
-            <li key={product.id}><FlashDealCard product={product} backTo={backTo} /></li>
-          ))}
-        </ul>
-      </div>
-    );
-  }
+  const initial = prefersReducedMotion
+    ? { opacity: 0 }
+    : { opacity: 0, y: 8, rotateX: -1.5 };
+  const exit = prefersReducedMotion
+    ? { opacity: 0 }
+    : { opacity: 0, y: -6, rotateX: 1.5 };
 
   return (
-    <div
-      ref={viewportRef}
-      className="flash-deals-viewport"
-      role="region"
-      aria-label="Flash deals"
-      onPointerEnter={(event) => { if (event.pointerType === "mouse") { hoverRef.current = true; syncPlayback(); } }}
-      onPointerLeave={(event) => { if (event.pointerType === "mouse") { hoverRef.current = false; syncPlayback(); } }}
-      onFocus={() => { focusRef.current = true; syncPlayback(); }}
-      onBlur={(event) => {
-        if (viewportRef.current?.contains(event.relatedTarget)) return;
-        focusRef.current = false;
-        if (viewportRef.current) viewportRef.current.scrollLeft = 0; // undo the browser's focus auto-scroll before resuming
-        syncPlayback();
-      }}
-    >
-      <motion.div className="flash-deals-track" style={{ x }}>
-        {/* Group 1: every real deal once (accessible), plus decorative fillers when the catalog has few deals. */}
-        <ul className="flash-deals-group list-unstyled mb-0">
-          {deals.map((product) => (
-            <li key={product.id}><FlashDealCard product={product} backTo={backTo} /></li>
+    <div className="flash-deals-carousel" role="region" aria-roledescription="carousel" aria-label="Flash deals">
+      <div className="flash-deals-viewport" aria-live="off">
+        <div ref={viewportRef} className="flash-deals-page-stage">
+          <AnimatePresence initial={false}>
+            <motion.ul
+              key={`${cardsPerPage}:${currentDeals.map((product) => product.id).join(":")}`}
+              className="flash-deals-page"
+              aria-label={`Flash Deals page ${currentPage + 1} of ${pageCount}`}
+              initial={initial}
+              animate={{ opacity: 1, y: 0, ...(prefersReducedMotion ? {} : { rotateX: 0 }) }}
+              exit={exit}
+              transition={{ duration: prefersReducedMotion ? 0.16 : 0.45, ease: "easeInOut" }}
+              style={{ "--flash-deal-columns": cardsPerPage, transformOrigin: "center center" }}
+            >
+              {currentDeals.map((product) => (
+                <li key={product.id}>
+                  <ProductCard product={product} homeDeal imageFallback />
+                </li>
+              ))}
+            </motion.ul>
+          </AnimatePresence>
+        </div>
+      </div>
+      {pageCount > 1 && (
+        <div className="flash-deals-pagination" role="group" aria-label="Flash Deals pages">
+          {pages.map((page, index) => (
+            <button
+              key={page[0].id}
+              type="button"
+              className={`flash-deals-dot${index === currentPage ? " is-active" : ""}`}
+              aria-label={`Go to Flash Deals page ${index + 1}`}
+              aria-current={index === currentPage ? "page" : undefined}
+              onClick={() => setActivePage(index)}
+            />
           ))}
-          {Array.from({ length: fillerCount }, (_, index) => {
-            const product = deals[index % deals.length];
-            return <li key={`filler-${index}`} aria-hidden="true"><FlashDealCard product={product} backTo={backTo} decorative /></li>;
-          })}
-        </ul>
-        {/* Group 2: identical visual copy for the seamless loop; hidden from assistive tech and the Tab order. */}
-        <ul className="flash-deals-group list-unstyled mb-0" aria-hidden="true">
-          {deals.map((product) => (
-            <li key={product.id}><FlashDealCard product={product} backTo={backTo} decorative /></li>
-          ))}
-          {Array.from({ length: fillerCount }, (_, index) => {
-            const product = deals[index % deals.length];
-            return <li key={`filler-${index}`}><FlashDealCard product={product} backTo={backTo} decorative /></li>;
-          })}
-        </ul>
-      </motion.div>
+        </div>
+      )}
     </div>
   );
 }

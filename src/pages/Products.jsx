@@ -1,8 +1,9 @@
-import { useEffect, useMemo } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Link, useSearchParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchCategories, fetchProducts } from "../store/reducers/productsSlice";
 import ProductList from "../components/products/ProductList";
+import ProductCard from "../components/products/ProductCard";
 import ProductSearch from "../components/common/ProductSearch";
 import SearchFilters from "../components/search/SearchFilters";
 import MobileFiltersToggle from "../components/common/MobileFiltersToggle";
@@ -11,6 +12,7 @@ import { matchesProductQuery } from "../utils/productSearch";
 import Pagination, { ResultsSummary } from "../components/common/Pagination";
 import usePagination from "../hooks/usePagination";
 import "../styles/search.css";
+import "../styles/customer-experience.css";
 
 const SORTS = {
   featured: { label: "Featured", compare: null },
@@ -25,7 +27,37 @@ const parseList = (raw) => (raw ? raw.split(",").filter(Boolean) : []);
 export default function Products() {
   const dispatch = useDispatch();
   const { items, categories, status, error } = useSelector((s) => s.products);
+  const user = useSelector((s) => s.auth.user);
   const [params, setParams] = useSearchParams();
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  const [sortOpen, setSortOpen] = useState(false);
+  const [isMobileDrawer, setIsMobileDrawer] = useState(() =>
+    typeof window !== "undefined" && window.matchMedia("(max-width: 767.98px)").matches
+  );
+  const filterToggleRef = useRef(null);
+
+  useEffect(() => {
+    const syncViewport = () => setIsMobileDrawer(window.matchMedia("(max-width: 767.98px)").matches);
+    window.addEventListener("resize", syncViewport);
+    return () => window.removeEventListener("resize", syncViewport);
+  }, []);
+
+  useEffect(() => {
+    if (!filtersOpen || !isMobileDrawer) return undefined;
+    const previousOverflow = document.body.style.overflow;
+    const focusFrame = window.requestAnimationFrame(() => document.getElementById("filters-panel-close")?.focus());
+    const closeOnEscape = (event) => {
+      if (event.key === "Escape") setFiltersOpen(false);
+    };
+    document.body.style.overflow = "hidden";
+    document.addEventListener("keydown", closeOnEscape);
+    return () => {
+      window.cancelAnimationFrame(focusFrame);
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener("keydown", closeOnEscape);
+      filterToggleRef.current?.focus();
+    };
+  }, [filtersOpen, isMobileDrawer]);
 
   // Filters live in the URL, so they survive refresh, back/forward and the navbar search.
   // `category` stays a plain (comma-joinable) param name for backward compatibility with
@@ -73,6 +105,10 @@ export default function Products() {
     });
 
   const resetFilters = () => setParams({}, { replace: true });
+  const closeFilters = () => setFiltersOpen(false);
+  const applyFiltersAndClose = () => {
+    closeFilters();
+  };
 
   const categoryOptions = useMemo(
     () =>
@@ -103,9 +139,9 @@ export default function Products() {
     priceMin !== bounds.min ||
     priceMax !== bounds.max;
 
-  const visible = useMemo(() => {
+  const filteredProducts = useMemo(() => {
     const q = search.trim().toLowerCase();
-    const list = items.filter((p) => {
+    return items.filter((p) => {
       const price = getSalePrice(p);
       return (
         (!q || matchesProductQuery(p, q)) &&
@@ -117,14 +153,57 @@ export default function Products() {
         price <= priceMax
       );
     });
-    const { compare } = SORTS[sort];
-    return compare ? [...list].sort(compare) : list;
-  }, [items, search, selectedCategories, selectedBrands, ratingMin, inStockOnly, priceMin, priceMax, sort]);
+  }, [items, search, selectedCategories, selectedBrands, ratingMin, inStockOnly, priceMin, priceMax]);
 
-  // Pagination runs last: after search, category, brand, rating, stock, price and sort.
-  const { items: pageItems, page, totalPages, total, start, end, goToPage, resultsRef } = usePagination(visible, {
+  const { suggestedProducts, otherProducts, orderedProducts } = useMemo(() => {
+    const hasInterests = user?.role === "customer"
+      && Array.isArray(user.interests)
+      && user.interests.length > 0;
+    const interests = new Set(hasInterests ? user.interests : []);
+    const { compare } = SORTS[sort];
+    const sortGroup = (group) => compare ? [...group].sort(compare) : group;
+    const matchingProducts = hasInterests
+      ? filteredProducts.filter((product) => interests.has(product.category))
+      : [];
+
+    if (matchingProducts.length === 0) {
+      const sortedProducts = sortGroup(filteredProducts);
+      return { suggestedProducts: [], otherProducts: sortedProducts, orderedProducts: sortedProducts };
+    }
+
+    const seen = new Set();
+    const suggested = [];
+    const other = [];
+
+    for (const product of filteredProducts) {
+      const id = String(product.id);
+      if (hasInterests && seen.has(id)) continue;
+      if (hasInterests) seen.add(id);
+      if (hasInterests && interests.has(product.category)) suggested.push(product);
+      else other.push(product);
+    }
+
+    const sortedSuggested = sortGroup(suggested);
+    const sortedOther = sortGroup(other);
+
+    return {
+      suggestedProducts: sortedSuggested,
+      otherProducts: sortedOther,
+      orderedProducts: [...sortedSuggested, ...sortedOther],
+    };
+  }, [filteredProducts, sort, user]);
+
+  const suggestedProductIds = useMemo(
+    () => new Set(suggestedProducts.map((product) => String(product.id))),
+    [suggestedProducts]
+  );
+
+  // Pagination runs after filters, per-group sorting and recommendation ordering.
+  const { items: pageItems, page, totalPages, total, start, end, goToPage, resultsRef } = usePagination(orderedProducts, {
     loaded: status === "succeeded",
   });
+  const pageSuggestedProducts = pageItems.filter((product) => suggestedProductIds.has(String(product.id)));
+  const pageOtherProducts = pageItems.filter((product) => !suggestedProductIds.has(String(product.id)));
 
   const heading = search
     ? `Search results for “${search}”`
@@ -162,26 +241,48 @@ export default function Products() {
         <ProductSearch variant="products-page" />
       </div>
 
-      <div className="row g-2 mb-4">
-        <div className="d-flex justify-content-end mb-4">
-          <select
-            className="form-select w-auto"
-            aria-label="Sort products"
-            value={sort}
-            onChange={(e) => setParam({ sort: e.target.value })}
+<div className="products-sort-control">
+  <label className="products-sort-label">Sort by</label>
+
+  <div className="products-sort-dropdown">
+    <button
+      type="button"
+      className="products-sort-trigger"
+      aria-expanded={sortOpen}
+      aria-haspopup="listbox"
+      onClick={() => setSortOpen((open) => !open)}
+    >
+      <span>{SORTS[sort].label}</span>
+      <i className={`bi bi-chevron-${sortOpen ? "up" : "down"}`} aria-hidden="true" />
+    </button>
+
+    {sortOpen && (
+      <div className="products-sort-menu" role="listbox">
+        {Object.entries(SORTS).map(([key, { label }]) => (
+          <button
+            key={key}
+            type="button"
+            className={`products-sort-option${sort === key ? " active" : ""}`}
+            role="option"
+            aria-selected={sort === key}
+            onClick={() => {
+              setParam({ sort: key });
+              setSortOpen(false);
+            }}
           >
-            {Object.entries(SORTS).map(([key, { label }]) => (
-              <option key={key} value={key}>
-                {label}
-              </option>
-            ))}
-          </select>
-        </div>
+            <span>{label}</span>
+            {sort === key && (
+              <i className="bi bi-check2" aria-hidden="true" />
+            )}
+          </button>
+        ))}
       </div>
+    )}
+  </div>
+</div>
 
       <div className="row g-4">
         <div className="col-lg-3">
-          <MobileFiltersToggle active={hasActiveFilters} />
           <SearchFilters
             categoryOptions={categoryOptions}
             selectedCategories={selectedCategories}
@@ -198,20 +299,78 @@ export default function Products() {
             onApplyPrice={(min, max) => setParam({ priceMin: min, priceMax: max })}
             hasActiveFilters={hasActiveFilters}
             onClearAll={resetFilters}
+            filtersOpen={filtersOpen}
+            isMobileDrawer={isMobileDrawer}
+            onClose={closeFilters}
+            onApplyAndClose={applyFiltersAndClose}
           />
         </div>
 
-        <div className="col-lg-9 pagination-results-anchor" ref={resultsRef}>
-          <ProductList
-            products={pageItems}
-            searchQuery={search}
-            status={status}
-            error={error}
-            hasItems={items.length > 0}
-            onRetry={() => dispatch(fetchProducts())}
-            onReset={search ? () => setParam({ search: "" }) : resetFilters}
-          />
-          <Pagination page={page} totalPages={totalPages} onPageChange={goToPage} />
+        <div className="col-lg-9">
+          <div className="pagination-results-anchor" ref={resultsRef}>
+            {suggestedProducts.length === 0 ? (
+              <ProductList
+                products={pageItems}
+                searchQuery={search}
+                status={status}
+                error={error}
+                hasItems={items.length > 0}
+                onRetry={() => dispatch(fetchProducts())}
+                onReset={search ? () => setParam({ search: "" }) : resetFilters}
+              />
+            ) : (
+              <>
+                {pageSuggestedProducts.length > 0 && (
+                  <section className="products-catalog-group mb-4" aria-labelledby="suggested-products-title">
+                    <div className="d-flex flex-wrap justify-content-between align-items-end gap-2 mb-3">
+                      <div>
+                        <h2 id="suggested-products-title" className="h5 font-display mb-1">Suggested for You</h2>
+                        <p className="small text-secondary mb-0">Based on your interests</p>
+                      </div>
+                      <Link to="/profile?section=interests" className="small fw-semibold text-decoration-none">
+                        Manage Interests
+                      </Link>
+                    </div>
+                    <ProductList
+                      products={pageSuggestedProducts}
+                      searchQuery={search}
+                      status={status}
+                      error={error}
+                      hasItems={items.length > 0}
+                      onRetry={() => dispatch(fetchProducts())}
+                      onReset={search ? () => setParam({ search: "" }) : resetFilters}
+                    />
+                  </section>
+                )}
+                {pageOtherProducts.length > 0 && (
+                  <section className="products-catalog-group">
+                    {suggestedProducts.length > 0 && <h2 className="h5 font-display mb-3">All Products</h2>}
+                    <ProductList
+                      products={pageOtherProducts}
+                      searchQuery={search}
+                      status={status}
+                      error={error}
+                      hasItems={items.length > 0}
+                      onRetry={() => dispatch(fetchProducts())}
+                      onReset={search ? () => setParam({ search: "" }) : resetFilters}
+                    />
+                  </section>
+                )}
+                {pageItems.length === 0 && (
+                  <ProductList
+                    products={pageItems}
+                    searchQuery={search}
+                    status={status}
+                    error={error}
+                    hasItems={items.length > 0}
+                    onRetry={() => dispatch(fetchProducts())}
+                    onReset={search ? () => setParam({ search: "" }) : resetFilters}
+                  />
+                )}
+              </>
+            )}
+            <Pagination page={page} totalPages={totalPages} onPageChange={goToPage} />
+          </div>
         </div>
       </div>
     </div>

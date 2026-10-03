@@ -9,3 +9,9 @@
 .wishlist-btn:hover:not(:disabled) { color: #ef4444; border-color: #fca5a5; }
 .wishlist-btn.active { color: #ef4444; }
 .wishlist-btn:disabled { opacity: 0.6; }
+
+/* ---- Wishlist search (Favorites page) ---- */
+.wishlist-search { max-width: 28rem; }
+.wishlist-search .input-group-text { border-color: var(--wasla-border); color: #6b7280; }
+/* our own Clear button replaces the browser's built-in one */
+.wishlist-search input[type="search"]::-webkit-search-cancel-button { display: none; }

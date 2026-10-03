@@ -14,10 +14,30 @@
 }
 
 /* ---- Long text: wrap instead of overflowing (never affects text that already fits) ---- */
-main :where(h1, h2, h3, h4, h5, h6, p, li, dt, dd, label, td, th, a, .alert, .badge) {
+main
+  :where(
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6,
+    p,
+    li,
+    dt,
+    dd,
+    label,
+    td,
+    th,
+    a,
+    .alert,
+    .badge
+  ) {
   overflow-wrap: break-word;
 }
-main :where(td, th) { min-width: 0; }
+main :where(td, th) {
+  min-width: 0;
+}
 
 /* ---- Mobile bottom navigation ---- */
 .mobile-bottom-nav {
@@ -38,7 +58,9 @@ main :where(td, th) { min-width: 0; }
   height: var(--mobile-nav-h);
   padding: 0;
 }
-.mobile-bottom-nav-item { min-width: 0; }
+.mobile-bottom-nav-item {
+  min-width: 0;
+}
 .mobile-bottom-nav-link {
   position: relative;
   display: flex;
@@ -54,8 +76,12 @@ main :where(td, th) { min-width: 0; }
   text-decoration: none;
   -webkit-tap-highlight-color: transparent;
 }
-.mobile-bottom-nav-link:hover { color: var(--wasla-primary); }
-.mobile-bottom-nav-link.active { color: var(--wasla-primary); }
+.mobile-bottom-nav-link:hover {
+  color: var(--wasla-primary);
+}
+.mobile-bottom-nav-link.active {
+  color: var(--wasla-primary);
+}
 .mobile-bottom-nav-link.active::before {
   position: absolute;
   top: 0;
@@ -70,7 +96,11 @@ main :where(td, th) { min-width: 0; }
   outline-offset: -3px;
   border-radius: 0.5rem;
 }
-.mobile-bottom-nav-icon { position: relative; font-size: 1.3rem; line-height: 1; }
+.mobile-bottom-nav-icon {
+  position: relative;
+  font-size: 1.3rem;
+  line-height: 1;
+}
 .mobile-bottom-nav-badge {
   position: absolute;
   top: -0.45rem;
@@ -97,13 +127,19 @@ main :where(td, th) { min-width: 0; }
 @media (max-width: 767.98px) {
   /* Reserve room so neither the page nor the footer ends up behind the bar. */
   .has-mobile-nav {
-    --bottom-nav-offset: calc(var(--mobile-nav-h) + env(safe-area-inset-bottom, 0px));
+    --bottom-nav-offset: calc(
+      var(--mobile-nav-h) + env(safe-area-inset-bottom, 0px)
+    );
     padding-bottom: var(--bottom-nav-offset);
   }
 }
 @media (max-width: 359.98px) {
-  .mobile-bottom-nav-link { font-size: 0.62rem; }
-  .mobile-bottom-nav-icon { font-size: 1.2rem; }
+  .mobile-bottom-nav-link {
+    font-size: 0.62rem;
+  }
+  .mobile-bottom-nav-icon {
+    font-size: 1.2rem;
+  }
 }
 
 /* ---- Public navbar ---- */
@@ -121,57 +157,134 @@ main :where(td, th) { min-width: 0; }
     min-height: 2.5rem;
     padding-block: 0;
   }
-  .site-header .nav-links-scroll { scroll-snap-type: x proximity; }
-  .site-header .nav-link-wasla { scroll-snap-align: start; }
+  .site-header .nav-links-scroll {
+    scroll-snap-type: x proximity;
+  }
+  .site-header .nav-link-wasla {
+    scroll-snap-align: start;
+  }
 }
 @media (max-width: 399.98px) {
-  .site-header .brand-ar { display: none; } /* keeps logo + 4 controls on one row at 320-390px */
+  .site-header .brand-ar {
+    display: none;
+  } /* keeps logo + 4 controls on one row at 320-390px */
 }
 /* Header dropdowns (cart preview, notifications, account) must never run off-screen. */
 @media (max-width: 575.98px) {
-  .site-header .dropdown-menu { max-width: calc(100vw - 1rem); }
+  .site-header .dropdown-menu {
+    max-width: calc(100vw - 1rem);
+  }
   .site-header .cart-dropdown,
-  .site-header .notification-dropdown { width: min(340px, calc(100vw - 1rem)); }
+  .site-header .notification-dropdown {
+    width: min(340px, calc(100vw - 1rem));
+  }
+}
+
+/* ---- Mobile secondary navigation ---- */
+@media (max-width: 767.98px) {
+  .site-header .site-nav {
+    border-top: 0 !important;
+  }
+  .site-header .site-nav-row.site-nav-row-mobile-categories {
+    justify-content: center;
+    padding-block: 0.4rem;
+  }
+  .site-header .site-nav-row-mobile-categories .categories-toggle {
+    min-height: 2.5rem;
+  }
 }
 
 /* ---- Forms: comfortable touch sizes, no iOS focus-zoom ---- */
 @media (max-width: 767.98px) {
-  .form-control, .form-select,
-  .form-control-sm, .form-select-sm { font-size: 1rem; }
-  .btn-sm { min-height: 2.25rem; }
-  .form-check-input { width: 1.2em; height: 1.2em; }
+  .form-control,
+  .form-select,
+  .form-control-sm,
+  .form-select-sm {
+    font-size: 1rem;
+  }
+  .btn-sm {
+    min-height: 2.25rem;
+  }
+  .form-check-input {
+    width: 1.2em;
+    height: 1.2em;
+  }
 }
 
 /* ---- Product cards & grids ---- */
-.product-price { font-size: 1.25rem; }
+.product-price {
+  font-size: 1.25rem;
+}
 @media (max-width: 575.98px) {
-  .product-price { font-size: 1.05rem; }
-  .product-card-title { font-size: 0.9rem; }
-  .product-card .btn { font-size: 0.85rem; padding-inline: 0.5rem; }
-  .product-card .rating-badge { padding-inline: 0.4rem; font-size: 0.72rem; }
-  .product-card .home-deal-cart-btn { width: 2.4rem; height: 2.4rem; }
+  .product-price {
+    font-size: 1.05rem;
+  }
+  .product-card-title {
+    font-size: 0.9rem;
+  }
+  .product-card .btn {
+    font-size: 0.85rem;
+    padding-inline: 0.5rem;
+  }
+  .product-card .rating-badge {
+    padding-inline: 0.4rem;
+    font-size: 0.72rem;
+  }
+  .product-card .home-deal-cart-btn {
+    width: 2.4rem;
+    height: 2.4rem;
+  }
 }
 
 /* ---- Home ---- */
 @media (max-width: 575.98px) {
   /* Two-up category cards: stack icon over text so names have room */
-  .home-category-card { flex-direction: column; align-items: flex-start; justify-content: center; min-height: 0; }
-  .home-category-copy { width: 100%; }
-  .home-collection-card h2 { max-width: none; }
-  .home-hero-stats { gap: 1rem !important; }
-  .home-hero-copy .btn { flex: 1 1 auto; }
-  .home-section-heading { align-items: flex-start !important; }
+  .home-category-card {
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    min-height: 0;
+  }
+  .home-category-copy {
+    width: 100%;
+  }
+  .home-collection-card h2 {
+    max-width: none;
+  }
+  .home-hero-stats {
+    gap: 1rem !important;
+  }
+  .home-hero-copy .btn {
+    flex: 1 1 auto;
+  }
+  .home-section-heading {
+    align-items: flex-start !important;
+  }
 }
-.home-page { overflow-x: visible; } /* the real overflow sources are fixed at the element level */
+.home-page {
+  overflow-x: visible;
+} /* the real overflow sources are fixed at the element level */
 
 /* ---- Cart, checkout, orders ---- */
 @media (max-width: 359.98px) {
-  .cart-thumb { width: 60px; height: 60px; }
-  .cart-item { gap: 0.6rem !important; }
+  .cart-thumb {
+    width: 60px;
+    height: 60px;
+  }
+  .cart-item {
+    gap: 0.6rem !important;
+  }
 }
-.payment-option { min-height: 3.5rem; }
-.payment-option > .flex-grow-1 { min-width: 0; }
-.checkout-summary dd, .cart-summary dd { text-align: end; }
+.payment-option {
+  min-height: 3.5rem;
+}
+.payment-option > .flex-grow-1 {
+  min-width: 0;
+}
+.checkout-summary dd,
+.cart-summary dd {
+  text-align: end;
+}
 
 /* ---- Shared sticky offsets: header is sticky on all sizes, so only lg+ sticks sidebars ---- */
 
@@ -179,7 +292,9 @@ main :where(td, th) { min-width: 0; }
 @media (max-width: 575.98px) {
   .toast-stack {
     top: auto;
-    bottom: calc(var(--mobile-nav-h) + env(safe-area-inset-bottom, 0px) + 0.75rem);
+    bottom: calc(
+      var(--mobile-nav-h) + env(safe-area-inset-bottom, 0px) + 0.75rem
+    );
     inset-inline: 0.75rem;
     width: auto;
     flex-direction: column-reverse;
@@ -187,8 +302,79 @@ main :where(td, th) { min-width: 0; }
 }
 
 /* ---- Tables (Admin / Seller): the scroll happens inside .table-responsive, never on the page ---- */
-.table-responsive { max-width: 100%; -webkit-overflow-scrolling: touch; }
-.admin-table td, .admin-table th { vertical-align: middle; }
+.table-responsive {
+  max-width: 100%;
+  -webkit-overflow-scrolling: touch;
+}
+.admin-table td,
+.admin-table th {
+  vertical-align: middle;
+}
 @media (max-width: 767.98px) {
-  .admin-table td .btn { white-space: nowrap; }
+  .admin-table td .btn {
+    white-space: nowrap;
+  }
+}
+
+
+/* =========================================================
+   Final overflow / floating UI hardening
+   ========================================================= */
+html,
+body,
+#root {
+  width: 100%;
+  max-width: 100%;
+  min-height: 100%;
+}
+
+body {
+  overflow-x: clip;
+}
+
+main,
+main > * {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.row > * {
+  min-width: 0;
+}
+
+@media (max-width: 767.98px) {
+  .site-header .container {
+    width: 100%;
+  }
+
+  .site-header-top {
+    row-gap: 0.45rem !important;
+  }
+
+  .site-header .product-search {
+    width: 100%;
+  }
+
+  .site-nav-row-mobile-categories {
+    min-width: 0;
+  }
+
+  .categories-dropdown,
+  .categories-toggle {
+    max-width: 100%;
+  }
+}
+
+/* Keep the assistant inside the viewport even when the page is narrower than a desktop
+   container. It also clears the mobile bottom navigation by using its shared offset. */
+.chat-fab,
+.chat-window {
+  max-width: calc(100vw - 1rem);
+}
+
+@media (min-width: 768px) {
+  .chat-fab,
+  .chat-window {
+    inset-inline-end: max(1rem, calc((100vw - 1140px) / 2 + 1rem));
+  }
 }

@@ -31,6 +31,62 @@ export const register = createAsyncThunk(
   },
 );
 
+export const updatePreferences = createAsyncThunk(
+  "auth/updatePreferences",
+  async (
+    { interests, onboardingCompleted },
+    { getState, dispatch, rejectWithValue },
+  ) => {
+    const current = getState().auth.user;
+    if (current?.id === undefined || current?.id === null) {
+      return rejectWithValue("Sign in before saving your interests.");
+    }
+
+    const patch = {
+      interests: Array.isArray(interests)
+        ? [
+            ...new Set(
+              interests.filter(
+                (interest) => typeof interest === "string" && interest.trim(),
+              ),
+            ),
+          ]
+        : Array.isArray(current.interests)
+          ? current.interests
+          : [],
+      onboardingCompleted:
+        typeof onboardingCompleted === "boolean"
+          ? onboardingCompleted
+          : current.onboardingCompleted === true,
+    };
+
+    try {
+      const saved = await authApi.updatePreferences(current.id, patch);
+      const active = getState().auth.user;
+      if (!active || String(active.id) !== String(current.id)) {
+        return rejectWithValue(
+          "Your session changed. Sign in again before saving preferences.",
+        );
+      }
+      const updatedUser = {
+        ...active,
+        interests: Array.isArray(saved.interests)
+          ? saved.interests
+          : patch.interests,
+        onboardingCompleted:
+          typeof saved.onboardingCompleted === "boolean"
+            ? saved.onboardingCompleted
+            : patch.onboardingCompleted,
+      };
+      setAuthUser(updatedUser);
+      dispatch(authSlice.actions.setUser(updatedUser));
+      return updatedUser;
+    } catch (err) {
+      return rejectWithValue(err.message);
+    }
+  },
+);
+
 const onPending = (state) => {
   state.status = "loading";
   state.error = null;
@@ -96,9 +152,11 @@ export const validateSession = () => async (dispatch, getState) => {
   dispatch(logout());
   dispatch(
     showError(
-      status === "missing" ? "This account no longer exists." : authApi.blockedMessage(status),
-      "Signed out"
-    )
+      status === "missing"
+        ? "This account no longer exists."
+        : authApi.blockedMessage(status),
+      "Signed out",
+    ),
   );
 };
 

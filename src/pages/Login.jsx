@@ -20,6 +20,9 @@ export default function Login() {
   const [errors, setErrors] = useState({});
 
   const from = location.state?.from?.pathname || "/";
+  const registeredCustomerNeedsOnboarding = location.state?.registered === true
+    && user?.role === "customer"
+    && user.onboardingCompleted === false;
   const loading = status === "loading";
 
   useEffect(() => {
@@ -27,7 +30,9 @@ export default function Login() {
   }, [dispatch]);
 
   // Logged in (just now or earlier): go back to where the user came from.
-  if (user) return <Navigate to={from} replace />;
+  if (user) {
+    return <Navigate to={registeredCustomerNeedsOnboarding ? "/profile?onboarding=1" : from} replace />;
+  }
 
   const handleChange = ({ target: { name, value } }) => {
     setForm((f) => ({ ...f, [name]: value }));
