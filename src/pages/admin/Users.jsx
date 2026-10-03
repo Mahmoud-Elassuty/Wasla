@@ -4,8 +4,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchAdminUsers, resetUsersStatus } from "../../store/reducers/adminSlice";
 import UsersTable from "../../components/admin/UsersTable";
 import { ROLE_LABELS, STATUS_LABELS, USER_ROLES, USER_STATUSES, getUserStatus, matchesUserSearch } from "../../utils/users";
+import { useT } from "../../i18n/useT";
 
 export default function Users() {
+  const { t, te } = useT();
   const dispatch = useDispatch();
   const { users, usersStatus, usersError } = useSelector((s) => s.admin);
   const [params, setParams] = useSearchParams();
@@ -53,11 +55,11 @@ export default function Users() {
   return (
     <>
       <div className="mb-4">
-        <p className="eyebrow mb-1">Users management</p>
-        <h1 className="h3 mb-1">User Management</h1>
+        <p className="eyebrow mb-1">{t("Users management")}</p>
+        <h1 className="h3 mb-1">{t("User Management")}</h1>
         {hasUsers && (
           <p className="small text-secondary mb-0">
-            Showing {visible.length} of {users.length} users
+            {t("Showing {shown} of {total} users", { shown: visible.length, total: users.length })}
           </p>
         )}
       </div>
@@ -68,8 +70,8 @@ export default function Users() {
             <input
               type="search"
               className="form-control"
-              placeholder="Search by name or email"
-              aria-label="Search users"
+              placeholder={t("Search by name or email")}
+              aria-label={t("Search users")}
               value={search}
               onChange={(e) => setParam("search", e.target.value)}
             />
@@ -78,14 +80,14 @@ export default function Users() {
         <div className="col-6 col-md-3 col-lg-2">
           <select
             className="form-select"
-            aria-label="Filter by role"
+            aria-label={t("Filter by role")}
             value={role}
             onChange={(e) => setParam("role", e.target.value)}
           >
-            <option value="all">All roles</option>
+            <option value="all">{t("All roles")}</option>
             {USER_ROLES.map((r) => (
               <option key={r} value={r}>
-                {ROLE_LABELS[r]}
+                {te("role", r)}
               </option>
             ))}
           </select>
@@ -93,14 +95,14 @@ export default function Users() {
         <div className="col-6 col-md-3 col-lg-2">
           <select
             className="form-select"
-            aria-label="Filter by status"
+            aria-label={t("Filter by status")}
             value={status}
             onChange={(e) => setParam("status", e.target.value)}
           >
-            <option value="all">All statuses</option>
+            <option value="all">{t("All statuses")}</option>
             {USER_STATUSES.map((s) => (
               <option key={s} value={s}>
-                {STATUS_LABELS[s]}
+                {te("userstatus", s)}
               </option>
             ))}
           </select>
@@ -111,11 +113,11 @@ export default function Users() {
         <div className="alert alert-danger d-flex flex-wrap justify-content-between align-items-center gap-2" role="alert">
           <span>{usersError || "We couldn't load the users."}</span>
           <button type="button" className="btn btn-sm btn-outline-danger" onClick={() => dispatch(fetchAdminUsers())}>
-            Try again
+            {t("Try again")}
           </button>
         </div>
       ) : loading ? (
-        <div className="admin-card p-4 placeholder-glow" aria-busy="true" aria-label="Loading users">
+        <div className="admin-card p-4 placeholder-glow" aria-busy="true" aria-label={t("Loading users")}>
           {Array.from({ length: 5 }, (_, i) => (
             <span key={i} className="placeholder d-block col-12 mb-3" style={{ height: 24 }} />
           ))}

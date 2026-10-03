@@ -7,12 +7,14 @@ import ProductCard from "../components/products/ProductCard";
 import ProductSearch from "../components/common/ProductSearch";
 import SearchFilters from "../components/search/SearchFilters";
 import MobileFiltersToggle from "../components/common/MobileFiltersToggle";
-import { getSalePrice, titleCase } from "../utils/format";
+import { getSalePrice } from "../utils/format";
+import { getCategoryDisplayName } from "../utils/categoryDisplay";
 import { matchesProductQuery } from "../utils/productSearch";
 import Pagination, { ResultsSummary } from "../components/common/Pagination";
 import usePagination from "../hooks/usePagination";
 import "../styles/search.css";
 import "../styles/customer-experience.css";
+import { useT } from "../i18n/useT";
 
 const SORTS = {
   featured: { label: "Featured", compare: null },
@@ -25,12 +27,12 @@ const SORTS = {
 const parseList = (raw) => (raw ? raw.split(",").filter(Boolean) : []);
 
 export default function Products() {
+  const { t } = useT();
   const dispatch = useDispatch();
   const { items, categories, status, error } = useSelector((s) => s.products);
   const user = useSelector((s) => s.auth.user);
   const [params, setParams] = useSearchParams();
   const [filtersOpen, setFiltersOpen] = useState(false);
-  const [sortOpen, setSortOpen] = useState(false);
   const [isMobileDrawer, setIsMobileDrawer] = useState(() =>
     typeof window !== "undefined" && window.matchMedia("(max-width: 767.98px)").matches
   );
@@ -114,7 +116,7 @@ export default function Products() {
     () =>
       categories.length
         ? categories
-        : [...new Set(items.map((p) => p.category))].map((slug) => ({ slug, name: titleCase(slug) })),
+        : [...new Set(items.map((p) => p.category))].map((slug) => ({ slug, name: getCategoryDisplayName(slug) })),
     [categories, items]
   );
 
@@ -206,10 +208,10 @@ export default function Products() {
   const pageOtherProducts = pageItems.filter((product) => !suggestedProductIds.has(String(product.id)));
 
   const heading = search
-    ? `Search results for “${search}”`
+    ? t("Search results for “{search}”", { search })
     : selectedCategories.length === 1
-      ? categoryOptions.find((c) => c.slug === selectedCategories[0])?.name ?? titleCase(selectedCategories[0])
-      : "All products";
+      ? getCategoryDisplayName(selectedCategories[0])
+      : t("All products");
 
   return (
     <div className="container py-4">
@@ -219,18 +221,18 @@ export default function Products() {
           <p className="text-secondary small mb-0">
             {total === 0
               ? search
-                ? `0 products found for “${search}”`
-                : "0 products match your filters"
+                ? t("0 products found for “{search}”", { search })
+                : t("0 products match your filters")
               : <ResultsSummary start={start} end={end} total={total} />}
-            {search && total > 0 && ` found for “${search}”`}
+            {search && total > 0 && ` ${t("found for “{search}”", { search })}`}
             {search && (
               <button type="button" className="btn btn-link btn-sm p-0 ms-2 align-baseline" onClick={() => setParam({ search: "" })}>
-                Clear search
+                {t("Clear search")}
               </button>
             )}
             {hasActiveFilters && (
               <button type="button" className="btn btn-link btn-sm p-0 ms-2 align-baseline" onClick={resetFilters}>
-                {search ? "Clear all filters" : "Clear filters"}
+                {search ? t("Clear all filters") : t("Clear filters")}
               </button>
             )}
           </p>
@@ -241,45 +243,31 @@ export default function Products() {
         <ProductSearch variant="products-page" />
       </div>
 
-<div className="products-sort-control">
-  <label className="products-sort-label">Sort by</label>
-
-  <div className="products-sort-dropdown">
-    <button
-      type="button"
-      className="products-sort-trigger"
-      aria-expanded={sortOpen}
-      aria-haspopup="listbox"
-      onClick={() => setSortOpen((open) => !open)}
-    >
-      <span>{SORTS[sort].label}</span>
-      <i className={`bi bi-chevron-${sortOpen ? "up" : "down"}`} aria-hidden="true" />
-    </button>
-
-    {sortOpen && (
-      <div className="products-sort-menu" role="listbox">
-        {Object.entries(SORTS).map(([key, { label }]) => (
-          <button
-            key={key}
-            type="button"
-            className={`products-sort-option${sort === key ? " active" : ""}`}
-            role="option"
-            aria-selected={sort === key}
-            onClick={() => {
-              setParam({ sort: key });
-              setSortOpen(false);
-            }}
+      <div className="products-toolbar mb-4">
+        <MobileFiltersToggle
+          className="products-filter-toggle"
+          buttonRef={filterToggleRef}
+          active={hasActiveFilters}
+          expanded={filtersOpen}
+          onClick={() => setFiltersOpen((open) => !open)}
+        />
+        <div className="products-sort-control">
+          <label htmlFor="products-sort" className="products-sort-label">{t("Sort by")}</label>
+          <select
+            id="products-sort"
+            className="form-select products-sort-select"
+            aria-label={t("Sort products")}
+            value={sort}
+            onChange={(e) => setParam({ sort: e.target.value })}
           >
-            <span>{label}</span>
-            {sort === key && (
-              <i className="bi bi-check2" aria-hidden="true" />
-            )}
-          </button>
-        ))}
+            {Object.entries(SORTS).map(([key, { label }]) => (
+              <option key={key} value={key}>
+                {t(label)}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
-    )}
-  </div>
-</div>
 
       <div className="row g-4">
         <div className="col-lg-3">
@@ -324,11 +312,11 @@ export default function Products() {
                   <section className="products-catalog-group mb-4" aria-labelledby="suggested-products-title">
                     <div className="d-flex flex-wrap justify-content-between align-items-end gap-2 mb-3">
                       <div>
-                        <h2 id="suggested-products-title" className="h5 font-display mb-1">Suggested for You</h2>
-                        <p className="small text-secondary mb-0">Based on your interests</p>
+                        <h2 id="suggested-products-title" className="h5 font-display mb-1">{t("Suggested for You")}</h2>
+                        <p className="small text-secondary mb-0">{t("Based on your interests")}</p>
                       </div>
                       <Link to="/profile?section=interests" className="small fw-semibold text-decoration-none">
-                        Manage Interests
+                        {t("Manage Interests")}
                       </Link>
                     </div>
                     <ProductList
@@ -344,7 +332,7 @@ export default function Products() {
                 )}
                 {pageOtherProducts.length > 0 && (
                   <section className="products-catalog-group">
-                    {suggestedProducts.length > 0 && <h2 className="h5 font-display mb-3">All Products</h2>}
+                    {suggestedProducts.length > 0 && <h2 className="h5 font-display mb-3">{t("All Products")}</h2>}
                     <ProductList
                       products={pageOtherProducts}
                       searchQuery={search}

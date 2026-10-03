@@ -5,6 +5,7 @@ import { register, resetStatus } from "../store/reducers/authSlice";
 import { sendWelcomeEmail } from "../store/reducers/emailSlice";
 import { showSuccess } from "../utils/notifications";
 import FormField from "../components/common/FormField";
+import { useT } from "../i18n/useT";
 
 const validate = ({ name, email, password, confirmPassword }) => {
   const errors = {};
@@ -19,6 +20,7 @@ const validate = ({ name, email, password, confirmPassword }) => {
 };
 
 export default function Register() {
+  const { t } = useT();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
@@ -53,7 +55,7 @@ export default function Register() {
         // Fire-and-forget: don't make the person wait through the mock email delay to log in.
         dispatch(sendWelcomeEmail(newUser))
           .unwrap()
-          .then(() => dispatch(showSuccess("Welcome email sent!")))
+          .then(() => dispatch(showSuccess(t("Welcome email sent!"))))
           .catch(() => {}); // the account was created either way; a failed mock email isn't fatal
       })
       .catch(() => {}); // the error message is already in the store
@@ -64,12 +66,12 @@ export default function Register() {
       <div className="row justify-content-center">
         <div className="col-md-8 col-lg-5">
           <div className="bg-white border rounded-4 shadow-sm p-4 p-md-5">
-            <h1 className="h3 text-wasla mb-1">Create your account</h1>
-            <p className="text-secondary mb-4">Save your favorites and check out faster.</p>
+            <h1 className="h3 text-wasla mb-1">{t("Create your account")}</h1>
+            <p className="text-secondary mb-4">{t("Save your favorites and check out faster.")}</p>
 
             {error && (
               <div className="alert alert-danger py-2" role="alert">
-                {error}
+                {t(error)}
               </div>
             )}
 
@@ -117,16 +119,16 @@ export default function Register() {
                 {loading ? (
                   <>
                     <span className="spinner-border spinner-border-sm me-2" aria-hidden="true" />
-                    Creating account...
+                    {t("Creating account...")}
                   </>
                 ) : (
-                  "Create account"
+                  t("Create account")
                 )}
               </button>
             </form>
 
             <p className="text-center text-secondary small mt-4 mb-0">
-              Already have an account? <Link to="/login" className="fw-semibold">Log in</Link>
+              {t("Already have an account?")} <Link to="/login" className="fw-semibold">{t("Log in")}</Link>
             </p>
           </div>
         </div>

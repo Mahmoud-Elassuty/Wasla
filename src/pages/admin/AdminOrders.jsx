@@ -5,11 +5,13 @@ import { fetchAdminOrders, resetOrdersStatus, updateOrderStatus } from "../../st
 import OrderStatus from "../../components/orders/OrderStatus";
 import { formatPrice } from "../../utils/format";
 import { ORDER_STATUSES, formatOrderDate, orderNumber } from "../../utils/checkout";
+import { useT } from "../../i18n/useT";
 
 const FILTERS = ["all", ...ORDER_STATUSES];
 const label = (s) => s[0].toUpperCase() + s.slice(1);
 
 export default function AdminOrders() {
+  const { t, te } = useT();
   const dispatch = useDispatch();
   const { orders, ordersStatus, ordersError, updatingOrderIds } = useSelector((s) => s.admin);
   const [params, setParams] = useSearchParams();
@@ -67,7 +69,7 @@ export default function AdminOrders() {
         <h1 className="h3 mb-1">إدارة الطلبات</h1>
         {hasOrders && (
           <p className="small text-secondary mb-0">
-            Showing {visible.length} of {orders.length} orders
+            {t("Showing {shown} of {total} orders", { shown: visible.length, total: orders.length })}
           </p>
         )}
       </div>
@@ -78,8 +80,8 @@ export default function AdminOrders() {
             <input
               type="search"
               className="form-control"
-              placeholder="Search by order # or customer"
-              aria-label="Search orders"
+              placeholder={t("Search by order # or customer")}
+              aria-label={t("Search orders")}
               value={search}
               onChange={(e) => setParam("search", e.target.value)}
             />
@@ -87,7 +89,7 @@ export default function AdminOrders() {
         </div>
       </div>
 
-      <div className="d-flex flex-wrap gap-2 mb-3" role="group" aria-label="Filter by status">
+      <div className="d-flex flex-wrap gap-2 mb-3" role="group" aria-label={t("Filter by status")}>
         {FILTERS.map((s) => (
           <button
             key={s}
@@ -96,7 +98,7 @@ export default function AdminOrders() {
             aria-pressed={status === s}
             onClick={() => setParam("status", s)}
           >
-            {label(s)} <span className="opacity-75 ms-1">{counts[s]}</span>
+            {s === "all" ? t("All") : te("order", s)} <span className="opacity-75 ms-1">{counts[s]}</span>
           </button>
         ))}
       </div>
@@ -105,11 +107,11 @@ export default function AdminOrders() {
         <div className="alert alert-danger d-flex flex-wrap justify-content-between align-items-center gap-2" role="alert">
           <span>{ordersError || "We couldn't load the orders."}</span>
           <button type="button" className="btn btn-sm btn-outline-danger" onClick={() => dispatch(fetchAdminOrders())}>
-            Try again
+            {t("Try again")}
           </button>
         </div>
       ) : loading ? (
-        <div className="admin-card p-4 placeholder-glow" aria-busy="true" aria-label="Loading orders">
+        <div className="admin-card p-4 placeholder-glow" aria-busy="true" aria-label={t("Loading orders")}>
           {Array.from({ length: 5 }, (_, i) => (
             <span key={i} className="placeholder d-block col-12 mb-3" style={{ height: 24 }} />
           ))}
@@ -120,12 +122,12 @@ export default function AdminOrders() {
             <table className="table admin-table align-middle mb-0">
               <thead>
                 <tr>
-                  <th>Order #</th>
-                  <th>Customer</th>
-                  <th>Date</th>
-                  <th>Status</th>
-                  <th className="text-end">Total</th>
-                  <th>Actions</th>
+                  <th>{t("Order #")}</th>
+                  <th>{t("Customer")}</th>
+                  <th>{t("Date")}</th>
+                  <th>{t("Status")}</th>
+                  <th className="text-end">{t("Total")}</th>
+                  <th>{t("Actions")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -138,7 +140,7 @@ export default function AdminOrders() {
                       <td>
                         <div>
                           {order.customer?.name ?? "-"}
-                          {order.isGuest && <span className="badge rounded-pill stock-low ms-2">Guest</span>}
+                          {order.isGuest && <span className="badge rounded-pill stock-low ms-2">{t("Guest")}</span>}
                         </div>
                         <div className="small text-secondary">{order.customer?.email}</div>
                       </td>
@@ -148,19 +150,19 @@ export default function AdminOrders() {
                       <td>
                         <div className="d-inline-flex gap-2 align-items-center">
                           <Link to={`/admin/orders/${order.id}`} className="btn btn-sm btn-outline-secondary">
-                            View details
+                            {t("View details")}
                           </Link>
                           <select
                             className="form-select form-select-sm"
                             style={{ minWidth: 140 }}
-                            aria-label={`Update status of order ${orderNumber(order.id)}`}
+                            aria-label={t("Update status of order {number}", { number: orderNumber(order.id) })}
                             value={order.status}
                             disabled={updating}
                             onChange={(e) => dispatch(updateOrderStatus({ id: order.id, status: e.target.value }))}
                           >
-                            {!known && <option value={order.status}>{order.status ?? "Unknown"}</option>}
+                            {!known && <option value={order.status}>{order.status ?? t("Unknown")}</option>}
                             {ORDER_STATUSES.map((s) => (
-                              <option key={s} value={s}>{label(s)}</option>
+                              <option key={s} value={s}>{te("order", s)}</option>
                             ))}
                           </select>
                         </div>

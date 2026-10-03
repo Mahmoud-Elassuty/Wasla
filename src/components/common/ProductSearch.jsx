@@ -2,13 +2,16 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { fetchProducts } from "../../store/reducers/productsSlice";
-import { formatPrice, getSalePrice, titleCase } from "../../utils/format";
+import { formatPrice, getSalePrice } from "../../utils/format";
+import { getCategoryDisplayName } from "../../utils/categoryDisplay";
 import { normalizeProductQuery, searchProducts } from "../../utils/productSearch";
 import "../../styles/product-search.css";
+import { useT } from "../../i18n/useT";
 
 const SUGGESTION_LIMIT = 5;
 
 export default function ProductSearch({ variant = "navbar" }) {
+  const { t } = useT();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
@@ -146,8 +149,8 @@ export default function ProductSearch({ variant = "navbar" }) {
       <input
         type="search"
         className="form-control"
-        placeholder={variant === "products-page" ? "Search products, brands, and categories..." : "Search products, brands, essentials..."}
-        aria-label={variant === "products-page" ? "Search the product catalog" : "Search products"}
+        placeholder={variant === "products-page" ? t("Search products, brands, and categories...") : t("Search products, brands, essentials...")}
+        aria-label={variant === "products-page" ? t("Search the product catalog") : t("Search products")}
         role="combobox"
         aria-autocomplete="list"
         aria-expanded={showSuggestions}
@@ -161,19 +164,19 @@ export default function ProductSearch({ variant = "navbar" }) {
         }}
         onKeyDown={handleKeyDown}
       />
-      <button className="btn btn-accent px-3" type="submit" aria-label="Search">
+      <button className="btn btn-accent px-3" type="submit" aria-label={t("Search")}>
         <i className="bi bi-search" aria-hidden="true" />
       </button>
       {variant === "products-page" && query.trim() && (
-        <button className="btn btn-outline-secondary" type="button" aria-label="Clear search" onClick={handleClear}>
+        <button className="btn btn-outline-secondary" type="button" aria-label={t("Clear search")} onClick={handleClear}>
           <i className="bi bi-x-lg" aria-hidden="true" />
         </button>
       )}
 
       {showSuggestions && (
-        <ul id={listId} className="product-search-menu list-unstyled m-0" role="listbox" aria-label="Product suggestions">
+        <ul id={listId} className="product-search-menu list-unstyled m-0" role="listbox" aria-label={t("Product suggestions")}>
           {suggestions.map((product, index) => {
-            const subtitle = [product.brand, product.category ? titleCase(product.category) : ""]
+            const subtitle = [product.brand, product.category ? getCategoryDisplayName(product.category) : ""]
               .filter(Boolean)
               .join(" · ");
             return (

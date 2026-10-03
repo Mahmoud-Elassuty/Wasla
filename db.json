@@ -5027,7 +5027,7 @@
       "price": 34.99,
       "discountPercentage": 19.5,
       "rating": 3.46,
-      "stock": 81,
+      "stock": 80,
       "tags": [
         "clothing",
         "men's shirts"
@@ -7001,6 +7001,44 @@
       "status": "pending",
       "createdAt": "2026-10-03T11:07:06.723Z",
       "id": 13
+    },
+    {
+      "userId": 6,
+      "customer": {
+        "name": "Ahmed",
+        "email": "ahmed@gmail.com",
+        "phone": "01550557634"
+      },
+      "shippingAddress": {
+        "address": "Elgala2 Street",
+        "city": "Shbien",
+        "governorate": "Monufia",
+        "postalCode": "",
+        "notes": ""
+      },
+      "items": [
+        {
+          "productId": 85,
+          "title": "Man Plaid Shirt",
+          "thumbnail": "https://cdn.dummyjson.com/product-images/mens-shirts/man-plaid-shirt/thumbnail.webp",
+          "price": 28.17,
+          "listPrice": 34.99,
+          "quantity": 1
+        }
+      ],
+      "paymentMethod": "credit_card",
+      "paymentStatus": "paid",
+      "transactionId": "TXN-MUSD2P2O-9OLA",
+      "currency": "USD",
+      "subtotal": 34.99,
+      "discount": 6.82,
+      "shipping": 1,
+      "couponCode": null,
+      "couponDiscount": 0,
+      "total": 29.17,
+      "status": "pending",
+      "createdAt": "2026-10-03T12:21:33.977Z",
+      "id": 14
     }
   ],
   "reviews": [
@@ -7486,6 +7524,15 @@
       "transactionId": "TXN-MUSAEY49-AJUE",
       "timestamp": "2026-10-03T11:07:06.681Z",
       "id": 14
+    },
+    {
+      "method": "credit_card",
+      "amount": 29.17,
+      "orderId": 14,
+      "status": "success",
+      "transactionId": "TXN-MUSD2P2O-9OLA",
+      "timestamp": "2026-10-03T12:21:33.936Z",
+      "id": 15
     }
   ],
   "notifications": [],
@@ -7625,6 +7672,16 @@
       "sentAt": "2026-10-03T11:07:08.371Z",
       "status": "sent",
       "id": 14
+    },
+    {
+      "to": "ahmed@gmail.com",
+      "subject": "Order Confirmation #WSL-00014",
+      "type": "order_confirmation",
+      "orderId": 14,
+      "body": "Hi Ahmed,\n\nThanks for your order! We've received order #WSL-00014 for $29.17 and it's being prepared for delivery to Shbien, Monufia.\n\nWe'll be in touch at 01550557634 to confirm delivery.",
+      "sentAt": "2026-10-03T12:21:35.721Z",
+      "status": "sent",
+      "id": 15
     }
   ],
   "banners": [

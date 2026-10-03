@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { dismissToast } from "../../store/reducers/notificationsSlice";
 import "../../styles/notifications.css";
+import { useT } from "../../i18n/useT";
 
 const AUTO_DISMISS_MS = 5000;
 const LEAVE_ANIMATION_MS = 250;
@@ -14,6 +15,7 @@ const TYPE_META = {
 };
 
 function ToastItem({ toast }) {
+  const { t } = useT();
   const dispatch = useDispatch();
   const [leaving, setLeaving] = useState(false);
   const { icon, className } = TYPE_META[toast.type] ?? TYPE_META.info;
@@ -39,10 +41,10 @@ function ToastItem({ toast }) {
     >
       <i className={`bi ${icon} toast-icon`} aria-hidden="true" />
       <div className="toast-body">
-        {toast.title && <p className="toast-title mb-0">{toast.title}</p>}
-        <p className="toast-message mb-0">{toast.message}</p>
+        {toast.title && <p className="toast-title mb-0">{t(toast.title)}</p>}
+        <p className="toast-message mb-0">{t(toast.message)}</p>
       </div>
-      <button type="button" className="toast-close" onClick={close} aria-label="Dismiss notification">
+      <button type="button" className="toast-close" onClick={close} aria-label={t("Dismiss notification")}>
         <i className="bi bi-x" aria-hidden="true" />
       </button>
     </div>

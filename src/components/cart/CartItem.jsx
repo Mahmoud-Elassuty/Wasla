@@ -5,8 +5,10 @@ import { removeFromCart, updateQuantity } from "../../store/reducers/cartSlice";
 import { formatPrice } from "../../utils/format";
 import { showError, showInfo } from "../../utils/notifications";
 import { getStockState, isValidStock, safeStock } from "../../utils/inventory";
+import { useT } from "../../i18n/useT";
 
 export default function CartItem({ item }) {
+  const { t } = useT();
   const dispatch = useDispatch();
   const max = safeStock(item.stock);
   const stockState = getStockState(item.stock, item.active !== false);
@@ -116,10 +118,10 @@ export default function CartItem({ item }) {
             type="button"
             className="btn btn-link btn-sm text-danger p-0 text-decoration-none"
             onClick={handleRemove}
-            aria-label={`Remove ${item.title} from cart`}
+            aria-label={t("Remove {title} from cart", { title: item.title })}
           >
             <i className="bi bi-trash me-1" aria-hidden="true" />
-            Remove
+            {t("Remove")}
           </button>
         </div>
       </div>

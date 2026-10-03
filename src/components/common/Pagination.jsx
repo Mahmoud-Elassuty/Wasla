@@ -1,25 +1,28 @@
 import { getPageItems } from "../../utils/pagination";
 import "../../styles/pagination.css";
+import { useT } from "../../i18n/useT";
 
 // "Showing 13–24 of 106 products"
 export function ResultsSummary({ start, end, total, noun = "products", className = "" }) {
+  const { t } = useT();
   if (total === 0) return null;
-  const label = total === 1 ? noun.replace(/s$/, "") : noun;
+  const label = t(`unit.${noun}`, { count: total });
   return (
     <span className={className} aria-live="polite">
-      Showing {start}–{end} of {total} {label}
+      {t("Showing {start}–{end} of {total} {label}", { start, end, total, label })}
     </span>
   );
 }
 
 // Presentational only: the current page lives in the URL (see hooks/usePagination).
 export default function Pagination({ page, totalPages, onPageChange }) {
+  const { t } = useT();
   if (totalPages <= 1) return null;
 
   const items = getPageItems(page, totalPages);
 
   return (
-    <nav className="wasla-pagination mt-4 mb-2" aria-label="Pagination">
+    <nav className="wasla-pagination mt-4 mb-2" aria-label={t("Pagination")}>
       <ul className="pagination mb-0">
         <li className={`page-item${page === 1 ? " disabled" : ""}`}>
           <button
@@ -27,10 +30,10 @@ export default function Pagination({ page, totalPages, onPageChange }) {
             className="page-link"
             onClick={() => onPageChange(page - 1)}
             disabled={page === 1}
-            aria-label="Previous page"
+            aria-label={t("Previous page")}
           >
             <i className="bi bi-chevron-left" aria-hidden="true" />
-            <span className="pagination-label">Previous</span>
+            <span className="pagination-label">{t("Previous")}</span>
           </button>
         </li>
 
@@ -65,15 +68,15 @@ export default function Pagination({ page, totalPages, onPageChange }) {
             className="page-link"
             onClick={() => onPageChange(page + 1)}
             disabled={page === totalPages}
-            aria-label="Next page"
+            aria-label={t("Next page")}
           >
-            <span className="pagination-label">Next</span>
+            <span className="pagination-label">{t("Next")}</span>
             <i className="bi bi-chevron-right" aria-hidden="true" />
           </button>
         </li>
       </ul>
       <p className="visually-hidden" role="status">
-        Page {page} of {totalPages}
+        {t("Page {page} of {total}", { page, total: totalPages })}
       </p>
     </nav>
   );

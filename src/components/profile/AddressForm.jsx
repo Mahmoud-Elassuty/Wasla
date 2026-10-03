@@ -1,6 +1,8 @@
 import { useState } from "react";
+import { tGov } from "../../i18n";
 import FormField from "../common/FormField";
 import { GOVERNORATES } from "../../utils/checkout";
+import { useT } from "../../i18n/useT";
 
 const PHONE_RE = /^(\+?20|0)?1[0125]\d{8}$/; // Egyptian mobile: 010 / 011 / 012 / 015
 const FIELD_ORDER = ["name", "phone", "governorate", "city", "postalCode", "address"];
@@ -26,6 +28,7 @@ const validate = (v) => {
 // Parent (AddressesList) owns save/cancel wiring; this component only validates and hands
 // back clean values. Works for both "add" (no initialValues) and "edit" (initialValues set).
 export default function AddressForm({ initialValues, onSubmit, onCancel, saving = false, error = null }) {
+  const { t } = useT();
   const [values, setValues] = useState({ ...EMPTY, ...initialValues });
   const [errors, setErrors] = useState({});
 
@@ -67,9 +70,9 @@ export default function AddressForm({ initialValues, onSubmit, onCancel, saving 
           </div>
           <div className="col-md-6">
             <FormField {...field("governorate")} as="select" label="Governorate">
-              <option value="">Select governorate</option>
+              <option value="">{t("Select governorate")}</option>
               {GOVERNORATES.map((g) => (
-                <option key={g} value={g}>{g}</option>
+                <option key={g} value={g}>{tGov(g)}</option>
               ))}
             </FormField>
           </div>
@@ -104,14 +107,14 @@ export default function AddressForm({ initialValues, onSubmit, onCancel, saving 
             onChange={handleChange}
           />
           <label htmlFor="addr-isDefault" className="form-check-label">
-            Set as default address
+            {t("Set as default address")}
           </label>
         </div>
       </fieldset>
 
       {error && (
         <div className="alert alert-danger py-2" role="alert">
-          {error}
+          {t(error)}
         </div>
       )}
 
@@ -120,14 +123,14 @@ export default function AddressForm({ initialValues, onSubmit, onCancel, saving 
           {saving ? (
             <>
               <span className="spinner-border spinner-border-sm me-2" aria-hidden="true" />
-              Saving...
+              {t("Saving...")}
             </>
           ) : (
-            "Save address"
+            t("Save address")
           )}
         </button>
         <button type="button" className="btn btn-outline-secondary px-4" onClick={onCancel} disabled={saving}>
-          Cancel
+          {t("Cancel")}
         </button>
       </div>
     </form>

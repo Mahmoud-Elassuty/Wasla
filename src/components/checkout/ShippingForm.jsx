@@ -1,6 +1,8 @@
 import { useState } from "react";
+import { tGov } from "../../i18n";
 import FormField from "../common/FormField";
 import { GOVERNORATES } from "../../utils/checkout";
+import { useT } from "../../i18n/useT";
 
 const EMAIL_RE = /^\S+@\S+\.\S+$/;
 const PHONE_RE = /^(\+?20|0)?1[0125]\d{8}$/; // Egyptian mobile: 010 / 011 / 012 / 015
@@ -30,6 +32,7 @@ const validate = (v) => {
 
 // Submit it with any button that has form="shipping-form" (the id below).
 export default function ShippingForm({ id = "shipping-form", initialValues, onSubmit, disabled = false }) {
+  const { t } = useT();
   const [values, setValues] = useState({ ...EMPTY, ...initialValues });
   const [errors, setErrors] = useState({});
 
@@ -74,9 +77,9 @@ export default function ShippingForm({ id = "shipping-form", initialValues, onSu
               id="governorate" as="select" label="Governorate"
               autoComplete="address-level1" {...field("governorate")}
             >
-              <option value="">Select governorate</option>
+              <option value="">{t("Select governorate")}</option>
               {GOVERNORATES.map((g) => (
-                <option key={g} value={g}>{g}</option>
+                <option key={g} value={g}>{tGov(g)}</option>
               ))}
             </FormField>
           </div>

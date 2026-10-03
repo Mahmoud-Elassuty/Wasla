@@ -3,11 +3,13 @@ import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { deleteBanner, fetchBanners, setBannerStatus } from "../../store/reducers/bannersSlice";
 import { showError, showSuccess } from "../../utils/notifications";
+import { useT } from "../../i18n/useT";
 
 function BannerThumbnail({ banner }) {
+  const { t } = useT();
   const [failed, setFailed] = useState(false);
   return failed ? (
-    <div className="admin-thumb d-flex align-items-center justify-content-center" aria-label="Image unavailable">
+    <div className="admin-thumb d-flex align-items-center justify-content-center" aria-label={t("Image unavailable")}>
       <i className="bi bi-image text-secondary" aria-hidden="true" />
     </div>
   ) : (
@@ -16,6 +18,7 @@ function BannerThumbnail({ banner }) {
 }
 
 export default function AdminBanners() {
+  const { t } = useT();
   const dispatch = useDispatch();
   const { items, status, error, deletingIds, updatingIds, actionError } = useSelector((state) => state.banners);
   const [confirmingId, setConfirmingId] = useState(null);
@@ -50,12 +53,12 @@ export default function AdminBanners() {
     <>
       <div className="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-4">
         <div>
-          <p className="eyebrow mb-1">Content management</p>
-          <h1 className="h3 mb-1">Homepage Banners</h1>
+          <p className="eyebrow mb-1">{t("Content management")}</p>
+          <h1 className="h3 mb-1">{t("Homepage Banners")}</h1>
           {items.length > 0 && <p className="small text-secondary mb-0">{items.length} banners</p>}
         </div>
         <Link to="/admin/banners/new" className="btn btn-accent">
-          <i className="bi bi-plus-lg me-1" aria-hidden="true" /> Add Banner
+          <i className="bi bi-plus-lg me-1" aria-hidden="true" /> {t("Add Banner")}
         </Link>
       </div>
 
@@ -65,17 +68,17 @@ export default function AdminBanners() {
       {failed ? (
         <div className="alert alert-danger d-flex flex-wrap justify-content-between align-items-center gap-2" role="alert">
           <span>{error || "We couldn't load the banners."}</span>
-          <button type="button" className="btn btn-sm btn-outline-danger" onClick={() => dispatch(fetchBanners())}>Try again</button>
+          <button type="button" className="btn btn-sm btn-outline-danger" onClick={() => dispatch(fetchBanners())}>{t("Try again")}</button>
         </div>
       ) : loading ? (
-        <div className="admin-card p-4 placeholder-glow" aria-busy="true" aria-label="Loading banners">
+        <div className="admin-card p-4 placeholder-glow" aria-busy="true" aria-label={t("Loading banners")}>
           {Array.from({ length: 4 }, (_, index) => <span key={index} className="placeholder d-block col-12 mb-3" style={{ height: 32 }} />)}
         </div>
       ) : (
         <div className="admin-card">
           <div className="table-responsive">
             <table className="table admin-table align-middle mb-0">
-              <thead><tr><th>Image</th><th>Banner</th><th>CTA</th><th>Destination</th><th>Order</th><th>Status</th><th>Actions</th></tr></thead>
+              <thead><tr><th>{t("Image")}</th><th>{t("Banner")}</th><th>{t("CTA")}</th><th>{t("Destination")}</th><th>{t("Order")}</th><th>{t("Status")}</th><th>{t("Actions")}</th></tr></thead>
               <tbody>
                 {items.map((banner) => {
                   const deleting = deletingIds.some((id) => String(id) === String(banner.id));
@@ -102,15 +105,15 @@ export default function AdminBanners() {
                       <td className="text-nowrap">
                         {confirming ? (
                           <span className="d-inline-flex align-items-center gap-2">
-                            <span className="small">Delete?</span>
-                            <button type="button" className="btn btn-sm btn-danger" disabled={deleting} onClick={() => confirmDelete(banner)}>Yes</button>
-                            <button type="button" className="btn btn-sm btn-outline-secondary" disabled={deleting} onClick={() => setConfirmingId(null)}>No</button>
+                            <span className="small">{t("Delete?")}</span>
+                            <button type="button" className="btn btn-sm btn-danger" disabled={deleting} onClick={() => confirmDelete(banner)}>{t("Yes")}</button>
+                            <button type="button" className="btn btn-sm btn-outline-secondary" disabled={deleting} onClick={() => setConfirmingId(null)}>{t("No")}</button>
                           </span>
                         ) : (
                           <span className="d-inline-flex gap-2">
-                            <Link to={`/admin/banners/${banner.id}/edit`} className="btn btn-sm btn-outline-secondary" aria-label={`Edit ${banner.title}`}>Edit</Link>
+                            <Link to={`/admin/banners/${banner.id}/edit`} className="btn btn-sm btn-outline-secondary" aria-label={`Edit ${banner.title}`}>{t("Edit")}</Link>
                             <button type="button" className="btn btn-sm btn-outline-danger" disabled={deleting} onClick={() => setConfirmingId(banner.id)}>
-                              {deleting ? "Deleting…" : "Delete"}
+                              {deleting ? t("Deleting...") : t("Delete")}
                             </button>
                           </span>
                         )}
@@ -118,7 +121,7 @@ export default function AdminBanners() {
                     </tr>
                   );
                 })}
-                {items.length === 0 && <tr><td colSpan={7} className="text-center text-secondary py-5">No homepage banners yet.</td></tr>}
+                {items.length === 0 && <tr><td colSpan={7} className="text-center text-secondary py-5">{t("No homepage banners yet.")}</td></tr>}
               </tbody>
             </table>
           </div>

@@ -9,6 +9,7 @@ import { fetchAddresses } from "../store/reducers/profileSlice";
 import { formatPrice } from "../utils/format";
 import { getOrderTotals } from "../utils/checkout";
 import { showError } from "../utils/notifications";
+import { useT } from "../i18n/useT";
 
 // Step 1 of 2: shipping details only. Payment method, card/PayPal/wallet processing, and the
 // order itself are all handled on the /payment step, which reads `shipping` back out of
@@ -17,6 +18,7 @@ import { showError } from "../utils/notifications";
 // Guest checkout: a visitor who isn't logged in first sees a sign-in / guest choice, then the same
 // shipping form. Coming back from the payment step's "Edit" link skips the choice and refills the form.
 export default function Checkout() {
+  const { t } = useT();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
@@ -82,17 +84,17 @@ export default function Checkout() {
     return (
       <div className="container py-5 text-center">
         <i className="bi bi-bag fs-1 text-secondary" aria-hidden="true" />
-        <h1 className="h4 mt-3">Your cart is empty</h1>
-        <p className="text-secondary">Add something to your cart before checking out.</p>
-        <Link to="/products" className="btn btn-accent px-4">Continue shopping</Link>
+        <h1 className="h4 mt-3">{t("Your cart is empty")}</h1>
+        <p className="text-secondary">{t("Add something to your cart before checking out.")}</p>
+        <Link to="/products" className="btn btn-accent px-4">{t("Continue shopping")}</Link>
       </div>
     );
   }
 
   return (
     <div className="container py-4">
-      <h1 className="h3 mb-1">Checkout</h1>
-      <p className="text-secondary small mb-4">Step 1 of 2 — Shipping details</p>
+      <h1 className="h3 mb-1">{t("Checkout")}</h1>
+      <p className="text-secondary small mb-4">{t("Step 1 of 2 — Shipping details")}</p>
 
       <div className="row g-4">
         <div className="col-lg-7">
@@ -101,40 +103,40 @@ export default function Checkout() {
           ) : (
             <section className="bg-white border rounded-4 p-3 p-sm-4">
               <div className="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-3">
-                <h2 className="h5 mb-0">Shipping details</h2>
+                <h2 className="h5 mb-0">{t("Shipping details")}</h2>
                 {!user && (
                   <span className="small text-secondary">
                     Guest checkout &middot;{" "}
-                    <Link to="/login" state={{ from: location }}>Sign in instead</Link>
+                    <Link to="/login" state={{ from: location }}>{t("Sign in instead")}</Link>
                   </span>
                 )}
               </div>
               {cart.inventoryStatus === "loading" && (
-                <p className="small text-secondary" role="status">Checking current product availability...</p>
+                <p className="small text-secondary" role="status">{t("Checking current product availability...")}</p>
               )}
               {cart.inventoryStatus === "failed" && (
                 <div className="alert alert-warning d-flex flex-wrap justify-content-between align-items-center gap-2" role="alert">
-                  <span>{cart.inventoryError || "Current stock could not be checked."}</span>
+                  <span>{cart.inventoryError ? t(cart.inventoryError) : t("Current stock could not be checked.")}</span>
                   <button type="button" className="btn btn-sm btn-outline-secondary" onClick={() => dispatch(validateCartInventory())}>
-                    Retry stock check
+                    {t("Retry stock check")}
                   </button>
                 </div>
               )}
               {cart.inventoryStatus === "invalid" && (
                 <div className="alert alert-warning" role="alert">
-                  <p className="fw-semibold mb-1">Update your cart before continuing.</p>
+                  <p className="fw-semibold mb-1">{t("Update your cart before continuing.")}</p>
                   <ul className="mb-2">
                     {cart.inventoryIssues.map((issue) => <li key={issue}>{issue}</li>)}
                   </ul>
-                  <Link to="/cart" className="btn btn-sm btn-outline-secondary">Review cart</Link>
+                  <Link to="/cart" className="btn btn-sm btn-outline-secondary">{t("Review cart")}</Link>
                 </div>
               )}
               {user && addressesStatus === "loading" && addresses.length === 0 && (
-                <p className="small text-secondary" role="status">Loading saved addresses...</p>
+                <p className="small text-secondary" role="status">{t("Loading saved addresses...")}</p>
               )}
               {user && addressesStatus === "failed" && (
                 <div className="alert alert-warning py-2 d-flex flex-wrap justify-content-between align-items-center gap-2" role="alert">
-                  <span>{addressesError || "Saved addresses could not be loaded. You can enter your address manually."}</span>
+                  <span>{addressesError ? t(addressesError) : t("Saved addresses could not be loaded. You can enter your address manually.")}</span>
                   <button type="button" className="btn btn-sm btn-outline-secondary" onClick={() => dispatch(fetchAddresses(user.id))}>
                     Retry
                   </button>
@@ -143,7 +145,7 @@ export default function Checkout() {
               {user && addresses.length > 0 && (
                 <div className="mb-3">
                   <label htmlFor="saved-address" className="form-label small fw-semibold">
-                    Use a saved address
+                    {t("Use a saved address")}
                   </label>
                   <select
                     id="saved-address"
@@ -154,10 +156,10 @@ export default function Checkout() {
                       setSelectedAddressId(event.target.value);
                     }}
                   >
-                    <option value="">Enter address manually</option>
+                    <option value="">{t("Enter address manually")}</option>
                     {addresses.map((address) => (
                       <option key={address.id} value={String(address.id)}>
-                        {address.name}{address.isDefault ? " (Default)" : ""} · {address.city}, {address.governorate}
+                        {address.name}{address.isDefault ? ` (${t("Default")})` : ""} · {address.city}, {address.governorate}
                       </option>
                     ))}
                   </select>
@@ -193,11 +195,11 @@ export default function Checkout() {
           <OrderSummary>
             {!showChoice && (
               <button type="submit" form="shipping-form" className="btn btn-accent btn-lg w-100 mt-4" disabled={inventoryBlocked}>
-                {cart.inventoryStatus === "loading" ? "Checking stock..." : `Continue to payment — ${formatPrice(total)}`}
+                {cart.inventoryStatus === "loading" ? t("Checking stock...") : t("Continue to payment — {price}", { price: formatPrice(total) })}
               </button>
             )}
             <Link to="/cart" className={`btn btn-outline-secondary w-100 ${showChoice ? "mt-4" : "mt-2"}`}>
-              Back to cart
+              {t("Back to cart")}
             </Link>
           </OrderSummary>
         </div>

@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { CATEGORY_META } from "../../utils/categoryMeta";
+import { getCategoryDisplayName } from "../../utils/categoryDisplay";
+import { translate } from "../../i18n";
 import "../../styles/categories.css";
+import { useT } from "../../i18n/useT";
 
 // Category picture with a graceful fallback (a tinted tile with the category icon)
 // when there is no product image or the image fails to load.
@@ -19,11 +22,12 @@ export function CategoryImage({ src, slug }) {
   return <img src={src} alt="" loading="lazy" onError={() => setFailed(true)} />;
 }
 
-export const countLabel = (count) =>
-  typeof count === "number" ? `${count} ${count === 1 ? "product" : "products"}` : "";
+export const countLabel = (count) => (typeof count === "number" ? translate("count.products", { count }) : "");
 
 export default function CategoryImageCard({ category, compact = false }) {
-  const { slug, displayName, count, image } = category;
+  const { t } = useT();
+  const { slug, count, image } = category;
+  const displayName = getCategoryDisplayName(slug);
   const label = countLabel(count);
 
   return (
@@ -47,11 +51,12 @@ export default function CategoryImageCard({ category, compact = false }) {
 }
 
 export function CategoryCardSkeletons({ count = 8, compact = false }) {
+  const { t } = useT();
   return (
     <div
       className={`row row-cols-2 ${compact ? "row-cols-lg-5" : "row-cols-md-3 row-cols-xl-4"} g-2 g-sm-3`}
       aria-busy="true"
-      aria-label="Loading categories"
+      aria-label={t("Loading categories…")}
     >
       {Array.from({ length: count }, (_, index) => (
         <div className="col" key={index}>

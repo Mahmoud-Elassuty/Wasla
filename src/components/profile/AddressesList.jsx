@@ -9,9 +9,12 @@ import {
   updateAddress,
 } from "../../store/reducers/profileSlice";
 import { showSuccess } from "../../utils/notifications";
+import { tGov } from "../../i18n";
 import AddressForm from "./AddressForm";
+import { useT } from "../../i18n/useT";
 
 export default function AddressesList() {
+  const { t } = useT();
   const dispatch = useDispatch();
   const userId = useSelector((s) => s.auth.user?.id);
   const {
@@ -69,7 +72,7 @@ export default function AddressesList() {
 
   if (loading) {
     return (
-      <div className="placeholder-glow" aria-busy="true" aria-label="Loading addresses">
+      <div className="placeholder-glow" aria-busy="true" aria-label={t("Loading addresses")}>
         {Array.from({ length: 2 }, (_, i) => (
           <span key={i} className="placeholder d-block col-12 mb-3" style={{ height: 90 }} />
         ))}
@@ -80,7 +83,7 @@ export default function AddressesList() {
   if (failed) {
     return (
       <div className="alert alert-danger py-2" role="alert">
-        {addressesError || "We couldn't load your addresses."}
+        {addressesError ? t(addressesError) : t("We couldn't load your addresses.")}
       </div>
     );
   }
@@ -90,12 +93,12 @@ export default function AddressesList() {
       {actionError && (
         <div className="alert alert-danger d-flex justify-content-between align-items-center gap-3" role="alert">
           <span>{actionError}</span>
-          <button type="button" className="btn-close" aria-label="Dismiss" onClick={() => dispatch(clearActionError())} />
+          <button type="button" className="btn-close" aria-label={t("Dismiss")} onClick={() => dispatch(clearActionError())} />
         </div>
       )}
 
       {addresses.length === 0 && mode !== "add" && (
-        <p className="text-secondary mb-3">You don't have any saved addresses yet.</p>
+        <p className="text-secondary mb-3">{t("You don't have any saved addresses yet.")}</p>
       )}
 
       {addresses.map((address) =>
@@ -113,14 +116,14 @@ export default function AddressesList() {
             <div className="d-flex justify-content-between align-items-start gap-2 mb-1">
               <h3 className="h6 mb-0">
                 {address.name}
-                {address.isDefault && <span className="badge rounded-pill stock-ok ms-2">Default</span>}
+                {address.isDefault && <span className="badge rounded-pill stock-ok ms-2">{t("Default")}</span>}
               </h3>
             </div>
             <p className="text-secondary mb-1">
-              {address.address}, {address.city}, {address.governorate}
+              {address.address}, {address.city}, {tGov(address.governorate)}
               {address.postalCode ? ` ${address.postalCode}` : ""}
             </p>
-            <p className="small text-secondary mb-3">{address.phone}</p>
+            <p className="small text-secondary mb-3"><bdi>{address.phone}</bdi></p>
             <div className="d-flex flex-wrap gap-2">
               {!address.isDefault && (
                 <button
@@ -130,19 +133,19 @@ export default function AddressesList() {
                   onClick={() =>
                     dispatch(setDefaultAddress(address.id))
                       .unwrap()
-                      .then(() => dispatch(showSuccess(`"${address.name}" is now your default address.`)))
+                      .then(() => dispatch(showSuccess(t("\"{name}\" is now your default address.", { name: address.name }))))
                       .catch(() => {})
                   }
                 >
-                  {settingDefaultIds.includes(address.id) ? "Saving..." : "Set as default"}
+                  {settingDefaultIds.includes(address.id) ? t("Saving...") : t("Set as default")}
                 </button>
               )}
               <button type="button" className="btn btn-sm btn-outline-secondary" onClick={() => openEdit(address.id)} disabled={actionsBusy}>
-                Edit
+                {t("Edit")}
               </button>
               {confirmingId === address.id ? (
                 <span className="d-inline-flex align-items-center gap-2">
-                  <span className="small">Delete?</span>
+                  <span className="small">{t("Delete?")}</span>
                   <button
                     type="button"
                     className="btn btn-sm btn-danger"
@@ -152,15 +155,15 @@ export default function AddressesList() {
                         .unwrap()
                         .then(() => {
                           setConfirmingId(null);
-                          dispatch(showSuccess("Address deleted."));
+                          dispatch(showSuccess(t("Address deleted.")));
                         })
                         .catch(() => {});
                     }}
                   >
-                    Yes
+                    {t("Yes")}
                   </button>
                   <button type="button" className="btn btn-sm btn-outline-secondary" onClick={() => setConfirmingId(null)} disabled={actionsBusy}>
-                    No
+                    {t("No")}
                   </button>
                 </span>
               ) : (
@@ -170,7 +173,7 @@ export default function AddressesList() {
                   disabled={actionsBusy}
                   onClick={() => setConfirmingId(address.id)}
                 >
-                  {deletingAddressIds.includes(address.id) ? "Deleting..." : "Delete"}
+                  {deletingAddressIds.includes(address.id) ? t("Deleting...") : t("Delete")}
                 </button>
               )}
             </div>
@@ -185,7 +188,7 @@ export default function AddressesList() {
       {mode === null && (
         <button type="button" className="btn btn-outline-secondary" onClick={openAdd}>
           <i className="bi bi-plus-lg me-1" aria-hidden="true" />
-          Add new address
+          {t("Add new address")}
         </button>
       )}
     </div>

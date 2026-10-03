@@ -1,4 +1,5 @@
 import ProductCard from "./ProductCard";
+import { useT } from "../../i18n/useT";
 
 const GRID = "row row-cols-2 row-cols-lg-3 row-cols-xl-4 g-2 g-sm-3";
 
@@ -14,12 +15,13 @@ const Skeleton = () => (
 
 // products = filtered list to show; hasItems = whether anything was loaded at all
 export default function ProductList({ products, status, error, hasItems, onRetry, onReset, searchQuery = "" }) {
+  const { t } = useT();
   if (!hasItems && status === "failed") {
     return (
       <div className="alert alert-danger d-flex flex-wrap justify-content-between align-items-center gap-2" role="alert">
-        <span>{error || "We couldn't load the products."}</span>
+        <span>{error ? t(error) : t("We couldn't load the products.")}</span>
         <button type="button" className="btn btn-sm btn-outline-danger" onClick={onRetry}>
-          Try again
+          {t("Try again")}
         </button>
       </div>
     );
@@ -27,7 +29,7 @@ export default function ProductList({ products, status, error, hasItems, onRetry
 
   if (!hasItems && (status === "idle" || status === "loading")) {
     return (
-      <div className={GRID} aria-busy="true" aria-label="Loading products">
+      <div className={GRID} aria-busy="true" aria-label={t("Loading products")}>
         {Array.from({ length: 8 }, (_, i) => (
           <div className="col" key={i}>
             <Skeleton />
@@ -42,17 +44,17 @@ export default function ProductList({ products, status, error, hasItems, onRetry
       <div className="text-center py-5">
         <p className="h5 mb-1">
           {searchQuery
-            ? <>No products match &ldquo;{searchQuery}&rdquo;</>
+            ? <>{t("No products match")} &ldquo;{searchQuery}&rdquo;</>
             : hasItems
-              ? "No products match your search"
-              : "No products yet"}
+              ? t("No products match your search")
+              : t("No products yet")}
         </p>
         <p className="text-secondary">
-          {searchQuery ? "Clear the search to browse products matching your other filters." : hasItems ? "Try a different keyword or category." : "Check back soon."}
+          {searchQuery ? t("Clear the search to browse products matching your other filters.") : hasItems ? t("Try a different keyword or category.") : t("Check back soon.")}
         </p>
         {hasItems && (
           <button type="button" className="btn btn-wasla" onClick={onReset}>
-            {searchQuery ? "Clear search" : "Clear filters"}
+            {searchQuery ? t("Clear search") : t("Clear filters")}
           </button>
         )}
       </div>

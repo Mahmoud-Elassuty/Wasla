@@ -5,6 +5,7 @@ import { fetchSellerOrders, fetchSellerProducts, resetOrdersStatus, resetProduct
 import OrderStatus from "../../components/orders/OrderStatus";
 import { formatPrice } from "../../utils/format";
 import { formatOrderDate, orderNumber } from "../../utils/checkout";
+import { useT } from "../../i18n/useT";
 
 const RECENT_LIMIT = 8;
 const LOW_STOCK_LIMIT = 10; // "low" means this many units or fewer
@@ -32,6 +33,7 @@ function StatCard({ label, value, icon, tone, loading }) {
 }
 
 export default function SellerDashboard() {
+  const { t } = useT();
   const dispatch = useDispatch();
   const user = useSelector((s) => s.auth.user);
   const { products, productsStatus, productsError, orders, ordersStatus, ordersError } = useSelector((s) => s.seller);
@@ -92,59 +94,59 @@ export default function SellerDashboard() {
   return (
     <>
       <div className="mb-4">
-        <p className="eyebrow mb-1">Dashboard</p>
-        <h1 className="h3 mb-1">Welcome back{user?.name ? `, ${user.name}` : ""}</h1>
+        <p className="eyebrow mb-1">{t("Dashboard")}</p>
+        <h1 className="h3 mb-1">{user?.name ? t("Welcome back, {name}", { name: user.name }) : t("Welcome back")}</h1>
         <p className="text-secondary mb-0">{user?.storeName || "Here's how your store is doing."}</p>
       </div>
 
       {failed && (
         <div className="alert alert-danger d-flex flex-wrap justify-content-between align-items-center gap-2" role="alert">
           <span>{productsError || ordersError || "We couldn't load your dashboard."}</span>
-          <button type="button" className="btn btn-sm btn-outline-danger" onClick={retry}>Try again</button>
+          <button type="button" className="btn btn-sm btn-outline-danger" onClick={retry}>{t("Try again")}</button>
         </div>
       )}
 
       {noProducts && (
         <div className="admin-card p-4 text-center text-secondary mb-4">
-          You haven't added any products yet.
+          {t("You haven't added any products yet.")}
           <div className="mt-3">
-            <Link to="/seller/products/new" className="btn btn-accent">Add your first product</Link>
+            <Link to="/seller/products/new" className="btn btn-accent">{t("Add your first product")}</Link>
           </div>
         </div>
       )}
 
       <div className="row g-3 mb-2">
         <div className="col-6 col-xl-3">
-          <StatCard label="Total products" value={stats.totalProducts} icon="bi-box-seam" tone="stat-purple" loading={productsLoading} />
+          <StatCard label={t("Total products")} value={stats.totalProducts} icon="bi-box-seam" tone="stat-purple" loading={productsLoading} />
         </div>
         <div className="col-6 col-xl-3">
-          <StatCard label="Total orders" value={stats.totalOrders} icon="bi-receipt" tone="stat-blue" loading={ordersLoading} />
+          <StatCard label={t("Total orders")} value={stats.totalOrders} icon="bi-receipt" tone="stat-blue" loading={ordersLoading} />
         </div>
         <div className="col-6 col-xl-3">
-          <StatCard label="Pending orders" value={stats.pending} icon="bi-hourglass-split" tone="stat-orange" loading={ordersLoading} />
+          <StatCard label={t("Pending orders")} value={stats.pending} icon="bi-hourglass-split" tone="stat-orange" loading={ordersLoading} />
         </div>
         <div className="col-6 col-xl-3">
-          <StatCard label="Total revenue" value={formatPrice(stats.revenue)} icon="bi-cash-stack" tone="stat-green" loading={ordersLoading} />
+          <StatCard label={t("Total revenue")} value={formatPrice(stats.revenue)} icon="bi-cash-stack" tone="stat-green" loading={ordersLoading} />
         </div>
       </div>
-      <p className="small text-secondary mb-4">Revenue is your share of each order and excludes cancelled orders.</p>
+      <p className="small text-secondary mb-4">{t("Revenue is your share of each order and excludes cancelled orders.")}</p>
 
       <div className="row g-4">
         <div className="col-xl-8">
           <section className="admin-card">
             <div className="d-flex justify-content-between align-items-center p-3 p-md-4 pb-3">
-              <h2 className="h5 mb-0">Recent orders</h2>
-              <Link to="/seller/orders" className="small fw-semibold">View all orders</Link>
+              <h2 className="h5 mb-0">{t("Recent orders")}</h2>
+              <Link to="/seller/orders" className="small fw-semibold">{t("View all orders")}</Link>
             </div>
             <div className="table-responsive">
               <table className="table admin-table align-middle mb-0">
                 <thead>
                   <tr>
-                    <th>Order #</th>
-                    <th>Customer</th>
-                    <th>Date</th>
-                    <th>Status</th>
-                    <th className="text-end">Your total</th>
+                    <th>{t("Order #")}</th>
+                    <th>{t("Customer")}</th>
+                    <th>{t("Date")}</th>
+                    <th>{t("Status")}</th>
+                    <th className="text-end">{t("Your total")}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -176,21 +178,21 @@ export default function SellerDashboard() {
 
         <div className="col-xl-4">
           <section className="admin-card p-3 p-md-4 mb-4">
-            <h2 className="h5 mb-3">Quick actions</h2>
+            <h2 className="h5 mb-3">{t("Quick actions")}</h2>
             <div className="d-grid gap-2">
               <Link to="/seller/products/new" className="btn btn-accent">
                 <i className="bi bi-plus-lg me-1" aria-hidden="true" />
-                Add product
+                {t("Add product")}
               </Link>
               <Link to="/seller/orders?status=pending" className="btn btn-outline-secondary">
-                Review pending orders{stats.pending > 0 ? ` (${stats.pending})` : ""}
+                {t("Review pending orders")}{stats.pending > 0 ? ` (${stats.pending})` : ""}
               </Link>
-              <Link to="/seller/products" className="btn btn-outline-secondary">Manage products</Link>
+              <Link to="/seller/products" className="btn btn-outline-secondary">{t("Manage products")}</Link>
             </div>
           </section>
 
           <section className="admin-card p-3 p-md-4">
-            <h2 className="h5 mb-3">Low stock</h2>
+            <h2 className="h5 mb-3">{t("Low stock")}</h2>
             {lowStock.length === 0 ? (
               <p className="small text-secondary mb-0">
                 {productsLoading ? "Loading products..." : `No product is at ${LOW_STOCK_LIMIT} units or fewer.`}
@@ -203,10 +205,10 @@ export default function SellerDashboard() {
                     <div className="flex-grow-1 min-w-0">
                       <div className="small fw-semibold text-truncate">{p.title}</div>
                       <span className={`stock-badge ${p.stock === 0 ? "stock-out" : "stock-low"}`}>
-                        {p.stock === 0 ? "Out of stock" : `${p.stock} left`}
+                        {p.stock === 0 ? t("Out of stock") : t("{count} left", { count: p.stock })}
                       </span>
                     </div>
-                    <Link to={`/seller/products/${p.id}/edit`} className="btn btn-sm btn-outline-secondary">Restock</Link>
+                    <Link to={`/seller/products/${p.id}/edit`} className="btn btn-sm btn-outline-secondary">{t("Restock")}</Link>
                   </li>
                 ))}
               </ul>

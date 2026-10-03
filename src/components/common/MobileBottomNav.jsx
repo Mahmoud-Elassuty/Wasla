@@ -1,6 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { selectCartCount } from "../../store/reducers/cartSlice";
+import { useT } from "../../i18n/useT";
 
 // Routes where a persistent bar would interrupt a sensitive flow (auth, checkout, payment,
 // and the order details / confirmation screen).
@@ -23,6 +24,7 @@ const startsWith = (prefix) => (path) => path === prefix || path.startsWith(`${p
 
 // Mobile-only (CSS hides it from 768px up). Reuses the existing routes, auth state and cart count.
 export default function MobileBottomNav() {
+  const { t } = useT();
   const { pathname } = useLocation();
   const user = useSelector((s) => s.auth.user);
   const cartCount = useSelector(selectCartCount);
@@ -59,7 +61,7 @@ export default function MobileBottomNav() {
   ];
 
   return (
-    <nav className="mobile-bottom-nav d-md-none" aria-label="Primary">
+    <nav className="mobile-bottom-nav d-md-none" aria-label={t("Primary")}>
       <ul className="mobile-bottom-nav-list list-unstyled mb-0">
         {tabs.map(({ key, label, to, icon, activeIcon, isActive, badge, ariaLabel }) => {
           const active = isActive(pathname);
@@ -71,8 +73,8 @@ export default function MobileBottomNav() {
                 aria-current={active ? "page" : undefined}
                 aria-label={
                   key === "cart"
-                    ? `Cart, ${cartCount} ${cartCount === 1 ? "item" : "items"}`
-                    : ariaLabel
+                    ? t("Cart, {count} items", { count: cartCount })
+                    : ariaLabel && t(ariaLabel)
                 }
               >
                 <span className="mobile-bottom-nav-icon">
@@ -83,7 +85,7 @@ export default function MobileBottomNav() {
                     </span>
                   )}
                 </span>
-                <span className="mobile-bottom-nav-label">{label}</span>
+                <span className="mobile-bottom-nav-label">{t(label)}</span>
               </Link>
             </li>
           );

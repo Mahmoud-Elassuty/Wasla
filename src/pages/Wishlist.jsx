@@ -7,8 +7,10 @@ import ProductList from "../components/products/ProductList";
 import { matchesProductQuery, normalizeProductQuery } from "../utils/productSearch";
 import "../styles/wishlist.css";
 import ProfileReturnLink from "../components/common/ProfileReturnLink";
+import { useT } from "../i18n/useT";
 
 export default function Wishlist() {
+  const { t } = useT();
   const dispatch = useDispatch();
   const [searchParams] = useSearchParams();
   const userId = useSelector((s) => s.auth.user?.id);
@@ -67,9 +69,9 @@ export default function Wishlist() {
     body = (
       <div className="text-center py-5">
         <i className="bi bi-heart fs-1 text-secondary" aria-hidden="true" />
-        <p className="h5 mt-3 mb-1">Your wishlist is empty</p>
-        <p className="text-secondary">Tap the heart on any product to save it here.</p>
-        <Link to="/products" className="btn btn-accent px-4">Browse products</Link>
+        <p className="h5 mt-3 mb-1">{t("Your wishlist is empty")}</p>
+        <p className="text-secondary">{t("Tap the heart on any product to save it here.")}</p>
+        <Link to="/products" className="btn btn-accent px-4">{t("Browse products")}</Link>
       </div>
     );
   } else {
@@ -86,8 +88,8 @@ export default function Wishlist() {
           <input
             type="search"
             className="form-control"
-            placeholder="Search your favorites..."
-            aria-label="Search your favorites"
+            placeholder={t("Search your favorites...")}
+            aria-label={t("Search your favorites")}
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             onKeyDown={(event) => {
@@ -98,7 +100,7 @@ export default function Wishlist() {
             <button
               type="button"
               className="btn btn-outline-secondary"
-              aria-label="Clear search"
+              aria-label={t("Clear search")}
               onClick={() => setQuery("")}
             >
               <i className="bi bi-x-lg" aria-hidden="true" />
@@ -108,10 +110,10 @@ export default function Wishlist() {
         {filtered.length === 0 ? (
           <div className="text-center py-5" role="status">
             <i className="bi bi-search fs-1 text-secondary" aria-hidden="true" />
-            <p className="h5 mt-3 mb-1">No favorites found</p>
-            <p className="text-secondary">Nothing in your wishlist matches &ldquo;{query.trim()}&rdquo;.</p>
+            <p className="h5 mt-3 mb-1">{t("No favorites found")}</p>
+            <p className="text-secondary">{t("Nothing in your wishlist matches")} &ldquo;{query.trim()}&rdquo;.</p>
             <button type="button" className="btn btn-outline-secondary px-4" onClick={() => setQuery("")}>
-              Clear search
+              {t("Clear search")}
             </button>
           </div>
         ) : (
@@ -126,15 +128,15 @@ export default function Wishlist() {
       <div className="mb-4">
         <div className="d-flex flex-wrap justify-content-between align-items-start gap-3">
           <div>
-            <p className="eyebrow mb-1">My wishlist</p>
-            <h1 className="h3 mb-1">قائمة المفضلة</h1>
+            <p className="eyebrow mb-1">{t("My wishlist")}</p>
+            <h1 className="h3 mb-1">{t("Wishlist")}</h1>
           </div>
           {searchParams.get("from") === "profile" && <ProfileReturnLink />}
         </div>
         {saved.length > 0 && (
           <p className="small text-secondary mb-0">
             {searching ? `${filtered.length} of ${saved.length}` : saved.length}{" "}
-            {saved.length === 1 ? "item" : "items"}
+            {t("unit.items", { count: saved.length })}
           </p>
         )}
       </div>

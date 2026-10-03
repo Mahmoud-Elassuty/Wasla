@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { formatPrice } from "../../utils/format";
+import { useT } from "../../i18n/useT";
 
 export const SORTS = {
   featured: { label: "Featured", compare: null },
@@ -20,6 +21,7 @@ export default function CategoryFilters({
   onReset,
   hasActiveFilters,
 }) {
+  const { t } = useT();
   const [draftMin, setDraftMin] = useState(value.min);
   const [draftMax, setDraftMax] = useState(value.max);
 
@@ -47,17 +49,17 @@ export default function CategoryFilters({
   return (
     <aside id="filters-panel" className="category-filters collapse d-lg-block bg-white border rounded-4 p-3 p-lg-4">
       <div className="d-flex justify-content-between align-items-center mb-3">
-        <h2 className="h6 mb-0">Filters</h2>
+        <h2 className="h6 mb-0">{t("Filters")}</h2>
         {hasActiveFilters && (
           <button type="button" className="btn btn-link btn-sm p-0" onClick={onReset}>
-            Clear all
+            {t("Clear all")}
           </button>
         )}
       </div>
 
       <div className="mb-4">
         <label htmlFor="category-sort" className="form-label small fw-semibold">
-          Sort by
+          {t("Sort by")}
         </label>
         <select
           id="category-sort"
@@ -67,7 +69,7 @@ export default function CategoryFilters({
         >
           {Object.entries(SORTS).map(([key, { label }]) => (
             <option key={key} value={key}>
-              {label}
+              {t(label)}
             </option>
           ))}
         </select>
@@ -75,13 +77,13 @@ export default function CategoryFilters({
 
       <div className="mb-2">
         <div className="d-flex justify-content-between align-items-center mb-2">
-          <span className="form-label small fw-semibold mb-0">Price range</span>
+          <span className="form-label small fw-semibold mb-0">{t("Price range")}</span>
           <span className="small text-secondary">
-            {formatPrice(draftMin)} &ndash; {formatPrice(draftMax)}
+            <bdi dir="ltr">{formatPrice(draftMin)} &ndash; {formatPrice(draftMax)}</bdi>
           </span>
         </div>
 
-        <div className="price-slider position-relative">
+        <div className="price-slider position-relative" dir="ltr">
           <div className="price-slider-track" aria-hidden="true">
             <div
               className="price-slider-fill"
@@ -95,7 +97,7 @@ export default function CategoryFilters({
             max={bounds.max}
             step="0.01"
             value={draftMin}
-            aria-label="Minimum price"
+            aria-label={t("Minimum price")}
             onChange={handleMinChange}
           />
           <input
@@ -105,7 +107,7 @@ export default function CategoryFilters({
             max={bounds.max}
             step="0.01"
             value={draftMax}
-            aria-label="Maximum price"
+            aria-label={t("Maximum price")}
             onChange={handleMaxChange}
           />
         </div>
@@ -116,7 +118,7 @@ export default function CategoryFilters({
           disabled={!dirty}
           onClick={() => onApplyPrice(draftMin, draftMax)}
         >
-          Apply filters
+          {t("Apply filters")}
         </button>
       </div>
     </aside>

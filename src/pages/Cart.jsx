@@ -4,8 +4,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { clearCart, validateCartInventory } from "../store/reducers/cartSlice";
 import CartItem from "../components/cart/CartItem";
 import CartSummary from "../components/cart/CartSummary";
+import { useT } from "../i18n/useT";
 
 export default function Cart() {
+  const { t } = useT();
   const dispatch = useDispatch();
   const { items, itemCount, inventoryStatus, inventoryError, inventoryIssues } = useSelector((s) => s.cart);
   const [confirming, setConfirming] = useState(false);
@@ -18,9 +20,9 @@ export default function Cart() {
     return (
       <div className="container py-5 text-center">
         <i className="bi bi-bag fs-1 text-secondary" aria-hidden="true" />
-        <h1 className="h4 mt-3">Your cart is empty</h1>
-        <p className="text-secondary">Browse the catalog and add what you like.</p>
-        <Link to="/products" className="btn btn-accent px-4">Continue shopping</Link>
+        <h1 className="h4 mt-3">{t("Your cart is empty")}</h1>
+        <p className="text-secondary">{t("Browse the catalog and add what you like.")}</p>
+        <Link to="/products" className="btn btn-accent px-4">{t("Continue shopping")}</Link>
       </div>
     );
   }
@@ -29,7 +31,7 @@ export default function Cart() {
     <div className="container py-4">
       <div className="d-flex flex-wrap justify-content-between align-items-end gap-2 mb-3">
         <div>
-          <h1 className="h3 mb-1">Your cart</h1>
+          <h1 className="h3 mb-1">{t("Your cart")}</h1>
           <p className="text-secondary small mb-0">
             {itemCount} {itemCount === 1 ? "item" : "items"}
           </p>
@@ -37,12 +39,12 @@ export default function Cart() {
 
         {confirming ? (
           <div className="d-flex flex-wrap align-items-center gap-2">
-            <span className="small">Remove all items?</span>
+            <span className="small">{t("Remove all items?")}</span>
             <button type="button" className="btn btn-sm btn-danger" onClick={() => dispatch(clearCart())}>
-              Yes, clear
+              {t("Yes, clear")}
             </button>
             <button type="button" className="btn btn-sm btn-outline-secondary" onClick={() => setConfirming(false)}>
-              Cancel
+              {t("Cancel")}
             </button>
           </div>
         ) : (
@@ -51,27 +53,27 @@ export default function Cart() {
             className="btn btn-link btn-sm text-danger text-decoration-none"
             onClick={() => setConfirming(true)}
           >
-            Clear cart
+            {t("Clear cart")}
           </button>
         )}
       </div>
 
       {inventoryStatus === "loading" && (
-        <p className="small text-secondary" role="status">Checking current product availability...</p>
+        <p className="small text-secondary" role="status">{t("Checking current product availability...")}</p>
       )}
       {inventoryStatus === "failed" && (
         <div className="alert alert-warning d-flex flex-wrap justify-content-between align-items-center gap-2" role="alert">
-          <span>{inventoryError || "Current stock could not be checked. Checkout will remain unavailable until stock can be confirmed."}</span>
+          <span>{inventoryError ? t(inventoryError) : t("Current stock could not be checked. Checkout will remain unavailable until stock can be confirmed.")}</span>
           <button type="button" className="btn btn-sm btn-outline-secondary" onClick={() => dispatch(validateCartInventory())}>
-            Retry stock check
+            {t("Retry stock check")}
           </button>
         </div>
       )}
       {inventoryStatus === "invalid" && (
         <div className="alert alert-warning" role="alert">
-          <p className="fw-semibold mb-1">Some cart quantities need attention.</p>
+          <p className="fw-semibold mb-1">{t("Some cart quantities need attention.")}</p>
           <ul className="mb-0">
-            {inventoryIssues.map((issue) => <li key={issue}>{issue}</li>)}
+            {inventoryIssues.map((issue) => <li key={issue}>{t(issue)}</li>)}
           </ul>
         </div>
       )}

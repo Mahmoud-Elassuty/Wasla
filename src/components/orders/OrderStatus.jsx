@@ -1,25 +1,22 @@
-const STATUSES = {
-  pending: { label: "Pending", ar: "قيد المعالجة", icon: "bi-hourglass-split" },
-  confirmed: { label: "Confirmed", ar: "مؤكد", icon: "bi-check-circle" },
-  shipped: { label: "Shipped", ar: "تم الشحن", icon: "bi-truck" },
-  delivered: { label: "Delivered", ar: "تم التسليم", icon: "bi-bag-check" },
-  cancelled: { label: "Cancelled", ar: "ملغي", icon: "bi-x-circle" },
+import { useT } from "../../i18n/useT";
+
+const ICONS = {
+  pending: "bi-hourglass-split",
+  confirmed: "bi-check-circle",
+  shipped: "bi-truck",
+  delivered: "bi-bag-check",
+  cancelled: "bi-x-circle",
 };
 
+// The stored status value is untouched; only the displayed label is translated.
 export default function OrderStatus({ status }) {
-  const known = STATUSES[status];
-  const { label, ar, icon } = known ?? { label: status || "Unknown", ar: null, icon: "bi-question-circle" };
+  const { te, t } = useT();
+  const known = ICONS[status];
 
   return (
     <span className={`status-badge status-${known ? status : "unknown"}`}>
-      <i className={`bi ${icon}`} aria-hidden="true" />
-      {label}
-      {ar && (
-        <>
-          <span aria-hidden="true">·</span>
-          <span lang="ar" dir="rtl">{ar}</span>
-        </>
-      )}
+      <i className={`bi ${known ?? "bi-question-circle"}`} aria-hidden="true" />
+      {known ? te("order", status) : status || t("Unknown")}
     </span>
   );
 }

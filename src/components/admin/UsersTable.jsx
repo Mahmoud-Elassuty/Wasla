@@ -3,16 +3,18 @@ import { useSelector } from "react-redux";
 import UserActions from "./UserActions";
 import { formatOrderDate } from "../../utils/checkout";
 import { ROLE_LABELS, STATUS_LABELS, STATUS_TONE, getUserStatus } from "../../utils/users";
+import { useT } from "../../i18n/useT";
 
 export function UserStatusBadge({ user }) {
   const status = getUserStatus(user);
   return (
-    <span className={`badge rounded-pill ${STATUS_TONE[status] ?? "stock-low"}`}>{STATUS_LABELS[status] ?? status}</span>
+    <span className={`badge rounded-pill ${STATUS_TONE[status] ?? "stock-low"}`}>{te("userstatus", status) ?? status}</span>
   );
 }
 
 // Passwords never reach this component: adminApi strips them before users enter Redux.
 export default function UsersTable({ users, emptyMessage }) {
+  const { t, te } = useT();
   const currentUserId = useSelector((s) => s.auth.user?.id);
 
   return (
@@ -21,12 +23,12 @@ export default function UsersTable({ users, emptyMessage }) {
         <table className="table admin-table align-middle mb-0">
           <thead>
             <tr>
-              <th>User</th>
-              <th>Role</th>
-              <th>Store</th>
-              <th>Status</th>
-              <th>Joined</th>
-              <th>Actions</th>
+              <th>{t("User")}</th>
+              <th>{t("Role")}</th>
+              <th>{t("Store")}</th>
+              <th>{t("Status")}</th>
+              <th>{t("Joined")}</th>
+              <th>{t("Actions")}</th>
             </tr>
           </thead>
           <tbody>
@@ -36,7 +38,7 @@ export default function UsersTable({ users, emptyMessage }) {
                   <div className="fw-semibold">
                     {user.name || "-"}
                     {String(user.id) === String(currentUserId) && (
-                      <span className="badge text-bg-light border ms-2">You</span>
+                      <span className="badge text-bg-light border ms-2">{t("You")}</span>
                     )}
                   </div>
                   <div className="small text-secondary text-break">{user.email || "-"}</div>
@@ -55,7 +57,7 @@ export default function UsersTable({ users, emptyMessage }) {
                       className="btn btn-sm btn-outline-secondary"
                       aria-label={`View ${user.name || user.email}`}
                     >
-                      View
+                      {t("View")}
                     </Link>
                     <UserActions user={user} />
                   </span>

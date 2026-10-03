@@ -13,6 +13,7 @@ import { matchesProductQuery } from "../utils/productSearch";
 import Pagination, { ResultsSummary } from "../components/common/Pagination";
 import usePagination from "../hooks/usePagination";
 import "../styles/category.css";
+import { useT } from "../i18n/useT";
 
 const SORT_COMPARE = {
   "price-asc": (a, b) => getSalePrice(a) - getSalePrice(b),
@@ -22,6 +23,7 @@ const SORT_COMPARE = {
 };
 
 export default function Category() {
+  const { t } = useT();
   const { slug } = useParams();
   const dispatch = useDispatch();
   const { items, categories, status, error } = useSelector((s) => s.products);
@@ -97,10 +99,10 @@ export default function Category() {
   if (notFound) {
     return (
       <div className="container py-5 text-center">
-        <p className="h5 mb-1">This category doesn't exist</p>
-        <p className="text-secondary mb-4">It may have been renamed or removed.</p>
+        <p className="h5 mb-1">{t("This category doesn't exist")}</p>
+        <p className="text-secondary mb-4">{t("It may have been renamed or removed.")}</p>
         <Link to="/products" className="btn btn-wasla">
-          Browse all products
+          {t("Browse all products")}
         </Link>
       </div>
     );
@@ -132,13 +134,13 @@ export default function Category() {
           )}
           {visible.length !== categoryItems.length && categoryItems.length > 0 && (
             <p className="text-secondary small mb-3">
-              Filtered from {categoryItems.length} products
+              {t("Filtered from {count} products", { count: categoryItems.length })}
               <button
                 type="button"
                 className="btn btn-link btn-sm p-0 ms-2 align-baseline"
                 onClick={resetFilters}
               >
-                Clear filters
+                {t("Clear filters")}
               </button>
             </p>
           )}

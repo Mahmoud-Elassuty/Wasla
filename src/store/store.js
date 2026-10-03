@@ -15,6 +15,7 @@ import cartReducer, { saveToLocalStorage } from "./reducers/cartSlice";
 import bannersReducer from "./reducers/bannersSlice";
 import homeReviewsReducer from "./reducers/homeReviewsSlice";
 import chatReducer from "./reducers/chatSlice";
+import languageReducer from "./reducers/languageSlice";
 import { removeChat, setChat } from "../utils/localStorage";
 
 const store = configureStore({
@@ -35,6 +36,7 @@ const store = configureStore({
     banners: bannersReducer,
     homeReviews: homeReviewsReducer,
     chat: chatReducer,
+    language: languageReducer,
   },
 });
 

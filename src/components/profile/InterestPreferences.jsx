@@ -1,11 +1,14 @@
 import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { getCategoryDisplayName } from "../../utils/categoryDisplay";
 import { fetchProducts } from "../../store/reducers/productsSlice";
 import { updatePreferences } from "../../store/reducers/authSlice";
 import { showSuccess } from "../../utils/notifications";
 import { titleCase } from "../../utils/format";
+import { useT } from "../../i18n/useT";
 
 export default function InterestPreferences({ onboarding = false, onComplete }) {
+  const { t } = useT();
   const dispatch = useDispatch();
   const user = useSelector((s) => s.auth.user);
   const { items, categories, status } = useSelector((s) => s.products);
@@ -43,10 +46,10 @@ export default function InterestPreferences({ onboarding = false, onComplete }) 
     setSaveError("");
     try {
       await dispatch(updatePreferences({ interests, onboardingCompleted: true })).unwrap();
-      dispatch(showSuccess("Your interests have been saved."));
+      dispatch(showSuccess(t("Your interests have been saved.")));
       onComplete?.();
     } catch (error) {
-      setSaveError(typeof error === "string" ? error : "We couldn't save your interests. Please try again.");
+      setSaveError(typeof error === "string" ? error : t("We couldn't save your interests. Please try again."));
     } finally {
       setSaving(false);
     }
@@ -56,21 +59,21 @@ export default function InterestPreferences({ onboarding = false, onComplete }) 
     <>
       <div className="mb-3">
         <h2 id={onboarding ? "interest-onboarding-title" : "interest-settings-title"} className={onboarding ? "h3 mb-2" : "h5 mb-1"}>
-          {onboarding ? "What are you interested in?" : "Manage your interests"}
+          {onboarding ? t("What are you interested in?") : t("Manage your interests")}
         </h2>
-        <p className="text-secondary mb-0">Choose categories to personalize your product suggestions.</p>
+        <p className="text-secondary mb-0">{t("Choose categories to personalize your product suggestions.")}</p>
       </div>
 
-      {saveError && <div className="alert alert-danger py-2" role="alert">{saveError}</div>}
+      {saveError && <div className="alert alert-danger py-2" role="alert">{t(saveError)}</div>}
 
       {status === "loading" && options.length === 0 ? (
-        <div className="placeholder-glow" aria-busy="true" aria-label="Loading categories">
+        <div className="placeholder-glow" aria-busy="true" aria-label={t("Loading categories…")}>
           <span className="placeholder d-block col-12 mb-2" style={{ height: 44 }} />
           <span className="placeholder d-block col-12 mb-2" style={{ height: 44 }} />
           <span className="placeholder d-block col-12" style={{ height: 44 }} />
         </div>
       ) : options.length > 0 ? (
-        <div className="customer-interest-options" role="group" aria-label="Product categories">
+        <div className="customer-interest-options" role="group" aria-label={t("Product categories")}>
           {options.map(({ slug, name }) => (
             <label key={slug} className={`customer-interest-option${selected.has(slug) ? " is-selected" : ""}`}>
               <input
@@ -80,13 +83,13 @@ export default function InterestPreferences({ onboarding = false, onComplete }) 
                 onChange={() => toggleInterest(slug)}
                 disabled={saving}
               />
-              <span>{name}</span>
+              <span>{getCategoryDisplayName(slug)}</span>
             </label>
           ))}
         </div>
       ) : (
         <div className="alert alert-warning py-2" role="status">
-          Product categories are unavailable right now. You can retry or skip this step.
+          {t("Product categories are unavailable right now. You can retry or skip this step.")}
           <button type="button" className="btn btn-sm btn-link" disabled={status === "loading"} onClick={() => dispatch(fetchProducts())}>
             Retry
           </button>
@@ -96,7 +99,7 @@ export default function InterestPreferences({ onboarding = false, onComplete }) 
       <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-4">
         {onboarding ? (
           <button type="button" className="btn btn-link px-0" disabled={saving} onClick={() => save([])}>
-            Skip for now
+            {t("Skip for now")}
           </button>
         ) : <span />}
         <button
@@ -106,8 +109,8 @@ export default function InterestPreferences({ onboarding = false, onComplete }) 
           onClick={() => save(options.filter(({ slug }) => selected.has(slug)).map(({ slug }) => slug))}
         >
           {saving ? (
-            <><span className="spinner-border spinner-border-sm me-2" aria-hidden="true" />Saving...</>
-          ) : onboarding ? "Save Preferences" : "Save Interests"}
+            <><span className="spinner-border spinner-border-sm me-2" aria-hidden="true" />{t("Saving...")}</>
+          ) : onboarding ? t("Save Preferences") : t("Save Interests")}
         </button>
       </div>
     </>

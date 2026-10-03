@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import FormField from "../../components/common/FormField";
 import { createBanner, fetchBannerById, resetBannerSave, updateBanner } from "../../store/reducers/bannersSlice";
 import { showError, showSuccess } from "../../utils/notifications";
+import { useT } from "../../i18n/useT";
 
 const FIELD_ORDER = ["title", "image", "buttonText", "buttonLink", "status", "sortOrder"];
 const toForm = (banner) => ({
@@ -39,6 +40,7 @@ function validate(values) {
 }
 
 function BannerFormView({ banner }) {
+  const { t } = useT();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { saveStatus, saveError } = useSelector((state) => state.banners);
@@ -97,30 +99,30 @@ function BannerFormView({ banner }) {
           <p className="eyebrow mb-1">{editing ? "Edit homepage banner" : "New homepage banner"}</p>
           <h1 className="h3 mb-0">{editing ? "Edit Banner" : "Add Banner"}</h1>
         </div>
-        <Link to="/admin/banners" className="btn btn-outline-secondary">Back to banners</Link>
+        <Link to="/admin/banners" className="btn btn-outline-secondary">{t("Back to banners")}</Link>
       </div>
       <form className="admin-card p-3 p-md-4" onSubmit={handleSubmit} noValidate>
         <fieldset disabled={saving} className="border-0 p-0 m-0">
           {saveError && <div className="alert alert-danger" role="alert">{saveError}</div>}
           <div className="row">
-            <div className="col-md-6"><FormField {...field("title")} label="Title" maxLength={120} /></div>
-            <div className="col-md-6"><FormField {...field("subtitle")} label="Subtitle (optional)" maxLength={240} /></div>
-            <div className="col-12"><FormField {...field("image")} label="Image URL" type="url" placeholder="https://example.com/banner.jpg" /></div>
-            <div className="col-md-6"><FormField {...field("buttonText")} label="Button text" maxLength={40} /></div>
-            <div className="col-md-6"><FormField {...field("buttonLink")} label="Internal button link" placeholder="/products" /></div>
+            <div className="col-md-6"><FormField {...field("title")} label={t("Title")} maxLength={120} /></div>
+            <div className="col-md-6"><FormField {...field("subtitle")} label={t("Subtitle (optional)")} maxLength={240} /></div>
+            <div className="col-12"><FormField {...field("image")} label={t("Image URL")} type="url" placeholder="https://example.com/banner.jpg" /></div>
+            <div className="col-md-6"><FormField {...field("buttonText")} label={t("Button text")} maxLength={40} /></div>
+            <div className="col-md-6"><FormField {...field("buttonLink")} label={t("Internal button link")} placeholder="/products" /></div>
             <div className="col-md-6">
-              <FormField {...field("status")} as="select" label="Status">
-                <option value="active">Active</option><option value="inactive">Inactive</option>
+              <FormField {...field("status")} as="select" label={t("Status")}>
+                <option value="active">{t("Active")}</option><option value="inactive">{t("Inactive")}</option>
               </FormField>
             </div>
-            <div className="col-md-6"><FormField {...field("sortOrder")} label="Sort order" type="number" min="1" step="1" inputMode="numeric" /></div>
+            <div className="col-md-6"><FormField {...field("sortOrder")} label={t("Sort order")} type="number" min="1" step="1" inputMode="numeric" /></div>
           </div>
         </fieldset>
         <div className="d-flex flex-wrap gap-2 mt-2">
           <button type="submit" className="btn btn-accent px-4" disabled={saving}>
-            {saving ? "Saving…" : editing ? "Save changes" : "Create banner"}
+            {saving ? t("Saving...") : editing ? t("Save changes") : t("Create banner")}
           </button>
-          <Link to="/admin/banners" className="btn btn-outline-secondary px-4">Cancel</Link>
+          <Link to="/admin/banners" className="btn btn-outline-secondary px-4">{t("Cancel")}</Link>
         </div>
       </form>
     </>
@@ -128,6 +130,7 @@ function BannerFormView({ banner }) {
 }
 
 export default function BannerForm() {
+  const { t } = useT();
   const { id } = useParams();
   const dispatch = useDispatch();
   const state = useSelector((root) => root.banners);
@@ -144,9 +147,9 @@ export default function BannerForm() {
   if (state.detailStatus === "succeeded" && String(state.detailId) === id) {
     return (
       <div className="text-center py-5">
-        <h1 className="h4">We couldn't find this banner</h1>
-        <p className="text-secondary">It may have been deleted or the link is incorrect.</p>
-        <Link to="/admin/banners" className="btn btn-outline-secondary">Back to banners</Link>
+        <h1 className="h4">{t("We couldn't find this banner")}</h1>
+        <p className="text-secondary">{t("It may have been deleted or the link is incorrect.")}</p>
+        <Link to="/admin/banners" className="btn btn-outline-secondary">{t("Back to banners")}</Link>
       </div>
     );
   }
@@ -154,14 +157,14 @@ export default function BannerForm() {
     return (
       <div className="alert alert-danger" role="alert">
         <p className="mb-3">{state.detailError || "We couldn't load this banner."}</p>
-        <button type="button" className="btn btn-outline-danger me-2" onClick={() => dispatch(fetchBannerById(id))}>Try again</button>
-        <Link to="/admin/banners" className="btn btn-outline-secondary">Back to banners</Link>
+        <button type="button" className="btn btn-outline-danger me-2" onClick={() => dispatch(fetchBannerById(id))}>{t("Try again")}</button>
+        <Link to="/admin/banners" className="btn btn-outline-secondary">{t("Back to banners")}</Link>
       </div>
     );
   }
   return (
     <div className="text-center py-5" role="status">
-      <div className="spinner-border text-primary" /><span className="visually-hidden">Loading banner...</span>
+      <div className="spinner-border text-primary" /><span className="visually-hidden">{t("Loading banner...")}</span>
     </div>
   );
 }

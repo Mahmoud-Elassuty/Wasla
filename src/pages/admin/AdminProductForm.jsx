@@ -13,6 +13,7 @@ import { fetchCategories } from "../../store/reducers/productsSlice";
 import FormField from "../../components/common/FormField";
 import { titleCase } from "../../utils/format";
 import { availabilityStatusFromStock } from "../../utils/inventory";
+import { useT } from "../../i18n/useT";
 
 const FIELD_ORDER = ["title", "description", "price", "discountPercentage", "stock", "category", "brand", "images"];
 
@@ -74,6 +75,7 @@ function validate(v) {
 }
 
 function ProductFormView({ product }) {
+  const { t } = useT();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { saveStatus, saveError, products } = useSelector((s) => s.admin);
@@ -162,45 +164,45 @@ function ProductFormView({ product }) {
         <fieldset disabled={saving} className="border-0 p-0 m-0">
           <div className="row">
             <div className="col-12">
-              <FormField {...field("title")} label="Name" placeholder="Product name" maxLength={120} />
+              <FormField {...field("title")} label={t("Name")} placeholder={t("Product name")} maxLength={120} />
             </div>
             <div className="col-12">
-              <FormField {...field("description")} as="textarea" rows={4} label="Description" placeholder="What is this product?" />
+              <FormField {...field("description")} as="textarea" rows={4} label={t("Description")} placeholder={t("What is this product?")} />
             </div>
             <div className="col-md-4">
-              <FormField {...field("price")} type="number" min="0" step="0.01" inputMode="decimal" label="Price (USD)" placeholder="0.00" />
+              <FormField {...field("price")} type="number" min="0" step="0.01" inputMode="decimal" label={t("Price (USD)")} placeholder="0.00" />
             </div>
             <div className="col-md-4">
               <FormField
                 {...field("discountPercentage")}
                 type="number" min="0" max="100" step="0.01" inputMode="decimal"
-                label="Discount % (optional)" placeholder="0"
+                label={t("Discount % (optional)")} placeholder="0"
               />
             </div>
             <div className="col-md-4">
-              <FormField {...field("stock")} type="number" min="0" step="1" inputMode="numeric" label="Stock" placeholder="0" />
+              <FormField {...field("stock")} type="number" min="0" step="1" inputMode="numeric" label={t("Stock")} placeholder="0" />
             </div>
             <div className="col-md-6">
-              <FormField {...field("category")} as="select" label="Category">
-                <option value="">Select category</option>
+              <FormField {...field("category")} as="select" label={t("Category")}>
+                <option value="">{t("Select category")}</option>
                 {categoryOptions.map((c) => (
                   <option key={c.slug} value={c.slug}>{c.name}</option>
                 ))}
               </FormField>
             </div>
             <div className="col-md-6">
-              <FormField {...field("brand")} label="Brand (optional)" placeholder="Brand name" maxLength={80} />
+              <FormField {...field("brand")} label={t("Brand (optional)")} placeholder={t("Brand name")} maxLength={80} />
             </div>
             <div className="col-12">
               <FormField
                 {...field("images")}
                 as="textarea"
                 rows={4}
-                label="Image URLs"
+                label={t("Image URLs")}
                 placeholder="https://example.com/photo.jpg"
                 spellCheck={false}
               />
-              <p className="form-text" style={{ marginTop: "-0.5rem" }}>One URL per line. The first image is the main one.</p>
+              <p className="form-text" style={{ marginTop: "-0.5rem" }}>{t("One URL per line. The first image is the main one.")}</p>
               {previews.length > 0 && (
                 <div className="d-flex flex-wrap gap-2 mb-3">
                   {previews.map((src) => (
@@ -229,13 +231,13 @@ function ProductFormView({ product }) {
             {saving ? (
               <>
                 <span className="spinner-border spinner-border-sm me-2" aria-hidden="true" />
-                Saving...
+                {t("Saving...")}
               </>
             ) : (
               "Save"
             )}
           </button>
-          <Link to="/admin/products" className="btn btn-outline-secondary px-4">Cancel</Link>
+          <Link to="/admin/products" className="btn btn-outline-secondary px-4">{t("Cancel")}</Link>
         </div>
       </form>
     </>
@@ -243,6 +245,7 @@ function ProductFormView({ product }) {
 }
 
 export default function AdminProductForm() {
+  const { t } = useT();
   const { id } = useParams(); // undefined on /admin/products/new
   const dispatch = useDispatch();
   const { products, productsStatus, productsError } = useSelector((s) => s.admin);
@@ -265,11 +268,11 @@ export default function AdminProductForm() {
   if (productsStatus === "succeeded" || productsStatus === "failed") {
     return (
       <div className="text-center py-5">
-        <h1 className="h4">We couldn't find this product</h1>
+        <h1 className="h4">{t("We couldn't find this product")}</h1>
         <p className="text-secondary">
           {productsStatus === "failed" ? productsError : "It may have been deleted."}
         </p>
-        <Link to="/admin/products" className="btn btn-outline-secondary">Back to products</Link>
+        <Link to="/admin/products" className="btn btn-outline-secondary">{t("Back to products")}</Link>
       </div>
     );
   }
@@ -277,7 +280,7 @@ export default function AdminProductForm() {
   return (
     <div className="text-center py-5" role="status">
       <div className="spinner-border text-primary" />
-      <span className="visually-hidden">Loading product...</span>
+      <span className="visually-hidden">{t("Loading product...")}</span>
     </div>
   );
 }

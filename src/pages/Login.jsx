@@ -3,6 +3,7 @@ import { Link, Navigate, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { login, resetStatus } from "../store/reducers/authSlice";
 import FormField from "../components/common/FormField";
+import { useT } from "../i18n/useT";
 
 const validate = ({ email, password }) => {
   const errors = {};
@@ -13,6 +14,7 @@ const validate = ({ email, password }) => {
 };
 
 export default function Login() {
+  const { t } = useT();
   const dispatch = useDispatch();
   const location = useLocation();
   const { user, status, error } = useSelector((s) => s.auth);
@@ -51,17 +53,17 @@ export default function Login() {
       <div className="row justify-content-center">
         <div className="col-md-8 col-lg-5">
           <div className="bg-white border rounded-4 shadow-sm p-4 p-md-5">
-            <h1 className="h3 text-wasla mb-1">Welcome back</h1>
-            <p className="text-secondary mb-4">Log in to track orders and check out faster.</p>
+            <h1 className="h3 text-wasla mb-1">{t("Welcome back")}</h1>
+            <p className="text-secondary mb-4">{t("Log in to track orders and check out faster.")}</p>
 
             {location.state?.registered && (
               <div className="alert alert-success py-2" role="status">
-                Account created. Log in to continue.
+                {t("Account created. Log in to continue.")}
               </div>
             )}
             {error && (
               <div className="alert alert-danger py-2" role="alert">
-                {error}
+                {t(error)}
               </div>
             )}
 
@@ -90,16 +92,16 @@ export default function Login() {
                 {loading ? (
                   <>
                     <span className="spinner-border spinner-border-sm me-2" aria-hidden="true" />
-                    Logging in...
+                    {t("Logging in...")}
                   </>
                 ) : (
-                  "Log in"
+                  t("Log in")
                 )}
               </button>
             </form>
 
             <p className="text-center text-secondary small mt-4 mb-0">
-              New to wasla? <Link to="/register" className="fw-semibold">Create an account</Link>
+              {t("New to wasla?")} <Link to="/register" className="fw-semibold">{t("Create an account")}</Link>
             </p>
           </div>
         </div>

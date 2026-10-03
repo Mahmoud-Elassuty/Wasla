@@ -3,6 +3,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchEmails } from "../../store/reducers/emailSlice";
 import EmailPreview from "../../components/email/EmailPreview";
 import "../../styles/email.css";
+import { getLocale } from "../../i18n";
+import { useT } from "../../i18n/useT";
 
 const TYPE_LABEL = {
   order_confirmation: "Order confirmation",
@@ -11,6 +13,7 @@ const TYPE_LABEL = {
 };
 
 export default function AdminEmails() {
+  const { t } = useT();
   const dispatch = useDispatch();
   const { sentEmails, status, error } = useSelector((s) => s.email);
   const [type, setType] = useState("");
@@ -29,22 +32,22 @@ export default function AdminEmails() {
   return (
     <>
       <div className="mb-4">
-        <p className="eyebrow mb-1">Emails (mock)</p>
+        <p className="eyebrow mb-1">{t("Emails (mock)")}</p>
         <h1 className="h3 mb-1">سجل البريد الإلكتروني</h1>
         {hasEmails && (
           <p className="small text-secondary mb-0">
-            Showing {visible.length} of {sentEmails.length} emails
+            {t("Showing {shown} of {total} emails", { shown: visible.length, total: sentEmails.length })}
           </p>
         )}
       </div>
 
       <div className="row g-2 mb-3">
         <div className="col-md-4 col-lg-3">
-          <select className="form-select" aria-label="Filter by type" value={type} onChange={(e) => setType(e.target.value)}>
-            <option value="">All types</option>
+          <select className="form-select" aria-label={t("Filter by type")} value={type} onChange={(e) => setType(e.target.value)}>
+            <option value="">{t("All types")}</option>
             {Object.entries(TYPE_LABEL).map(([value, label]) => (
               <option key={value} value={value}>
-                {label}
+                {t(label)}
               </option>
             ))}
           </select>
@@ -55,11 +58,11 @@ export default function AdminEmails() {
         <div className="alert alert-danger d-flex flex-wrap justify-content-between align-items-center gap-2" role="alert">
           <span>{error || "We couldn't load the emails."}</span>
           <button type="button" className="btn btn-sm btn-outline-danger" onClick={() => dispatch(fetchEmails())}>
-            Try again
+            {t("Try again")}
           </button>
         </div>
       ) : loading ? (
-        <div className="admin-card p-4 placeholder-glow" aria-busy="true" aria-label="Loading emails">
+        <div className="admin-card p-4 placeholder-glow" aria-busy="true" aria-label={t("Loading emails")}>
           {Array.from({ length: 6 }, (_, i) => (
             <span key={i} className="placeholder d-block col-12 mb-3" style={{ height: 32 }} />
           ))}
@@ -70,12 +73,12 @@ export default function AdminEmails() {
             <table className="table admin-table align-middle mb-0">
               <thead>
                 <tr>
-                  <th>To</th>
-                  <th>Subject</th>
-                  <th>Type</th>
-                  <th>Sent</th>
-                  <th>Status</th>
-                  <th>Actions</th>
+                  <th>{t("To")}</th>
+                  <th>{t("Subject")}</th>
+                  <th>{t("Type")}</th>
+                  <th>{t("Sent")}</th>
+                  <th>{t("Status")}</th>
+                  <th>{t("Actions")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -90,7 +93,7 @@ export default function AdminEmails() {
                         {TYPE_LABEL[email.type] ?? email.type}
                       </span>
                     </td>
-                    <td className="text-nowrap">{new Date(email.sentAt).toLocaleString()}</td>
+                    <td className="text-nowrap">{new Date(email.sentAt).toLocaleString(getLocale())}</td>
                     <td>
                       <span className="badge bg-success-subtle text-success-emphasis text-capitalize">
                         {email.status}
@@ -98,7 +101,7 @@ export default function AdminEmails() {
                     </td>
                     <td className="text-nowrap">
                       <button type="button" className="btn btn-sm btn-outline-secondary" onClick={() => setPreviewing(email)}>
-                        View preview
+                        {t("View preview")}
                       </button>
                     </td>
                   </tr>
@@ -106,7 +109,7 @@ export default function AdminEmails() {
                 {visible.length === 0 && (
                   <tr>
                     <td colSpan={6} className="text-center text-secondary py-5">
-                      {hasEmails ? "No emails match this filter." : "No emails sent yet."}
+                      {hasEmails ? t("No emails match this filter.") : t("No emails sent yet.")}
                     </td>
                   </tr>
                 )}

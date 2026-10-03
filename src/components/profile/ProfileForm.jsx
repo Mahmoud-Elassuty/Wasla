@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { resetSaveStatus, updateProfile } from "../../store/reducers/profileSlice";
 import { showError, showSuccess } from "../../utils/notifications";
 import FormField from "../common/FormField";
+import { useT } from "../../i18n/useT";
 
 const PHONE_RE = /^(\+?20|0)?1[0125]\d{8}$/; // Egyptian mobile: 010 / 011 / 012 / 015
 const FIELD_ORDER = ["name", "phone"];
@@ -17,6 +18,7 @@ const validate = (v) => {
 };
 
 export default function ProfileForm() {
+  const { t } = useT();
   const dispatch = useDispatch();
   const user = useSelector((s) => s.auth.user);
   const { saveStatus, saveError } = useSelector((s) => s.profile);
@@ -27,7 +29,7 @@ export default function ProfileForm() {
   // "Profile updated" fades after a few seconds instead of sticking around forever.
   useEffect(() => {
     if (saveStatus !== "succeeded") return;
-    dispatch(showSuccess("Profile updated."));
+    dispatch(showSuccess(t("Profile updated.")));
     const timer = setTimeout(() => dispatch(resetSaveStatus()), 4000);
     return () => clearTimeout(timer);
   }, [saveStatus, dispatch]);
@@ -61,14 +63,14 @@ export default function ProfileForm() {
       <fieldset disabled={saving} className="border-0 p-0 m-0">
         <div className="row gx-3">
           <div className="col-md-6">
-            <FormField {...field("name")} label="Name" autoComplete="name" />
+            <FormField {...field("name")} label={t("Name")} autoComplete="name" />
           </div>
           <div className="col-md-6">
             <div className="mb-3">
-              <label htmlFor="email" className="form-label small fw-semibold">Email</label>
+              <label htmlFor="email" className="form-label small fw-semibold">{t("Email")}</label>
               <input id="email" className="form-control py-2" value={user?.email ?? ""} disabled readOnly />
               <p className="form-text" style={{ marginTop: "-0.25rem" }}>
-                Contact support to change the email on your account.
+                {t("Contact support to change the email on your account.")}
               </p>
             </div>
           </div>
@@ -76,7 +78,7 @@ export default function ProfileForm() {
             <FormField
               {...field("phone")}
               type="tel"
-              label="Phone (optional)"
+              label={t("Phone (optional)")}
               placeholder="01012345678"
               autoComplete="tel"
             />
@@ -86,7 +88,7 @@ export default function ProfileForm() {
 
       {saveStatus === "succeeded" && (
         <div className="alert alert-success py-2" role="status">
-          Profile updated.
+          {t("Profile updated.")}
         </div>
       )}
       {saveError && (
@@ -102,7 +104,7 @@ export default function ProfileForm() {
             Saving...
           </>
         ) : (
-          "Save changes"
+          t("Save changes")
         )}
       </button>
     </form>

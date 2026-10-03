@@ -2,11 +2,12 @@ import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { clearChat, closeChat, sendChatMessage } from "../../store/reducers/chatSlice";
 import "../../styles/chatbot.css";
+import { useT } from "../../i18n/useT";
 
 const MAX_LENGTH = 1000;
 
 const SUGGESTIONS = [
-  "كيف أتابع طلبي؟",
+  "How do I track my order?",
   "How do coupons work?",
   "Can I check out without an account?",
 ];
@@ -14,30 +15,24 @@ const SUGGESTIONS = [
 // Friendly in-chat text per error code from huggingFaceApi.js (Arabic + English, no secrets).
 const ERROR_TEXT = {
   no_token:
-    "مفتاح Hugging Face غير مُعدّ على هذا الجهاز، لذلك لا يمكن للمساعد الرد الآن.\n" +
     "The Hugging Face token isn't configured. Set it locally in your browser, then try again:\n" +
     'localStorage.setItem("hf_access_token", "YOUR_REAL_TOKEN")',
   invalid_token:
-    "مفتاح Hugging Face غير صالح أو منتهي. تحقق منه وحاول مرة أخرى.\n" +
     "The Hugging Face token was rejected. Check that it is valid and has Inference Providers access.",
   rate_limit:
-    "تم الوصول للحد المسموح من الطلبات. انتظر قليلاً ثم حاول مجدداً.\n" +
     "Too many requests right now. Please wait a moment and try again.",
   model_unavailable:
-    "النموذج غير متاح حالياً. حاول لاحقاً.\n" +
     "The assistant's model is unavailable right now. Please try again later.",
   network:
-    "تعذّر الاتصال بالخدمة. تحقق من الإنترنت وحاول مجدداً.\n" +
     "Couldn't reach the assistant. Check your connection and try again.",
   empty:
-    "لم يصل رد من المساعد. حاول إعادة صياغة سؤالك.\n" +
     "The assistant sent an empty reply. Try rephrasing your question.",
   unknown:
-    "حدث خطأ غير متوقع. حاول مرة أخرى.\n" +
     "Something went wrong. Please try again.",
 };
 
 export default function ChatWindow() {
+  const { t } = useT();
   const dispatch = useDispatch();
   const { messages, isOpen, status, error } = useSelector((s) => s.chat);
   const [draft, setDraft] = useState("");
@@ -86,20 +81,20 @@ export default function ChatWindow() {
     <section
       className="chat-window"
       role="dialog"
-      aria-label="Wasla Assistant"
+      aria-label={t("Wasla Assistant")}
       onKeyDown={handleWindowKeyDown}
     >
       <header className="chat-header d-flex align-items-center gap-2 px-3 py-2">
         <i className="bi bi-chat-dots-fill" aria-hidden="true" />
         <h2 className="h6 mb-0 flex-grow-1">
-          Wasla Assistant <span className="opacity-75 fw-normal">· مساعد وصلة</span>
+          {t("Wasla Assistant")}
         </h2>
         {messages.length > 0 && !confirmingClear && (
           <button
             type="button"
             className="btn btn-sm"
-            aria-label="Clear conversation / مسح المحادثة"
-            title="Clear conversation"
+            aria-label={t("Clear conversation")}
+            title={t("Clear conversation")}
             onClick={() => setConfirmingClear(true)}
           >
             <i className="bi bi-trash3" aria-hidden="true" />
@@ -108,8 +103,8 @@ export default function ChatWindow() {
         <button
           type="button"
           className="btn btn-sm"
-          aria-label="Close chat / إغلاق"
-          title="Close"
+          aria-label={t("Close chat")}
+          title={t("Close chat")}
           onClick={() => dispatch(closeChat())}
         >
           <i className="bi bi-x-lg" aria-hidden="true" />
@@ -118,7 +113,7 @@ export default function ChatWindow() {
 
       {confirmingClear && (
         <div className="d-flex flex-wrap align-items-center justify-content-between gap-2 px-3 py-2 bg-white border-bottom small">
-          <span>Clear this conversation? / مسح المحادثة؟</span>
+          <span>{t("Clear this conversation?")}</span>
           <span className="d-flex gap-2">
             <button
               type="button"
@@ -129,29 +124,27 @@ export default function ChatWindow() {
                 inputRef.current?.focus();
               }}
             >
-              Clear
+              {t("Clear")}
             </button>
             <button type="button" className="btn btn-sm btn-outline-secondary" onClick={() => setConfirmingClear(false)}>
-              Cancel
+              {t("Cancel")}
             </button>
           </span>
         </div>
       )}
 
-      <div ref={listRef} className="chat-messages p-3" role="log" aria-live="polite" aria-label="Conversation">
+      <div ref={listRef} className="chat-messages p-3" role="log" aria-live="polite" aria-label={t("Conversation")}>
         {messages.length === 0 && !loading && !error ? (
           <div className="text-center text-secondary py-3">
             <i className="bi bi-stars fs-2 text-accent" aria-hidden="true" />
-            <p className="fw-semibold text-body mt-2 mb-1">أهلاً بك في وصلة! 👋</p>
+            <p className="fw-semibold text-body mt-2 mb-1">{t("Welcome to wasla! 👋")}</p>
             <p className="small mb-3">
-              Hi! Ask me about products, your cart, checkout, coupons or tracking an order.
-              <br />
-              اسألني عن المنتجات أو الدفع أو الكوبونات أو تتبع الطلب.
+              {t("Hi! Ask me about products, your cart, checkout, coupons or tracking an order.")}
             </p>
             <div className="d-flex flex-wrap justify-content-center gap-2">
               {SUGGESTIONS.map((s) => (
-                <button key={s} type="button" className="chip" onClick={() => send(s)}>
-                  {s}
+                <button key={s} type="button" className="chip" onClick={() => send(t(s))}>
+                  {t(s)}
                 </button>
               ))}
             </div>
@@ -170,7 +163,7 @@ export default function ChatWindow() {
               <div className="d-flex justify-content-start" role="status">
                 <div className="chat-bubble assistant text-secondary">
                   <span className="spinner-border spinner-border-sm me-2" aria-hidden="true" />
-                  Thinking… / جارٍ التفكير…
+                  {t("Thinking…")}
                 </div>
               </div>
             )}
@@ -178,7 +171,7 @@ export default function ChatWindow() {
             {error && !loading && (
               <div className="d-flex justify-content-start" role="alert">
                 <div className="chat-bubble error" dir="auto">
-                  {ERROR_TEXT[error] ?? ERROR_TEXT.unknown}
+                  {t(ERROR_TEXT[error] ?? ERROR_TEXT.unknown)}
                 </div>
               </div>
             )}
@@ -188,7 +181,7 @@ export default function ChatWindow() {
 
       <form onSubmit={handleSubmit} className="d-flex align-items-end gap-2 p-2 bg-white border-top" noValidate>
         <label htmlFor="chat-input" className="visually-hidden">
-          Message / رسالتك
+          {t("Message")}
         </label>
         <textarea
           id="chat-input"
@@ -196,13 +189,13 @@ export default function ChatWindow() {
           className="form-control chat-input"
           rows={1}
           maxLength={MAX_LENGTH}
-          placeholder="Type a message… / اكتب رسالتك…"
+          placeholder={t("Type a message…")}
           dir="auto"
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
           onKeyDown={handleKeyDown}
         />
-        <button type="submit" className="btn btn-accent" disabled={!canSend} aria-label="Send / إرسال">
+        <button type="submit" className="btn btn-accent" disabled={!canSend} aria-label={t("Send")}>
           <i className="bi bi-send-fill" aria-hidden="true" />
         </button>
       </form>

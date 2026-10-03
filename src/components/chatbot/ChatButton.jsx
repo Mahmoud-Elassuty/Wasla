@@ -2,9 +2,11 @@ import { useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { openChat } from "../../store/reducers/chatSlice";
 import "../../styles/chatbot.css";
+import { useT } from "../../i18n/useT";
 
 // Floating launcher. Hidden while the window is open; focus returns to it when the window closes.
 export default function ChatButton() {
+  const { t } = useT();
   const dispatch = useDispatch();
   const isOpen = useSelector((s) => s.chat.isOpen);
   const buttonRef = useRef(null);
@@ -22,8 +24,8 @@ export default function ChatButton() {
       ref={buttonRef}
       type="button"
       className="chat-fab"
-      aria-label="Open Wasla Assistant chat / افتح مساعد وصلة"
-      title="Wasla Assistant"
+      aria-label={t("Open Wasla Assistant chat")}
+      title={t("Wasla Assistant")}
       onClick={() => dispatch(openChat())}
     >
       <i className="bi bi-chat-dots-fill" aria-hidden="true" />

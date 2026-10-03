@@ -5,6 +5,7 @@ import { fetchOrders, resetListStatus, selectOrdersByUserId } from "../store/red
 import OrderCard from "../components/orders/OrderCard";
 import ProfileReturnLink from "../components/common/ProfileReturnLink";
 import { useSearchParams } from "react-router-dom";
+import { useT } from "../i18n/useT";
 
 const Skeleton = () => (
   <div className="bg-white border rounded-4 p-4 placeholder-glow" aria-hidden="true">
@@ -16,6 +17,7 @@ const Skeleton = () => (
 );
 
 export default function Orders() {
+  const { t } = useT();
   const dispatch = useDispatch();
   const [searchParams] = useSearchParams();
   const userId = useSelector((s) => s.auth.user?.id);
@@ -37,15 +39,15 @@ export default function Orders() {
   if (!hasOrders && status === "failed") {
     body = (
       <div className="alert alert-danger d-flex flex-wrap justify-content-between align-items-center gap-2" role="alert">
-        <span>{error || "We couldn't load your orders."}</span>
+        <span>{error ? t(error) : t("We couldn't load your orders.")}</span>
         <button type="button" className="btn btn-sm btn-outline-danger" onClick={() => dispatch(fetchOrders(userId))}>
-          Try again
+          {t("Try again")}
         </button>
       </div>
     );
   } else if (!hasOrders && (status === "idle" || status === "loading")) {
     body = (
-      <div className="d-grid gap-3" aria-busy="true" aria-label="Loading orders">
+      <div className="d-grid gap-3" aria-busy="true" aria-label={t("Loading orders")}>
         <Skeleton />
         <Skeleton />
         <Skeleton />
@@ -55,9 +57,9 @@ export default function Orders() {
     body = (
       <div className="text-center py-5">
         <i className="bi bi-receipt fs-1 text-secondary" aria-hidden="true" />
-        <p className="h5 mt-3 mb-1">No orders yet</p>
-        <p className="text-secondary">When you place an order, it will show up here.</p>
-        <Link to="/products" className="btn btn-accent px-4">Start shopping</Link>
+        <p className="h5 mt-3 mb-1">{t("No orders yet")}</p>
+        <p className="text-secondary">{t("When you place an order, it will show up here.")}</p>
+        <Link to="/products" className="btn btn-accent px-4">{t("Start shopping")}</Link>
       </div>
     );
   } else {
@@ -75,14 +77,14 @@ export default function Orders() {
       <div className="mb-4">
         <div className="d-flex flex-wrap justify-content-between align-items-start gap-3">
           <div>
-            <p className="eyebrow mb-1">My orders</p>
-            <h1 className="h3 mb-1">طلباتي</h1>
+            <p className="eyebrow mb-1">{t("My account")}</p>
+            <h1 className="h3 mb-1">{t("My orders")}</h1>
           </div>
           {searchParams.get("from") === "profile" && <ProfileReturnLink />}
         </div>
         {hasOrders && (
           <p className="small text-secondary mb-0">
-            {orders.length} {orders.length === 1 ? "order" : "orders"}
+            {t("count.orders", { count: orders.length })}
           </p>
         )}
       </div>

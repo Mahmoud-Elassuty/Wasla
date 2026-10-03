@@ -4,15 +4,15 @@ import { motion, MotionConfig } from "motion/react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchCategories, fetchProducts } from "../store/reducers/productsSlice";
 import { fetchBanners } from "../store/reducers/bannersSlice";
-import { CATEGORY_META } from "../utils/categoryMeta";
-import { titleCase } from "../utils/format";
-import { buildCategoryCards } from "../utils/categoryDisplay";
+import { CATEGORY_META, getCategoryMeta } from "../utils/categoryMeta";
+import { buildCategoryCards, getCategoryDisplayName } from "../utils/categoryDisplay";
 import CategoryImageCard, { CategoryCardSkeletons } from "../components/category/CategoryImageCard";
 import HomeReviews from "../components/HomeReviews";
 import BrandMarquee from "../components/home/BrandMarquee";
 import FlashDealsMarquee from "../components/home/FlashDealsMarquee";
 import "../styles/home.css";
 import "../styles/categories.css";
+import { useT } from "../i18n/useT";
 
 const TRUST_ITEMS = [
   { icon: "bi-grid", title: "A catalog to explore", desc: "Browse the categories available on Wasla." },
@@ -39,6 +39,7 @@ const fadeUp = {
 const reveal = (index = 0) => ({ variants: fadeUp, custom: index, initial: "hidden", whileInView: "show", viewport: REVEAL_VIEWPORT });
 
 function HeroImage({ banner }) {
+  const { t } = useT();
   const [failed, setFailed] = useState(!banner.image);
   useEffect(() => setFailed(!banner.image), [banner.image]);
 
@@ -51,14 +52,15 @@ function HeroImage({ banner }) {
       </div>
     </div>
   ) : (
-    <img className="home-hero-art-image" src={banner.image} alt={banner.title || "Wasla featured products"} onError={() => setFailed(true)} />
+    <img className="home-hero-art-image" src={banner.image} alt={banner.title || t("Wasla featured products")} onError={() => setFailed(true)} />
   );
 }
 
 function HomeHero({ banner, productCount, categoryCount }) {
-  const title = banner?.title || "Connect to the Best Brands, Delivered Fast.";
-  const subtitle = banner?.subtitle || "Discover products across beauty, fragrances, home and everyday essentials.";
-  const buttonText = banner?.buttonText || "Shop Flash Deals";
+  const { t } = useT();
+  const title = banner?.title || t("Connect to the Best Brands, Delivered Fast.");
+  const subtitle = banner?.subtitle || t("Discover products across beauty, fragrances, home and everyday essentials.");
+  const buttonText = banner?.buttonText || t("Shop Flash Deals");
   const buttonLink = banner?.buttonLink || "/offers";
 
   return (
@@ -68,7 +70,7 @@ function HomeHero({ banner, productCount, categoryCount }) {
           <div className="col-md-7">
             <motion.div className="home-hero-copy h-100 p-4 p-md-5 d-flex flex-column justify-content-center" variants={heroTextGroup} initial="hidden" animate="show">
               <motion.span className="home-hero-eyebrow align-self-start mb-3" variants={heroTextItem}>
-                <i className="bi bi-stars me-2" aria-hidden="true" />Discover Wasla
+                <i className="bi bi-stars me-2" aria-hidden="true" />{t("Discover Wasla")}
               </motion.span>
               <motion.h1 className="home-hero-title font-display fw-bold mb-3" variants={heroTextItem}>{title}</motion.h1>
               <motion.p className="home-hero-subtitle mb-4" variants={heroTextItem}>{subtitle}</motion.p>
@@ -77,13 +79,13 @@ function HomeHero({ banner, productCount, categoryCount }) {
                   {buttonText}<i className="bi bi-arrow-right ms-2" aria-hidden="true" />
                 </Link>
                 <a href="#categories" className="btn btn-outline-light btn-lg px-4">
-                  Explore categories
+                  {t("Explore categories")}
                 </a>
               </motion.div>
               {(productCount > 0 || categoryCount > 0) && (
                 <div className="home-hero-stats d-flex flex-wrap gap-4 mt-4 pt-3">
-                  {productCount > 0 && <div><strong>{productCount}</strong><span> products in the catalog</span></div>}
-                  {categoryCount > 0 && <div><strong>{categoryCount}</strong><span> categories to explore</span></div>}
+                  {productCount > 0 && <div><strong>{productCount}</strong><span> {t("products in the catalog")}</span></div>}
+                  {categoryCount > 0 && <div><strong>{categoryCount}</strong><span> {t("categories to explore")}</span></div>}
                 </div>
               )}
             </motion.div>
@@ -97,12 +99,12 @@ function HomeHero({ banner, productCount, categoryCount }) {
               )}
               {banner && (
                 <div className="home-hero-art-toolbar" aria-hidden="true">
-                  <span><i className="bi bi-stars" /> Wasla spotlight</span>
+                  <span><i className="bi bi-stars" /> {t("Wasla spotlight")}</span>
                   <i className="bi bi-lightning-charge-fill" />
                 </div>
               )}
               <span className="home-hero-art-caption">
-                {banner ? <><i className="bi bi-patch-check-fill" aria-hidden="true" /><span><strong>Featured on Wasla</strong><small>{buttonText}</small></span></> : "Find something you’ll love"}
+                {banner ? <><i className="bi bi-patch-check-fill" aria-hidden="true" /><span><strong>{t("Featured on Wasla")}</strong><small>{buttonText}</small></span></> : t("Find something you’ll love")}
               </span>
             </motion.div>
           </div>
@@ -113,6 +115,7 @@ function HomeHero({ banner, productCount, categoryCount }) {
 }
 
 function SectionHeading({ eyebrow, title, subtitle, link, linkText }) {
+  const { t } = useT();
   return (
     <motion.div className="home-section-heading d-flex flex-wrap justify-content-between align-items-end gap-3 mb-4" {...reveal()}>
       <div>
@@ -120,14 +123,15 @@ function SectionHeading({ eyebrow, title, subtitle, link, linkText }) {
         <h2 className="h3 font-display mb-1">{title}</h2>
         {subtitle && <p className="text-secondary mb-0">{subtitle}</p>}
       </div>
-      {link && <Link to={link} className="home-section-link fw-semibold text-decoration-none">{linkText || "View all"}<i className="bi bi-arrow-right ms-2" aria-hidden="true" /></Link>}
+      {link && <Link to={link} className="home-section-link fw-semibold text-decoration-none">{linkText || t("View all")}<i className="bi bi-arrow-right ms-2" aria-hidden="true" /></Link>}
     </motion.div>
   );
 }
 
 function ProductSkeletons() {
+  const { t } = useT();
   return (
-    <div className="row row-cols-2 row-cols-lg-4 g-2 g-sm-3" aria-busy="true" aria-label="Loading products">
+    <div className="row row-cols-2 row-cols-lg-4 g-2 g-sm-3" aria-busy="true" aria-label={t("Loading products")}>
       {Array.from({ length: 4 }, (_, index) => (
         <div className="col" key={index}>
           <div className="bg-white border rounded-4 p-3 h-100 placeholder-glow">
@@ -141,23 +145,25 @@ function ProductSkeletons() {
 }
 
 function CollectionCard({ category, count, variant }) {
-  const meta = CATEGORY_META[category.slug] || { icon: "bi-tag", label: category.name || titleCase(category.slug) };
+  const { t } = useT();
+  const meta = CATEGORY_META[category.slug] ? getCategoryMeta(category.slug) : { icon: "bi-tag", label: getCategoryDisplayName(category.slug) };
   const isHome = category.slug === "furniture";
   const isGroceries = category.slug === "groceries";
   return (
     <Link to={`/category/${encodeURIComponent(category.slug)}`} className={`home-collection-card home-collection-${variant} d-flex flex-column justify-content-between text-decoration-none`}>
       <div>
         <span className="home-collection-pill">{meta.label}</span>
-        <h2 className="font-display fw-bold mt-3 mb-2">{isHome ? "Make room for better living" : isGroceries ? "Everyday essentials, all in one place" : `Explore ${meta.label}`}</h2>
-        <p className="mb-3">{isHome ? "Explore furniture and home products from the Wasla catalog." : isGroceries ? "Browse groceries and daily needs in the current catalog." : `${count} products available in this category.`}</p>
+        <h2 className="font-display fw-bold mt-3 mb-2">{isHome ? t("Make room for better living") : isGroceries ? t("Everyday essentials, all in one place") : t("Explore {label}", { label: meta.label })}</h2>
+        <p className="mb-3">{isHome ? t("Explore furniture and home products from the Wasla catalog.") : isGroceries ? t("Browse groceries and daily needs in the current catalog.") : t("{count} products available in this category.", { count })}</p>
       </div>
-      <span className="home-collection-link">Explore {count} products <i className="bi bi-arrow-right ms-1" aria-hidden="true" /></span>
+      <span className="home-collection-link">{t("Explore {count} products", { count })} <i className="bi bi-arrow-right ms-1" aria-hidden="true" /></span>
       <i className={`bi ${meta.icon} home-collection-watermark`} aria-hidden="true" />
     </Link>
   );
 }
 
 export default function Home() {
+  const { t } = useT();
   const dispatch = useDispatch();
   const { items, categories, status, error } = useSelector((state) => state.products);
   const { items: banners } = useSelector((state) => state.banners);
@@ -197,7 +203,7 @@ export default function Home() {
             <div className="col" key={item.title}>
               <div className="home-benefit h-100 d-flex align-items-center gap-3 p-3">
                 <span className="home-benefit-icon flex-shrink-0"><i className={`bi ${item.icon}`} aria-hidden="true" /></span>
-                <span className="min-w-0"><strong className="d-block">{item.title}</strong><span className="small text-secondary">{item.desc}</span></span>
+                <span className="min-w-0"><strong className="d-block">{t(item.title)}</strong><span className="small text-secondary">{t(item.desc)}</span></span>
               </div>
             </div>
           ))}
@@ -205,7 +211,7 @@ export default function Home() {
       </section>
 
       <section className="container home-section" id="categories">
-        <SectionHeading eyebrow="Curated hubs" title="Explore Categories / الفئات المميزة" subtitle="Choose a category to find products that suit you." link="/products" linkText="View all products" />
+        <SectionHeading eyebrow={t("Curated hubs")} title={t("Explore Categories")} subtitle={t("Choose a category to find products that suit you.")} link="/products" linkText={t("View all products")} />
         {categoryOptions.length > 0 ? (
           <>
             <div className="row row-cols-2 row-cols-lg-5 g-2 g-sm-3">
@@ -217,11 +223,11 @@ export default function Home() {
             </div>
             <div className="home-categories-more">
               <Link to="/categories" className="btn btn-outline-secondary btn-lg px-4">
-                Show More Categories<i className="bi bi-arrow-right ms-2" aria-hidden="true" />
+                {t("Show More Categories")}<i className="bi bi-arrow-right ms-2" aria-hidden="true" />
               </Link>
             </div>
           </>
-        ) : loading ? <CategoryCardSkeletons count={10} compact /> : <div className="home-empty-state">Categories will appear here when the catalog is available.</div>}
+        ) : loading ? <CategoryCardSkeletons count={10} compact /> : <div className="home-empty-state">{t("Categories will appear here when the catalog is available.")}</div>}
       </section>
 
       <section className="home-products-section home-section">
@@ -229,12 +235,12 @@ export default function Home() {
           <motion.div className="home-deals-heading d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3" {...reveal()}>
             <div className="d-flex align-items-center gap-3">
               <span className="home-deals-icon"><i className="bi bi-lightning-charge-fill" aria-hidden="true" /></span>
-              <div><h2 className="h4 font-display mb-1">Today’s Super Flash Deals</h2><p className="small text-secondary mb-0">Discounted products available in the current catalog.</p></div>
+              <div><h2 className="h4 font-display mb-1">{t("Today’s Super Flash Deals")}</h2><p className="small text-secondary mb-0">{t("Discounted products available in the current catalog.")}</p></div>
             </div>
-            <Link to="/offers" className="home-section-link fw-semibold text-decoration-none">View All Offers<i className="bi bi-arrow-right ms-2" aria-hidden="true" /></Link>
+            <Link to="/offers" className="home-section-link fw-semibold text-decoration-none">{t("View All Offers")}<i className="bi bi-arrow-right ms-2" aria-hidden="true" /></Link>
           </motion.div>
           {loading ? <ProductSkeletons /> : status === "failed" && items.length === 0 ? (
-            <div className="alert alert-danger d-flex flex-wrap justify-content-between align-items-center gap-3" role="alert"><span>{error || "We couldn't load the product catalog."}</span><button type="button" className="btn btn-sm btn-outline-danger" onClick={() => dispatch(fetchProducts())}>Try again</button></div>
+            <div className="alert alert-danger d-flex flex-wrap justify-content-between align-items-center gap-3" role="alert"><span>{error ? t(error) : t("We couldn't load the product catalog.")}</span><button type="button" className="btn btn-sm btn-outline-danger" onClick={() => dispatch(fetchProducts())}>{t("Try again")}</button></div>
           ) : (
             <motion.div {...reveal()}><FlashDealsMarquee products={items} /></motion.div>
           )}
@@ -257,17 +263,17 @@ export default function Home() {
         <motion.div className="home-newsletter rounded-4 p-4 p-lg-5 text-white" {...reveal()}>
           <div className="row align-items-center g-4">
             <div className="col-lg-7">
-              <span className="home-newsletter-pill d-inline-flex align-items-center gap-2 mb-3"><i className="bi bi-envelope-heart" aria-hidden="true" />Stay connected</span>
-              <h2 className="h3 font-display mb-2">Keep up with Wasla</h2>
-              <p className="text-white-50 mb-0">Browse the latest catalog additions and current offers from one place.</p>
+              <span className="home-newsletter-pill d-inline-flex align-items-center gap-2 mb-3"><i className="bi bi-envelope-heart" aria-hidden="true" />{t("Stay connected")}</span>
+              <h2 className="h3 font-display mb-2">{t("Keep up with Wasla")}</h2>
+              <p className="text-white-50 mb-0">{t("Browse the latest catalog additions and current offers from one place.")}</p>
             </div>
             <div className="col-lg-5">
               {subscribed ? (
-                <div className="home-newsletter-success rounded-4 p-3 text-center fw-semibold" role="status"><i className="bi bi-check-circle-fill me-2" aria-hidden="true" />Thanks for your interest. Check the offers page for current discounts.<Link to="/offers" className="d-block mt-2 text-white">View offers</Link></div>
+                <div className="home-newsletter-success rounded-4 p-3 text-center fw-semibold" role="status"><i className="bi bi-check-circle-fill me-2" aria-hidden="true" />{t("Thanks for your interest. Check the offers page for current discounts.")}<Link to="/offers" className="d-block mt-2 text-white">{t("View offers")}</Link></div>
               ) : (
                 <form className="d-flex flex-column flex-sm-row gap-2" onSubmit={(event) => { event.preventDefault(); setSubscribed(true); }}>
-                  <input type="email" required className="form-control form-control-lg home-newsletter-input" placeholder="Enter your email address" aria-label="Email address" />
-                  <button type="submit" className="btn btn-accent btn-lg text-nowrap">Join</button>
+                  <input type="email" required className="form-control form-control-lg home-newsletter-input" placeholder={t("Enter your email address")} aria-label={t("Email address")} />
+                  <button type="submit" className="btn btn-accent btn-lg text-nowrap">{t("Join")}</button>
                 </form>
               )}
             </div>

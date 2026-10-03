@@ -1,3 +1,4 @@
+import { useT } from "../../i18n/useT";
 const columns = [
   {
     title: "About wasla (وصلة)",
@@ -23,17 +24,18 @@ const socials = [
 const payments = ["Mada", "Visa", "Mastercard", "Apple Pay", "Tabby", "Tamara", "Cash on Delivery"];
 
 export default function Footer() {
+  const { t } = useT();
   return (
     <footer className="bg-white border-top mt-5">
       <div className="container py-5">
         <div className="row g-4">
           {columns.map(({ title, links }) => (
             <div key={title} className="col-6 col-lg-3">
-              <h2 className="h6 fw-semibold mb-3">{title}</h2>
+              <h2 className="h6 fw-semibold mb-3">{t(title)}</h2>
               <ul className="list-unstyled d-grid gap-2 mb-0">
                 {links.map((text) => (
                   <li key={text}>
-                    <a href="#" className="footer-link">{text}</a>
+                    <a href="#" className="footer-link">{t(text)}</a>
                   </li>
                 ))}
               </ul>
@@ -41,13 +43,13 @@ export default function Footer() {
           ))}
 
           <div className="col-12 col-lg-3">
-            <h2 className="h6 fw-semibold mb-3">Stay Connected</h2>
+            <h2 className="h6 fw-semibold mb-3">{t("Stay Connected")}</h2>
             <p className="small text-secondary">
-              Subscribe to receive your instant 15% discount voucher on your first order.
+              {t("Subscribe to receive your instant 15% discount voucher on your first order.")}
             </p>
             <form className="input-group input-group-sm mb-3" onSubmit={(e) => e.preventDefault()}>
-              <input type="email" className="form-control" placeholder="Enter your email..." aria-label="Email address" />
-              <button className="btn btn-wasla" type="submit">Claim 15%</button>
+              <input type="email" className="form-control" placeholder={t("Enter your email...")} aria-label={t("Email address")} />
+              <button className="btn btn-wasla" type="submit">{t("Claim 15%")}</button>
             </form>
             <div className="d-flex gap-3 fs-5">
               {socials.map(({ icon, label }) => (
@@ -63,12 +65,12 @@ export default function Footer() {
 
         <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 small text-secondary">
           <div className="d-flex flex-wrap align-items-center gap-2">
-            <span>Trusted Payment Options:</span>
+            <span>{t("Trusted Payment Options:")}</span>
             {payments.map((p) => (
-              <span key={p} className="badge text-bg-light border fw-medium">{p}</span>
+              <span key={p} className="badge text-bg-light border fw-medium">{t(p)}</span>
             ))}
           </div>
-          <span>© 2026 wasla. All rights reserved.</span>
+          <span>{t("© 2026 wasla. All rights reserved.")}</span>
         </div>
       </div>
     </footer>

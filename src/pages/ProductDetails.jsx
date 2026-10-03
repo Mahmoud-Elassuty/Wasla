@@ -4,15 +4,18 @@ import { useDispatch, useSelector } from "react-redux";
 import { clearSelectedProduct, fetchProductById } from "../store/reducers/productsSlice";
 import { addToCart, selectItemQuantity } from "../store/reducers/cartSlice";
 import { fetchReviews } from "../store/reducers/reviewsSlice";
-import { formatPrice, getSalePrice, titleCase } from "../utils/format";
+import { formatPrice, getSalePrice } from "../utils/format";
+import { getCategoryDisplayName } from "../utils/categoryDisplay";
 import { getStockState, safeStock } from "../utils/inventory";
 import useWishlist from "../hooks/useWishlist";
 import AverageRating from "../components/reviews/AverageRating";
 import ReviewForm from "../components/reviews/ReviewForm";
 import ReviewsList from "../components/reviews/ReviewsList";
 import "../styles/reviews.css";
+import { useT } from "../i18n/useT";
 
 function ProductView({ product, backTo }) {
+  const { t } = useT();
   const dispatch = useDispatch();
   const location = useLocation();
   const [active, setActive] = useState(0);
@@ -94,13 +97,13 @@ function ProductView({ product, backTo }) {
 
   return (
     <div className="container py-4">
-      <nav aria-label="Breadcrumb">
+      <nav aria-label={t("breadcrumb")}>
         <ol className="breadcrumb small">
-          <li className="breadcrumb-item"><Link to="/">Home</Link></li>
-          <li className="breadcrumb-item"><Link to="/products">Products</Link></li>
+          <li className="breadcrumb-item"><Link to="/">{t("Home")}</Link></li>
+          <li className="breadcrumb-item"><Link to="/products">{t("Products")}</Link></li>
           <li className="breadcrumb-item">
             <Link to={`/products?category=${encodeURIComponent(product.category)}`}>
-              {titleCase(product.category)}
+              {getCategoryDisplayName(product.category)}
             </Link>
           </li>
           <li className="breadcrumb-item active" aria-current="page">{product.title}</li>
@@ -120,7 +123,7 @@ function ProductView({ product, backTo }) {
                   type="button"
                   className={`thumb-btn${i === active ? " active" : ""}`}
                   onClick={() => setActive(i)}
-                  aria-label={`Show image ${i + 1}`}
+                  aria-label={t("Show image {n}", { n: i + 1 })}
                   aria-pressed={i === active}
                 >
                   <img src={src} alt="" className="w-100 h-100 object-fit-contain" />
@@ -141,7 +144,7 @@ function ProductView({ product, backTo }) {
             </span>
             {reviews.length > 0 && (
               <span className="small text-secondary">
-                ({reviews.length} review{reviews.length === 1 ? "" : "s"})
+                ({t("count.reviews", { count: reviews.length })})
               </span>
             )}
             <span className={`stock-badge ${stockClass}`}>{stockState.label}</span>
@@ -153,7 +156,7 @@ function ProductView({ product, backTo }) {
               <>
                 <span className="price-old fs-5">{formatPrice(product.price)}</span>
                 <span className="badge rounded-pill stock-ok">
-                  Save {formatPrice(product.price - sale)} ({discount}% off)
+                  {t("Save {amount} ({discount}% off)", { amount: formatPrice(product.price - sale), discount })}
                 </span>
               </>
             )}
@@ -163,14 +166,14 @@ function ProductView({ product, backTo }) {
 
           {inStock && !atLimit && (
             <div className="d-flex align-items-center gap-3 my-4">
-              <span className="small fw-semibold">Quantity</span>
+              <span className="small fw-semibold">{t("Quantity")}</span>
               <div className="input-group" style={{ width: 140 }}>
                 <button
                   type="button"
                   className="btn btn-outline-secondary"
                   onClick={() => changeQty(qtyToAdd - 1)}
                   disabled={qtyToAdd <= 1}
-                  aria-label="Decrease quantity"
+                  aria-label={t("Decrease quantity")}
                 >
                   <i className="bi bi-dash" />
                 </button>
@@ -181,14 +184,14 @@ function ProductView({ product, backTo }) {
                   max={remaining}
                   value={qtyToAdd}
                   onChange={(e) => changeQty(parseInt(e.target.value, 10))}
-                  aria-label="Quantity"
+                  aria-label={t("Quantity")}
                 />
                 <button
                   type="button"
                   className="btn btn-outline-secondary"
                   onClick={() => changeQty(qtyToAdd + 1)}
                   disabled={qtyToAdd >= remaining}
-                  aria-label="Increase quantity"
+                  aria-label={t("Increase quantity")}
                 >
                   <i className="bi bi-plus" />
                 </button>
@@ -204,12 +207,12 @@ function ProductView({ product, backTo }) {
               disabled={!inStock || justAdded || atLimit}
             >
               {!inStock
-                ? "Out of stock"
+                ? t("Out of stock")
                 : justAdded
-                  ? "Added to cart"
+                  ? t("Added to cart")
                   : atLimit
-                    ? "Max in cart"
-                    : `Add to cart — ${formatPrice(sale * qtyToAdd)}`}
+                    ? t("Max in cart")
+                    : t("Add to cart — {price}", { price: formatPrice(sale * qtyToAdd) })}
             </button>
             <button
               type="button"
@@ -219,22 +222,22 @@ function ProductView({ product, backTo }) {
               aria-pressed={wished}
             >
               <i className={`bi ${wished ? "bi-heart-fill text-danger" : "bi-heart"} me-2`} aria-hidden="true" />
-              {wished ? "Remove from wishlist" : "Add to wishlist"}
+              {wished ? t("Remove from wishlist") : t("Add to wishlist")}
             </button>
             <Link to={backTo} className="btn btn-outline-secondary btn-lg">
-              Back to products
+              {t("Back to products")}
             </Link>
           </div>
 
           {inCart > 0 && !added && (
             <p className="small text-secondary mt-2 mb-0">
-              {inCart} already in your cart. <Link to="/cart">View cart</Link>
+              {t("cart.alreadyInCart", { count: inCart })} <Link to="/cart">{t("View cart")}</Link>
             </p>
           )}
 
           {added && (
             <div className="alert alert-success py-2 mt-3 mb-0" role="status">
-              Added to your cart. <Link to="/cart" className="fw-semibold">View cart</Link>
+              {t("Added to your cart.")} <Link to="/cart" className="fw-semibold">{t("View cart")}</Link>
             </div>
           )}
 
@@ -254,7 +257,7 @@ function ProductView({ product, backTo }) {
       <hr className="my-5" />
 
       <section id="reviews">
-        <h2 className="h4 mb-4">Ratings &amp; Reviews</h2>
+        <h2 className="h4 mb-4">{t("Ratings & Reviews")}</h2>
 
         <div className="row g-4 align-items-start mb-4">
           <div className="col-lg-8">
@@ -263,11 +266,11 @@ function ProductView({ product, backTo }) {
           <div className="col-lg-4 text-lg-end">
             {user ? (
               <button type="button" className="btn btn-wasla" onClick={() => setShowReviewForm((s) => !s)}>
-                {showReviewForm ? "Cancel" : "Write a review"}
+                {showReviewForm ? t("Cancel") : t("Write a review")}
               </button>
             ) : (
               <Link to="/login" state={{ from: location }} className="btn btn-outline-secondary">
-                Log in to write a review
+                {t("Log in to write a review")}
               </Link>
             )}
           </div>
@@ -280,7 +283,7 @@ function ProductView({ product, backTo }) {
         )}
 
         {reviewsStatus === "loading" && reviews.length === 0 ? (
-          <p className="text-secondary">Loading reviews…</p>
+          <p className="text-secondary">{t("Loading reviews…")}</p>
         ) : (
           <ReviewsList reviews={reviews} />
         )}
@@ -290,6 +293,7 @@ function ProductView({ product, backTo }) {
 }
 
 export default function ProductDetails() {
+  const { t } = useT();
   const { id } = useParams();
   const dispatch = useDispatch();
   const location = useLocation();
@@ -311,9 +315,9 @@ export default function ProductDetails() {
   if (detailsStatus === "failed") {
     return (
       <div className="container py-5 text-center">
-        <h1 className="h4">We couldn't load this product</h1>
-        <p className="text-secondary">{detailsError}</p>
-        <Link to={backTo} className="btn btn-wasla">Back to products</Link>
+        <h1 className="h4">{t("We couldn't load this product")}</h1>
+        <p className="text-secondary">{detailsError ? t(detailsError) : ""}</p>
+        <Link to={backTo} className="btn btn-wasla">{t("Back to products")}</Link>
       </div>
     );
   }
@@ -321,7 +325,7 @@ export default function ProductDetails() {
   return (
     <div className="container py-5 text-center" role="status">
       <div className="spinner-border text-primary" />
-      <span className="visually-hidden">Loading product...</span>
+      <span className="visually-hidden">{t("Loading product...")}</span>
     </div>
   );
 }

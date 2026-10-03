@@ -1,9 +1,11 @@
 import RatingStars from "./RatingStars";
+import { useT } from "../../i18n/useT";
 
 // distribution: { 5: n, 4: n, 3: n, 2: n, 1: n }
 export default function AverageRating({ average, count, distribution }) {
+  const { t } = useT();
   if (count === 0) {
-    return <p className="text-secondary mb-0">No ratings yet — be the first to review this product.</p>;
+    return <p className="text-secondary mb-0">{t("No ratings yet — be the first to review this product.")}</p>;
   }
 
   return (
@@ -12,7 +14,7 @@ export default function AverageRating({ average, count, distribution }) {
         <div className="display-5 fw-bold font-display mb-1">{average.toFixed(1)}</div>
         <RatingStars value={average} size="1.1rem" />
         <p className="small text-secondary mt-1 mb-0">
-          {count} review{count === 1 ? "" : "s"}
+          {t("count.reviews", { count })}
         </p>
       </div>
 

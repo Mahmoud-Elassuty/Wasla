@@ -1,9 +1,11 @@
 import { titleCase } from "./format";
+import { tOr } from "../i18n";
 
 // "mens-shirts" -> "Men's Shirts", "home-decoration" -> "Home Decoration".
 // Derived from the slug, so any category that appears in the data gets a friendly name automatically.
+// The Arabic label (if the slug has one) is looked up at call time; the slug itself is never changed.
 export const getCategoryDisplayName = (slug = "") =>
-  titleCase(slug).replace(/\bMens\b/, "Men's").replace(/\bWomens\b/, "Women's");
+  tOr(`catname.${slug}`, titleCase(slug).replace(/\bMens\b/, "Men's").replace(/\bWomens\b/, "Women's"));
 
 // Thumbnail first, then the first gallery image. Empty string when the product has neither.
 export const pickProductImage = (product) => product?.thumbnail || product?.images?.[0] || "";

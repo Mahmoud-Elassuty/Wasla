@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { detectCardBrand, formatCardNumber, formatExpiry, isExpiryValid, luhnValid } from "../../utils/creditCard";
 import { formatPrice } from "../../utils/format";
+import { useT } from "../../i18n/useT";
 
 const BRAND_ICON = { Visa: "bi-credit-card-2-front", Mastercard: "bi-credit-card-2-front", Amex: "bi-credit-card-2-front", Discover: "bi-credit-card-2-front" };
 
@@ -18,12 +19,13 @@ function validate(v) {
 
   const brand = detectCardBrand(digits);
   const cvvLen = brand === "Amex" ? 4 : 3;
-  if (!new RegExp(`^\\d{${cvvLen}}$`).test(v.cvv)) errors.cvv = `Enter the ${cvvLen}-digit security code`;
+  if (!new RegExp(`^\\d{${cvvLen}}$`).test(v.cvv)) errors.cvv = cvvLen === 4 ? "Enter the 4-digit security code" : "Enter the 3-digit security code";
 
   return errors;
 }
 
 export default function CreditCardForm({ amount, processing, error, onSubmit }) {
+  const { t } = useT();
   const [values, setValues] = useState(EMPTY);
   const [errors, setErrors] = useState({});
   const [save, setSave] = useState(false);
@@ -50,7 +52,7 @@ export default function CreditCardForm({ amount, processing, error, onSubmit }) 
     <form onSubmit={handleSubmit} noValidate>
       <fieldset disabled={processing} className="border-0 p-0 m-0">
         <div className="mb-3">
-          <label htmlFor="cc-number" className="form-label small fw-semibold">Card number</label>
+          <label htmlFor="cc-number" className="form-label small fw-semibold">{t("Card number")}</label>
           <div className="position-relative">
             <input
               id="cc-number"
@@ -68,27 +70,27 @@ export default function CreditCardForm({ amount, processing, error, onSubmit }) 
                 aria-label={brand}
               />
             )}
-            {errors.number && <div className="invalid-feedback">{errors.number}</div>}
+            {errors.number && <div className="invalid-feedback">{t(errors.number)}</div>}
           </div>
         </div>
 
         <div className="mb-3">
-          <label htmlFor="cc-name" className="form-label small fw-semibold">Cardholder name</label>
+          <label htmlFor="cc-name" className="form-label small fw-semibold">{t("Cardholder name")}</label>
           <input
             id="cc-name"
             name="name"
             autoComplete="cc-name"
-            placeholder="As shown on the card"
+            placeholder={t("As shown on the card")}
             className={`form-control py-2${errors.name ? " is-invalid" : ""}`}
             value={values.name}
             onChange={handleChange}
           />
-          {errors.name && <div className="invalid-feedback">{errors.name}</div>}
+          {errors.name && <div className="invalid-feedback">{t(errors.name)}</div>}
         </div>
 
         <div className="row gx-3">
           <div className="col-6">
-            <label htmlFor="cc-expiry" className="form-label small fw-semibold">Expiry (MM/YY)</label>
+            <label htmlFor="cc-expiry" className="form-label small fw-semibold">{t("Expiry (MM/YY)")}</label>
             <input
               id="cc-expiry"
               name="expiry"
@@ -99,10 +101,10 @@ export default function CreditCardForm({ amount, processing, error, onSubmit }) 
               value={values.expiry}
               onChange={handleChange}
             />
-            {errors.expiry && <div className="invalid-feedback">{errors.expiry}</div>}
+            {errors.expiry && <div className="invalid-feedback">{t(errors.expiry)}</div>}
           </div>
           <div className="col-6">
-            <label htmlFor="cc-cvv" className="form-label small fw-semibold">CVV</label>
+            <label htmlFor="cc-cvv" className="form-label small fw-semibold">{t("CVV")}</label>
             <input
               id="cc-cvv"
               name="cvv"
@@ -113,7 +115,7 @@ export default function CreditCardForm({ amount, processing, error, onSubmit }) 
               value={values.cvv}
               onChange={handleChange}
             />
-            {errors.cvv && <div className="invalid-feedback">{errors.cvv}</div>}
+            {errors.cvv && <div className="invalid-feedback">{t(errors.cvv)}</div>}
           </div>
         </div>
 
@@ -126,14 +128,14 @@ export default function CreditCardForm({ amount, processing, error, onSubmit }) 
             onChange={(e) => setSave(e.target.checked)}
           />
           <label htmlFor="cc-save" className="form-check-label small">
-            Save this card for future purchases
+            {t("Save this card for future purchases")}
           </label>
         </div>
       </fieldset>
 
       {error && (
         <div className="alert alert-danger py-2 mt-3" role="alert">
-          {error}
+          {t(error)}
         </div>
       )}
 
@@ -141,10 +143,10 @@ export default function CreditCardForm({ amount, processing, error, onSubmit }) 
         {processing ? (
           <>
             <span className="spinner-border spinner-border-sm me-2" aria-hidden="true" />
-            Processing...
+            {t("Processing...")}
           </>
         ) : (
-          `Pay Now — ${formatPrice(amount)}`
+          t("Pay Now — {price}", { price: formatPrice(amount) })
         )}
       </button>
     </form>

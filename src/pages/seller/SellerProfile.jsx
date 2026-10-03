@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { resetProfileSave, updateSellerProfile } from "../../store/reducers/sellerSlice";
 import { showError, showSuccess } from "../../utils/notifications";
 import FormField from "../../components/common/FormField";
+import { useT } from "../../i18n/useT";
 
 const EMAIL_RE = /^\S+@\S+\.\S+$/;
 const PHONE_RE = /^(\+?20|0)?1[0125]\d{8}$/; // Egyptian mobile: 010 / 011 / 012 / 015
@@ -37,6 +38,7 @@ function validate(v) {
 }
 
 export default function SellerProfile() {
+  const { t } = useT();
   const dispatch = useDispatch();
   const user = useSelector((s) => s.auth.user);
   const { profileSaveStatus, profileSaveError } = useSelector((s) => s.seller);
@@ -90,30 +92,30 @@ export default function SellerProfile() {
   return (
     <>
       <div className="mb-4">
-        <p className="eyebrow mb-1">Store profile</p>
+        <p className="eyebrow mb-1">{t("Store profile")}</p>
         <h1 className="h3 mb-0">ملف المتجر</h1>
       </div>
 
       <form className="admin-card p-3 p-md-4" style={{ maxWidth: 640 }} onSubmit={handleSubmit} noValidate>
         <fieldset disabled={saving} className="border-0 p-0 m-0">
-          <FormField {...field("storeName")} label="Store name" placeholder="Your store's name" maxLength={80} />
+          <FormField {...field("storeName")} label={t("Store name")} placeholder={t("Your store's name")} maxLength={80} />
           <FormField
             {...field("storeDescription")}
             as="textarea"
             rows={4}
-            label="Store description"
-            placeholder="What do you sell? What makes your store worth buying from?"
+            label={t("Store description")}
+            placeholder={t("What do you sell? What makes your store worth buying from?")}
             maxLength={500}
           />
           <div className="row gx-3">
             <div className="col-md-6">
-              <FormField {...field("storeEmail")} type="email" label="Contact email (optional)" placeholder="store@example.com" autoComplete="email" />
+              <FormField {...field("storeEmail")} type="email" label={t("Contact email (optional)")} placeholder="store@example.com" autoComplete="email" />
             </div>
             <div className="col-md-6">
-              <FormField {...field("storePhone")} type="tel" label="Contact phone (optional)" placeholder="01012345678" autoComplete="tel" />
+              <FormField {...field("storePhone")} type="tel" label={t("Contact phone (optional)")} placeholder="01012345678" autoComplete="tel" />
             </div>
           </div>
-          <FormField {...field("logoUrl")} label="Logo URL (optional)" placeholder="https://example.com/logo.png" spellCheck={false} />
+          <FormField {...field("logoUrl")} label={t("Logo URL (optional)")} placeholder="https://example.com/logo.png" spellCheck={false} />
           {values.logoUrl.trim() && isUrl(values.logoUrl.trim()) && (
             <img
               src={values.logoUrl.trim()}
@@ -134,10 +136,10 @@ export default function SellerProfile() {
           {saving ? (
             <>
               <span className="spinner-border spinner-border-sm me-2" aria-hidden="true" />
-              Saving...
+              {t("Saving...")}
             </>
           ) : (
-            "Save changes"
+            t("Save changes")
           )}
         </button>
       </form>

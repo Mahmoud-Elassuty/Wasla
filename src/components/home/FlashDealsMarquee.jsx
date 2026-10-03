@@ -4,6 +4,7 @@ import { getSalePrice } from "../../utils/format";
 import { getStockState } from "../../utils/inventory";
 import ProductCard from "../products/ProductCard";
 import "../../styles/flash-deals-marquee.css";
+import { useT } from "../../i18n/useT";
 
 const MAX_DEALS = 30;
 
@@ -50,6 +51,7 @@ function buildFlashDeals(products) {
 }
 
 export default function FlashDealsMarquee({ products }) {
+  const { t } = useT();
   const prefersReducedMotion = useReducedMotion();
   const deals = useMemo(() => buildFlashDeals(products), [products]);
   const cardsPerPage = useCardsPerPage();
@@ -79,7 +81,7 @@ export default function FlashDealsMarquee({ products }) {
   }, [pageCount]);
 
   if (deals.length === 0) {
-    return <div className="home-empty-state">There are no discounted products right now. Browse the full catalog instead.</div>;
+    return <div className="home-empty-state">{t("There are no discounted products right now. Browse the full catalog instead.")}</div>;
   }
 
   const initial = prefersReducedMotion
@@ -90,14 +92,14 @@ export default function FlashDealsMarquee({ products }) {
     : { opacity: 0, y: -6, rotateX: 1.5 };
 
   return (
-    <div className="flash-deals-carousel" role="region" aria-roledescription="carousel" aria-label="Flash deals">
+    <div className="flash-deals-carousel" role="region" aria-roledescription="carousel" aria-label={t("Flash deals")}>
       <div className="flash-deals-viewport" aria-live="off">
         <div ref={viewportRef} className="flash-deals-page-stage">
           <AnimatePresence initial={false}>
             <motion.ul
               key={`${cardsPerPage}:${currentDeals.map((product) => product.id).join(":")}`}
               className="flash-deals-page"
-              aria-label={`Flash Deals page ${currentPage + 1} of ${pageCount}`}
+              aria-label={t("Flash Deals page {page} of {total}", { page: currentPage + 1, total: pageCount })}
               initial={initial}
               animate={{ opacity: 1, y: 0, ...(prefersReducedMotion ? {} : { rotateX: 0 }) }}
               exit={exit}
@@ -114,13 +116,13 @@ export default function FlashDealsMarquee({ products }) {
         </div>
       </div>
       {pageCount > 1 && (
-        <div className="flash-deals-pagination" role="group" aria-label="Flash Deals pages">
+        <div className="flash-deals-pagination" role="group" aria-label={t("Flash Deals pages")}>
           {pages.map((page, index) => (
             <button
               key={page[0].id}
               type="button"
               className={`flash-deals-dot${index === currentPage ? " is-active" : ""}`}
-              aria-label={`Go to Flash Deals page ${index + 1}`}
+              aria-label={t("Go to Flash Deals page {page}", { page: index + 1 })}
               aria-current={index === currentPage ? "page" : undefined}
               onClick={() => setActivePage(index)}
             />

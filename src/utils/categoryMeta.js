@@ -1,4 +1,5 @@
 import { titleCase } from "./format";
+import { tOr } from "../i18n";
 
 // Real DummyJSON slugs -> the look from the UI/UX mockup (icon, label, description, accent color).
 // Shared by Home (category tiles) and the Category page (header + breadcrumb), so both stay in sync.
@@ -34,11 +35,22 @@ export const CATEGORY_META = {
   },
 };
 
-export const getCategoryMeta = (slug) =>
-  CATEGORY_META[slug] || {
+export const getCategoryMeta = (slug) => {
+  const meta = CATEGORY_META[slug];
+  if (meta) {
+    return {
+      ...meta,
+      label: tOr(`category.${slug}.label`, meta.label),
+      subtitle: tOr(`category.${slug}.subtitle`, meta.subtitle),
+      description: tOr(`category.${slug}.description`, meta.description),
+    };
+  }
+  const name = tOr(`catname.${slug}`, titleCase(slug));
+  return {
     icon: "bi-tag",
-    label: titleCase(slug),
+    label: name,
     subtitle: "",
-    description: `Browse everything in ${titleCase(slug)}.`,
+    description: tOr("Browse everything in {name}.", `Browse everything in ${name}.`, { name }),
     accent: "cat-blue",
   };
+};

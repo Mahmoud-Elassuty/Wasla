@@ -6,7 +6,9 @@ import { clearActionError } from "../store/reducers/sellerSlice";
 // Reuses the admin shell's layout classes (.admin-shell, .admin-sidebar, .admin-nav-link, ...) —
 // a seller dashboard is the same kind of back-office chrome, so this avoids duplicating ~100
 // lines of near-identical CSS for a second role.
+import LanguageSwitcher from "../components/common/LanguageSwitcher";
 import "../styles/admin.css";
+import { useT } from "../i18n/useT";
 
 const NAV = [
   { to: "/seller", label: "Dashboard", icon: "bi-grid-1x2", end: true },
@@ -16,6 +18,7 @@ const NAV = [
 ];
 
 export default function SellerLayout() {
+  const { t } = useT();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const user = useSelector((s) => s.auth.user);
@@ -33,23 +36,23 @@ export default function SellerLayout() {
         <div className="d-flex justify-content-between align-items-center mb-lg-3">
           <Link to="/seller" className="text-decoration-none d-block lh-1">
             <span className="font-display fs-4 fw-bold text-wasla">wasla</span>{" "}
-            <span className="font-display fs-5 fw-semibold">Seller</span>
-            <span className="eyebrow d-block mt-1">{user?.storeName || "Seller dashboard"}</span>
+            <span className="font-display fs-5 fw-semibold">{t("Seller")}</span>
+            <span className="eyebrow d-block mt-1">{user?.storeName || t("Seller dashboard")}</span>
           </Link>
           <button
             type="button"
             className="btn btn-sm btn-outline-secondary d-lg-none"
             onClick={() => setMobileNavOpen((open) => !open)}
             aria-expanded={mobileNavOpen}
-            aria-label="Toggle seller navigation"
+            aria-label={t("Toggle seller navigation")}
           >
             <i className={`bi ${mobileNavOpen ? "bi-x-lg" : "bi-list"} me-1`} aria-hidden="true" />
-            {mobileNavOpen ? "Close" : "Menu"}
+            {mobileNavOpen ? t("Close") : t("Menu")}
           </button>
         </div>
 
         <div className={`admin-nav-collapse${mobileNavOpen ? " show" : ""} d-lg-flex flex-column flex-grow-1`}>
-          <nav className="admin-nav" aria-label="Seller">
+          <nav className="admin-nav" aria-label={t("Seller")}>
             {NAV.map(({ to, label, icon, end }) => (
               <NavLink
                 key={to}
@@ -59,7 +62,7 @@ export default function SellerLayout() {
                 onClick={() => setMobileNavOpen(false)}
               >
                 <i className={`bi ${icon}`} aria-hidden="true" />
-                {label}
+                {t(label)}
               </NavLink>
             ))}
           </nav>
@@ -69,13 +72,14 @@ export default function SellerLayout() {
               <div className="fw-semibold">{user?.name}</div>
               <div className="text-secondary text-break">{user?.email}</div>
             </div>
+            <LanguageSwitcher className="w-100" />
             <Link to="/" className="btn btn-sm btn-outline-secondary" onClick={() => setMobileNavOpen(false)}>
               <i className="bi bi-shop-window me-1" aria-hidden="true" />
-              Back to store
+              {t("Back to store")}
             </Link>
             <button type="button" className="btn btn-sm btn-outline-danger" onClick={handleLogout}>
               <i className="bi bi-box-arrow-right me-1" aria-hidden="true" />
-              Log out
+              {t("Log out")}
             </button>
           </div>
         </div>
@@ -84,8 +88,8 @@ export default function SellerLayout() {
       <main className="admin-main">
         {actionError && (
           <div className="alert alert-danger d-flex justify-content-between align-items-center gap-3" role="alert">
-            <span>{actionError}</span>
-            <button type="button" className="btn-close" aria-label="Dismiss" onClick={() => dispatch(clearActionError())} />
+            <span>{t(actionError)}</span>
+            <button type="button" className="btn-close" aria-label={t("Dismiss")} onClick={() => dispatch(clearActionError())} />
           </div>
         )}
         <Outlet />

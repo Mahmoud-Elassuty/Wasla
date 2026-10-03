@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { applyCoupon } from "../../store/reducers/couponsSlice";
+import { useT } from "../../i18n/useT";
 
 // Parent (CartSummary) owns the "Remove" action — this component only handles entering
 // and applying a code, plus showing why one failed.
 export default function CouponInput({ cartTotal }) {
+  const { t } = useT();
   const dispatch = useDispatch();
   const { coupon, status, error } = useSelector((s) => s.coupons);
   const [code, setCode] = useState("");
@@ -28,26 +30,26 @@ export default function CouponInput({ cartTotal }) {
   return (
     <form className="coupon-input" onSubmit={handleSubmit}>
       <label htmlFor="coupon-code" className="form-label small fw-semibold">
-        Have a coupon?
+        {t("Have a coupon?")}
       </label>
       <div className="input-group">
         <input
           id="coupon-code"
           type="text"
           className={`form-control text-uppercase${error ? " is-invalid" : ""}`}
-          placeholder="Enter code"
+          placeholder={t("Enter code")}
           value={code}
           onChange={(e) => setCode(e.target.value)}
           disabled={applying}
           aria-describedby={error ? "coupon-error" : undefined}
         />
         <button type="submit" className="btn btn-outline-secondary" disabled={applying || !code.trim()}>
-          {applying ? "Applying..." : "Apply"}
+          {applying ? t("Applying...") : t("Apply")}
         </button>
       </div>
       {error && (
         <p id="coupon-error" className="text-danger small mt-1 mb-0">
-          {error}
+          {t(error)}
         </p>
       )}
     </form>

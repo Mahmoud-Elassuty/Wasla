@@ -9,11 +9,13 @@ import {
 } from "../../store/reducers/adminSlice";
 import { formatPrice } from "../../utils/format";
 import { formatOrderDate } from "../../utils/checkout";
+import { useT } from "../../i18n/useT";
 
 const discountLabel = (c) => (c.type === "percentage" ? `${c.discount}%` : formatPrice(c.discount));
 const isExpired = (c) => c.validUntil && new Date(c.validUntil) < new Date(new Date().toDateString());
 
 export default function AdminCoupons() {
+  const { t } = useT();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
@@ -39,13 +41,13 @@ export default function AdminCoupons() {
     <>
       <div className="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-4">
         <div>
-          <p className="eyebrow mb-1">Coupons management</p>
+          <p className="eyebrow mb-1">{t("Coupons management")}</p>
           <h1 className="h3 mb-1">إدارة الكوبونات</h1>
           {hasCoupons && <p className="small text-secondary mb-0">{coupons.length} coupons</p>}
         </div>
         <Link to="/admin/coupons/new" className="btn btn-accent">
           <i className="bi bi-plus-lg me-1" aria-hidden="true" />
-          Add coupon
+          {t("Add coupon")}
         </Link>
       </div>
 
@@ -55,7 +57,7 @@ export default function AdminCoupons() {
           <button
             type="button"
             className="btn-close"
-            aria-label="Dismiss"
+            aria-label={t("Dismiss")}
             onClick={() => navigate(`${location.pathname}`, { replace: true, state: null })}
           />
         </div>
@@ -65,11 +67,11 @@ export default function AdminCoupons() {
         <div className="alert alert-danger d-flex flex-wrap justify-content-between align-items-center gap-2" role="alert">
           <span>{couponsError || "We couldn't load the coupons."}</span>
           <button type="button" className="btn btn-sm btn-outline-danger" onClick={() => dispatch(fetchAdminCoupons())}>
-            Try again
+            {t("Try again")}
           </button>
         </div>
       ) : loading ? (
-        <div className="admin-card p-4 placeholder-glow" aria-busy="true" aria-label="Loading coupons">
+        <div className="admin-card p-4 placeholder-glow" aria-busy="true" aria-label={t("Loading coupons")}>
           {Array.from({ length: 4 }, (_, i) => (
             <span key={i} className="placeholder d-block col-12 mb-3" style={{ height: 32 }} />
           ))}
@@ -80,13 +82,13 @@ export default function AdminCoupons() {
             <table className="table admin-table align-middle mb-0">
               <thead>
                 <tr>
-                  <th>Code</th>
-                  <th>Discount</th>
-                  <th>Min. total</th>
-                  <th>Valid until</th>
-                  <th>Usage</th>
-                  <th>Status</th>
-                  <th>Actions</th>
+                  <th>{t("Code")}</th>
+                  <th>{t("Discount")}</th>
+                  <th>{t("Min. total")}</th>
+                  <th>{t("Valid until")}</th>
+                  <th>{t("Usage")}</th>
+                  <th>{t("Status")}</th>
+                  <th>{t("Actions")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -106,7 +108,7 @@ export default function AdminCoupons() {
                       <td>{c.minTotal ? formatPrice(c.minTotal) : "—"}</td>
                       <td className="text-nowrap">
                         {c.validUntil ? formatOrderDate(c.validUntil) : "No expiry"}
-                        {expired && <span className="badge rounded-pill stock-low ms-2">Expired</span>}
+                        {expired && <span className="badge rounded-pill stock-low ms-2">{t("Expired")}</span>}
                       </td>
                       <td className="text-nowrap">
                         {c.usedCount ?? 0}
@@ -125,7 +127,7 @@ export default function AdminCoupons() {
                       <td className="text-nowrap">
                         {confirmingId === c.id ? (
                           <span className="d-inline-flex align-items-center gap-2">
-                            <span className="small">Delete?</span>
+                            <span className="small">{t("Delete?")}</span>
                             <button
                               type="button"
                               className="btn btn-sm btn-danger"
@@ -135,25 +137,25 @@ export default function AdminCoupons() {
                                 setConfirmingId(null);
                               }}
                             >
-                              Yes
+                              {t("Yes")}
                             </button>
                             <button type="button" className="btn btn-sm btn-outline-secondary" onClick={() => setConfirmingId(null)}>
-                              No
+                              {t("No")}
                             </button>
                           </span>
                         ) : (
                           <span className="d-inline-flex gap-2">
                             <Link to={`/admin/coupons/${c.id}/edit`} className="btn btn-sm btn-outline-secondary" aria-label={`Edit ${c.code}`}>
-                              Edit
+                              {t("Edit")}
                             </Link>
                             <button
                               type="button"
                               className="btn btn-sm btn-outline-danger"
                               disabled={deleting}
-                              aria-label={`Delete ${c.code}`}
+                              aria-label={t("Delete {title}", { title: c.code })}
                               onClick={() => setConfirmingId(c.id)}
                             >
-                              {deleting ? "Deleting..." : "Delete"}
+                              {deleting ? t("Deleting...") : t("Delete")}
                             </button>
                           </span>
                         )}
@@ -164,7 +166,7 @@ export default function AdminCoupons() {
                 {coupons.length === 0 && (
                   <tr>
                     <td colSpan={7} className="text-center text-secondary py-5">
-                      No coupons yet.
+                      {t("No coupons yet.")}
                     </td>
                   </tr>
                 )}

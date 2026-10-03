@@ -1,6 +1,7 @@
 import { useSelector } from "react-redux";
 import { formatPrice } from "../../utils/format";
 import { SHIPPING_FEE_EGP, getOrderTotals } from "../../utils/checkout";
+import { useT } from "../../i18n/useT";
 
 const PAYMENT_LABEL = {
   cod: "Cash on delivery",
@@ -12,14 +13,15 @@ const PAYMENT_LABEL = {
 // `children` is rendered under the totals (used for the action buttons).
 // `paymentMethod` is optional — only the Payment step has one selected to show.
 export default function OrderSummary({ children, paymentMethod }) {
+  const { t } = useT();
   const cart = useSelector((s) => s.cart);
   const { coupon, discount: couponDiscount } = useSelector((s) => s.coupons);
   const appliedCoupon = coupon ? { code: coupon.code, discount: couponDiscount } : null;
   const { subtotal, discount, shipping, couponCode, total } = getOrderTotals(cart, appliedCoupon);
 
   return (
-    <aside className="checkout-summary bg-white border rounded-4 p-3 p-sm-4" aria-label="Order summary">
-      <h2 className="h5 mb-3">Order summary</h2>
+    <aside className="checkout-summary bg-white border rounded-4 p-3 p-sm-4" aria-label={t("Order summary")}>
+      <h2 className="h5 mb-3">{t("Order summary")}</h2>
 
       <ul className="list-unstyled mb-3">
         {cart.items.map((item) => (
@@ -43,34 +45,34 @@ export default function OrderSummary({ children, paymentMethod }) {
       <dl className="d-grid gap-2 mb-0 border-top pt-3">
         {paymentMethod && (
           <div className="d-flex justify-content-between">
-            <dt className="fw-normal text-secondary">Payment method</dt>
-            <dd className="mb-0">{PAYMENT_LABEL[paymentMethod] ?? paymentMethod}</dd>
+            <dt className="fw-normal text-secondary">{t("Payment method")}</dt>
+            <dd className="mb-0">{PAYMENT_LABEL[paymentMethod] ? t(PAYMENT_LABEL[paymentMethod]) : paymentMethod}</dd>
           </div>
         )}
         <div className="d-flex justify-content-between">
-          <dt className="fw-normal text-secondary">Subtotal</dt>
+          <dt className="fw-normal text-secondary">{t("Subtotal")}</dt>
           <dd className="mb-0">{formatPrice(subtotal)}</dd>
         </div>
         {discount > 0 && (
           <div className="d-flex justify-content-between text-success">
-            <dt className="fw-normal">Discount</dt>
+            <dt className="fw-normal">{t("Discount")}</dt>
             <dd className="mb-0">-{formatPrice(discount)}</dd>
           </div>
         )}
         {couponDiscount > 0 && (
           <div className="d-flex justify-content-between text-success">
-            <dt className="fw-normal">Coupon ({couponCode})</dt>
+            <dt className="fw-normal">{t("store.couponWithCode", { code: couponCode })}</dt>
             <dd className="mb-0">-{formatPrice(couponDiscount)}</dd>
           </div>
         )}
         <div className="d-flex justify-content-between">
-          <dt className="fw-normal text-secondary">Shipping</dt>
+          <dt className="fw-normal text-secondary">{t("Shipping")}</dt>
           <dd className="mb-0">
-            {formatPrice(shipping)} <span className="small text-secondary">({SHIPPING_FEE_EGP} EGP)</span>
+            {formatPrice(shipping)} <span className="small text-secondary">({SHIPPING_FEE_EGP} {t("EGP")})</span>
           </dd>
         </div>
         <div className="d-flex justify-content-between border-top pt-3 mt-1 fs-5 fw-semibold">
-          <dt className="fw-semibold">Total</dt>
+          <dt className="fw-semibold">{t("Total")}</dt>
           <dd className="mb-0 font-display">{formatPrice(total)}</dd>
         </div>
       </dl>

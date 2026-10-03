@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import { buildBrandList, getBrandLogo } from "../../utils/brandDisplay";
 import "../../styles/brand-marquee.css";
+import { useT } from "../../i18n/useT";
 
 const MAX_BRANDS = 12;
 const MIN_ITEMS_PER_GROUP = 12; // keeps one group wider than the viewport so the loop never shows a gap
@@ -38,6 +39,7 @@ function BrandPill({ name }) {
 
 // `products` = current catalog items; `loading` reserves the strip's height so Home does not jump.
 export default function BrandMarquee({ products, loading = false }) {
+  const { t } = useT();
   const prefersReducedMotion = useReducedMotion();
   const brands = useMemo(() => buildBrandList(products, MAX_BRANDS), [products]);
 
@@ -58,7 +60,7 @@ export default function BrandMarquee({ products, loading = false }) {
     <section className="brand-marquee" aria-labelledby="brand-marquee-title">
       <div className="container">
         <div className="brand-marquee-inner">
-          <h2 id="brand-marquee-title" className="brand-marquee-label">Popular Brands</h2>
+          <h2 id="brand-marquee-title" className="brand-marquee-label">{t("Popular Brands")}</h2>
 
           {prefersReducedMotion ? (
             <ul className="brand-marquee-static list-unstyled mb-0">

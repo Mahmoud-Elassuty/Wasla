@@ -1,0 +1,96 @@
+@import url("https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&display=swap");
+
+/* ---- Language / direction ----
+   Bootstrap's mirrored build (bootstrap.rtl.min.css) is swapped in by src/i18n/direction.js, so utilities such as
+   ms-/me-, start-0/end-0, text-start/end and dropdown-menu-end already flip. This file only covers what Bootstrap
+   does not: the project's own physical-property CSS, directional icons and technical (always-LTR) values.
+   Reused from the earlier Phase 7 rtl.css (typography, directional icons, badges, LTR inputs, toasts), re-targeted
+   to the current responsive components. */
+
+/* Language switcher (one compact toggle) */
+.language-switcher { min-width: 3.2rem; font-weight: 600; white-space: nowrap; line-height: 1.2; background: #fff; }
+@media (max-width: 575.98px) {
+  .language-switcher { min-width: 0; padding: 0.2rem 0.45rem; font-size: 0.78rem; }
+}
+.admin-sidebar .language-switcher, .seller-sidebar .language-switcher { background: transparent; }
+
+/* Arabic typography: a font with Arabic glyphs, and no letter-spacing / uppercase (both break joined letters). */
+html[lang="ar"] { --bs-body-font-family: "Cairo", "Inter", system-ui, sans-serif; }
+html[lang="ar"] body { font-family: var(--bs-body-font-family); }
+html[lang="ar"] h1, html[lang="ar"] h2, html[lang="ar"] h3, html[lang="ar"] h4, html[lang="ar"] h5, html[lang="ar"] h6,
+html[lang="ar"] .font-display { font-family: "Cairo", "Outfit", "Inter", sans-serif; }
+html[lang="ar"] * { letter-spacing: 0 !important; }
+html[lang="ar"] .text-uppercase, html[lang="ar"] .eyebrow, html[lang="ar"] .admin-table thead th { text-transform: none; }
+html[lang="ar"] .home-hero-title { line-height: 1.35; }
+
+/* Directional icons point the other way in RTL. `scale` (not `transform`) so hover/translate rules still apply.
+   Non-directional icons (cart, bag, heart, search, user, trash, gear) are never listed here. */
+[dir="rtl"] .bi-arrow-left, [dir="rtl"] .bi-arrow-right, [dir="rtl"] .bi-arrow-up-right, [dir="rtl"] .bi-arrow-down-left,
+[dir="rtl"] .bi-arrow-left-short, [dir="rtl"] .bi-arrow-right-short,
+[dir="rtl"] .bi-chevron-left, [dir="rtl"] .bi-chevron-right, [dir="rtl"] .bi-chevron-double-left, [dir="rtl"] .bi-chevron-double-right,
+[dir="rtl"] .bi-caret-left, [dir="rtl"] .bi-caret-right, [dir="rtl"] .bi-caret-left-fill, [dir="rtl"] .bi-caret-right-fill,
+[dir="rtl"] .bi-box-arrow-left, [dir="rtl"] .bi-box-arrow-right, [dir="rtl"] .bi-box-arrow-in-left, [dir="rtl"] .bi-box-arrow-in-right,
+[dir="rtl"] .bi-send, [dir="rtl"] .bi-send-fill, [dir="rtl"] .bi-reply {
+  display: inline-block; scale: -1 1;
+}
+
+/* Corner badges centred on an edge (cart / wishlist counters, wishlist toast). */
+[dir="rtl"] .translate-middle { transform: translate(50%, -50%) !important; }
+[dir="rtl"] .translate-middle-x { transform: translateX(50%) !important; }
+
+/* Emails, phones, URLs, passwords and card numbers are typed left-to-right even in Arabic. */
+[dir="rtl"] input[type="email"], [dir="rtl"] input[type="tel"], [dir="rtl"] input[type="url"],
+[dir="rtl"] input[type="password"], [dir="rtl"] input[inputmode="numeric"], [dir="rtl"] input.card-number-input {
+  direction: ltr; text-align: right;
+}
+[dir="rtl"] input[type="email"]::placeholder, [dir="rtl"] input[type="tel"]::placeholder, [dir="rtl"] input[type="url"]::placeholder,
+[dir="rtl"] input[type="password"]::placeholder { text-align: right; direction: rtl; }
+bdi, .ltr-value { unicode-bidi: isolate; }
+
+/* ---- Project components that use physical left/right ---- */
+/* Price sliders keep an LTR wrapper (dir="ltr" in the component) so the fill matches the thumbs. */
+.price-slider { direction: ltr; }
+
+/* Brand marquee: the scrolling track is a left-to-right animation; only the label side changes. */
+[dir="rtl"] .brand-marquee-track { direction: ltr; }
+[dir="rtl"] .brand-marquee-label { padding-right: 0; border-right: 0; padding-inline-start: 0; padding-left: 1rem; border-left: 1px solid #e5e7eb; }
+
+/* Hero: decorative shapes + art overlays mirror to the other side */
+[dir="rtl"] .home-hero::before { right: auto; left: -4rem; }
+[dir="rtl"] .home-hero::after { right: auto; left: -11rem; transform: rotate(-28deg); }
+[dir="rtl"] .home-hero-art-caption { left: auto; right: 1rem; }
+[dir="rtl"] .home-hero-art-toolbar { right: auto; left: 1.15rem; }
+@media (max-width: 575.98px) {
+  [dir="rtl"] .home-hero-art-toolbar { left: 0.75rem; right: 0.75rem; }
+  [dir="rtl"] .home-hero-art-caption { left: auto; right: 0.75rem; }
+}
+[dir="rtl"] .home-offer-discount { left: auto; right: 1rem; }
+[dir="rtl"] .home-collection-watermark { right: auto; left: 1.25rem; transform: rotate(12deg); }
+[dir="rtl"] .home-category-arrow { margin-left: 0; margin-right: auto; }
+[dir="rtl"] .home-reviews-heading .eyebrow { text-align: right; }
+
+/* Arrow micro-interaction on hover keeps pointing "up and toward the reading end" */
+[dir="rtl"] .category-image-card:hover .category-image-card-arrow,
+[dir="rtl"] .category-image-card:focus-visible .category-image-card-arrow,
+[dir="rtl"] .home-category-card:hover .home-category-arrow,
+[dir="rtl"] .home-category-card:focus-visible .home-category-arrow { transform: translate(-2px, -2px); }
+
+/* Corner buttons / badges */
+[dir="rtl"] .wishlist-btn { right: auto; left: 0.5rem; }
+[dir="rtl"] .notification-badge { right: auto; left: -6px; }
+
+/* Toasts slide in from the (mirrored) edge. */
+@keyframes toast-slide-in-rtl {
+  from { transform: translateX(-110%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+[dir="rtl"] .toast-item { animation-name: toast-slide-in-rtl; }
+[dir="rtl"] .toast-item.toast-leaving { transform: translateX(-30px); }
+
+/* Arabic labels are longer than the English ones: keep logo + header controls on one row at 320-399px. */
+@media (max-width: 399.98px) {
+  html[lang="ar"] .site-header-top { --bs-gutter-x: 0.5rem; }
+  html[lang="ar"] .site-header-top .btn-wasla.btn-sm { font-size: 0.75rem; padding-inline: 0.45rem !important; }
+  html[lang="ar"] .site-header-top .d-flex.justify-content-end { gap: 0.35rem !important; }
+  html[lang="ar"] .site-header .icon-btn { min-width: 1.9rem; }
+}

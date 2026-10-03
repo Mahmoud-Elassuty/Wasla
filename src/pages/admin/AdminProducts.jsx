@@ -7,15 +7,18 @@ import {
   resetProductsStatus,
 } from "../../store/reducers/adminSlice";
 import { formatPrice, titleCase } from "../../utils/format";
+import { useT } from "../../i18n/useT";
+import { t as tr } from "../../i18n";
 
 const stockBadge = (stock) =>
   stock <= 0
-    ? { cls: "stock-out", text: "Out of stock" }
+    ? { cls: "stock-out", text: tr("Out of stock") }
     : stock <= 10
-      ? { cls: "stock-low", text: `${stock} left` }
+      ? { cls: "stock-low", text: tr("{count} left", { count: stock }) }
       : { cls: "stock-ok", text: String(stock) };
 
 export default function AdminProducts() {
+  const { t } = useT();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
@@ -65,17 +68,17 @@ export default function AdminProducts() {
     <>
       <div className="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-4">
         <div>
-          <p className="eyebrow mb-1">Products management</p>
+          <p className="eyebrow mb-1">{t("Products management")}</p>
           <h1 className="h3 mb-1">إدارة المنتجات</h1>
           {hasProducts && (
             <p className="small text-secondary mb-0">
-              Showing {visible.length} of {products.length} products
+              {t("Showing {shown} of {total} products", { shown: visible.length, total: products.length })}
             </p>
           )}
         </div>
         <Link to="/admin/products/new" className="btn btn-accent">
           <i className="bi bi-plus-lg me-1" aria-hidden="true" />
-          Add product
+          {t("Add product")}
         </Link>
       </div>
 
@@ -85,7 +88,7 @@ export default function AdminProducts() {
           <button
             type="button"
             className="btn-close"
-            aria-label="Dismiss"
+            aria-label={t("Dismiss")}
             onClick={() => navigate(`${location.pathname}${location.search}`, { replace: true, state: null })}
           />
         </div>
@@ -97,8 +100,8 @@ export default function AdminProducts() {
             <input
               type="search"
               className="form-control"
-              placeholder="Search by name or brand"
-              aria-label="Search products"
+              placeholder={t("Search by name or brand")}
+              aria-label={t("Search products")}
               value={search}
               onChange={(e) => setParam("search", e.target.value)}
             />
@@ -107,11 +110,11 @@ export default function AdminProducts() {
         <div className="col-md-4 col-lg-3">
           <select
             className="form-select"
-            aria-label="Filter by category"
+            aria-label={t("Filter by category")}
             value={category}
             onChange={(e) => setParam("category", e.target.value)}
           >
-            <option value="">All categories</option>
+            <option value="">{t("All categories")}</option>
             {categories.map((c) => (
               <option key={c} value={c}>{titleCase(c)}</option>
             ))}
@@ -123,11 +126,11 @@ export default function AdminProducts() {
         <div className="alert alert-danger d-flex flex-wrap justify-content-between align-items-center gap-2" role="alert">
           <span>{productsError || "We couldn't load the products."}</span>
           <button type="button" className="btn btn-sm btn-outline-danger" onClick={() => dispatch(fetchAdminProducts())}>
-            Try again
+            {t("Try again")}
           </button>
         </div>
       ) : loading ? (
-        <div className="admin-card p-4 placeholder-glow" aria-busy="true" aria-label="Loading products">
+        <div className="admin-card p-4 placeholder-glow" aria-busy="true" aria-label={t("Loading products")}>
           {Array.from({ length: 6 }, (_, i) => (
             <span key={i} className="placeholder d-block col-12 mb-3" style={{ height: 32 }} />
           ))}
@@ -138,12 +141,12 @@ export default function AdminProducts() {
             <table className="table admin-table align-middle mb-0">
               <thead>
                 <tr>
-                  <th>Image</th>
-                  <th>Name</th>
-                  <th>Category</th>
-                  <th className="text-end">Price</th>
-                  <th>Stock</th>
-                  <th>Actions</th>
+                  <th>{t("Image")}</th>
+                  <th>{t("Name")}</th>
+                  <th>{t("Category")}</th>
+                  <th className="text-end">{t("Price")}</th>
+                  <th>{t("Stock")}</th>
+                  <th>{t("Actions")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -167,7 +170,7 @@ export default function AdminProducts() {
                       <td className="text-nowrap">
                         {confirmingId === p.id ? (
                           <span className="d-inline-flex align-items-center gap-2">
-                            <span className="small">Delete this product?</span>
+                            <span className="small">{t("Delete this product?")}</span>
                             <button
                               type="button"
                               className="btn btn-sm btn-danger"
@@ -177,25 +180,25 @@ export default function AdminProducts() {
                                 setConfirmingId(null);
                               }}
                             >
-                              Yes, delete
+                              {t("Yes, delete")}
                             </button>
                             <button type="button" className="btn btn-sm btn-outline-secondary" onClick={() => setConfirmingId(null)}>
-                              No
+                              {t("No")}
                             </button>
                           </span>
                         ) : (
                           <span className="d-inline-flex gap-2">
                             <Link to={`/admin/products/${p.id}/edit`} className="btn btn-sm btn-outline-secondary" aria-label={`Edit ${p.title}`}>
-                              Edit
+                              {t("Edit")}
                             </Link>
                             <button
                               type="button"
                               className="btn btn-sm btn-outline-danger"
                               disabled={deleting}
-                              aria-label={`Delete ${p.title}`}
+                              aria-label={t("Delete {title}", { title: p.title })}
                               onClick={() => setConfirmingId(p.id)}
                             >
-                              {deleting ? "Deleting..." : "Delete"}
+                              {deleting ? t("Deleting...") : t("Delete")}
                             </button>
                           </span>
                         )}

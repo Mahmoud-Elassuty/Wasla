@@ -1,7 +1,9 @@
 import { useState } from "react";
+import { useT } from "../../i18n/useT";
 
 // Static by default (`value` only). Pass `onChange` to make it a clickable 1-5 star input.
 export default function RatingStars({ value = 0, onChange, size = "1rem", showValue = false, count }) {
+  const { t } = useT();
   const interactive = typeof onChange === "function";
   const [hover, setHover] = useState(0);
   const display = interactive ? hover || value : value;
@@ -17,7 +19,7 @@ export default function RatingStars({ value = 0, onChange, size = "1rem", showVa
       <span
         className={interactive ? "d-inline-flex" : "rating-stars-static d-inline-flex"}
         role={interactive ? "radiogroup" : undefined}
-        aria-label={interactive ? "Rating out of 5" : `Rated ${display} out of 5`}
+        aria-label={interactive ? t("Rating out of 5") : t("Rated {rating} out of 5", { rating: display })}
       >
         {[1, 2, 3, 4, 5].map((i) =>
           interactive ? (

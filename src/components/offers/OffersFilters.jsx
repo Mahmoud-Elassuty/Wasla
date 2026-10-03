@@ -12,6 +12,9 @@ export const SORTS = {
   "rating-desc": { label: "Top rated" },
 };
 
+import { getCategoryDisplayName } from "../../utils/categoryDisplay";
+import { useT } from "../../i18n/useT";
+
 export default function OffersFilters({
   minDiscount,
   onDiscountChange,
@@ -23,20 +26,21 @@ export default function OffersFilters({
   hasActiveFilters,
   onReset,
 }) {
+  const { t } = useT();
   return (
     <aside id="filters-panel" className="offers-filters collapse d-lg-block bg-white border rounded-4 p-3 p-lg-4">
       <div className="d-flex justify-content-between align-items-center mb-3">
-        <h2 className="h6 mb-0">Filters</h2>
+        <h2 className="h6 mb-0">{t("Filters")}</h2>
         {hasActiveFilters && (
           <button type="button" className="btn btn-link btn-sm p-0" onClick={onReset}>
-            Clear all
+            {t("Clear all")}
           </button>
         )}
       </div>
 
       <div className="mb-4">
-        <span className="form-label small fw-semibold d-block mb-2">Discount</span>
-        <div className="d-flex flex-wrap gap-2" role="group" aria-label="Filter by discount">
+        <span className="form-label small fw-semibold d-block mb-2">{t("Discount")}</span>
+        <div className="d-flex flex-wrap gap-2" role="group" aria-label={t("Filter by discount")}>
           {DISCOUNT_TIERS.map(({ value, label }) => (
             <button
               key={value || "all"}
@@ -45,7 +49,7 @@ export default function OffersFilters({
               aria-pressed={minDiscount === value}
               onClick={() => onDiscountChange(value)}
             >
-              {label}
+              {t(label)}
             </button>
           ))}
         </div>
@@ -53,7 +57,7 @@ export default function OffersFilters({
 
       <div className="mb-4">
         <label htmlFor="offers-category" className="form-label small fw-semibold">
-          Category
+          {t("Category")}
         </label>
         <select
           id="offers-category"
@@ -61,10 +65,10 @@ export default function OffersFilters({
           value={category}
           onChange={(e) => onCategoryChange(e.target.value)}
         >
-          <option value="">All categories</option>
+          <option value="">{t("All categories")}</option>
           {categoryOptions.map(({ slug, name }) => (
             <option key={slug} value={slug}>
-              {name}
+              {getCategoryDisplayName(slug)}
             </option>
           ))}
         </select>
@@ -72,7 +76,7 @@ export default function OffersFilters({
 
       <div>
         <label htmlFor="offers-sort" className="form-label small fw-semibold">
-          Sort by
+          {t("Sort by")}
         </label>
         <select
           id="offers-sort"
@@ -82,7 +86,7 @@ export default function OffersFilters({
         >
           {Object.entries(SORTS).map(([key, { label }]) => (
             <option key={key} value={key}>
-              {label}
+              {t(label)}
             </option>
           ))}
         </select>

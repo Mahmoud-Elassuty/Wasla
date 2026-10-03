@@ -9,6 +9,7 @@ import MobileFiltersToggle from "../components/common/MobileFiltersToggle";
 import ProductList from "../components/products/ProductList";
 import Pagination, { ResultsSummary } from "../components/common/Pagination";
 import usePagination from "../hooks/usePagination";
+import { useT } from "../i18n/useT";
 
 const SORT_COMPARE = {
   "discount-desc": (a, b) => (b.discountPercentage || 0) - (a.discountPercentage || 0),
@@ -18,6 +19,7 @@ const SORT_COMPARE = {
 };
 
 export default function Offers() {
+  const { t } = useT();
   const dispatch = useDispatch();
   const { items, categories, status, error } = useSelector((s) => s.products);
   const [params, setParams] = useSearchParams();
@@ -102,13 +104,13 @@ export default function Offers() {
           )}
           {visible.length !== onOffer.length && onOffer.length > 0 && (
             <p className="text-secondary small mb-3">
-              Filtered from {onOffer.length} offers
+              {t("Filtered from {count} offers", { count: onOffer.length })}
               <button
                 type="button"
                 className="btn btn-link btn-sm p-0 ms-2 align-baseline"
                 onClick={resetFilters}
               >
-                Clear filters
+                {t("Clear filters")}
               </button>
             </p>
           )}

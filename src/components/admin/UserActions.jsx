@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { updateUserStatus } from "../../store/reducers/adminSlice";
 import { showError, showSuccess } from "../../utils/notifications";
 import { SELF_ACTION_MESSAGE, getUserStatus } from "../../utils/users";
+import { useT } from "../../i18n/useT";
 
 // Every status change is a PATCH of `status` only. Restrict and Delete ask for confirmation first;
 // Unrestrict and Restore just put the account back to "active".
@@ -13,7 +14,7 @@ const ACTIONS = {
     busy: "Restricting...",
     question: "Restrict this user?",
     tone: "btn-outline-warning",
-    done: (name) => `${name} was restricted and can no longer log in.`,
+    done: "{name} was restricted and can no longer log in.",
     confirm: true,
   },
   unrestrict: {
@@ -21,7 +22,7 @@ const ACTIONS = {
     label: "Unrestrict",
     busy: "Saving...",
     tone: "btn-outline-success",
-    done: (name) => `${name} is active again.`,
+    done: "{name} is active again.",
   },
   delete: {
     next: "deleted",
@@ -29,7 +30,7 @@ const ACTIONS = {
     busy: "Deleting...",
     question: "Soft delete this user?",
     tone: "btn-outline-danger",
-    done: (name) => `${name} was soft-deleted. The record is kept and can be restored.`,
+    done: "{name} was soft-deleted. The record is kept and can be restored.",
     confirm: true,
   },
   restore: {
@@ -37,7 +38,7 @@ const ACTIONS = {
     label: "Restore",
     busy: "Restoring...",
     tone: "btn-outline-success",
-    done: (name) => `${name} was restored.`,
+    done: "{name} was restored.",
   },
 };
 
@@ -48,6 +49,7 @@ const ACTIONS_BY_STATUS = {
 };
 
 export default function UserActions({ user }) {
+  const { t } = useT();
   const dispatch = useDispatch();
   const currentUser = useSelector((s) => s.auth.user);
   const updating = useSelector((s) => s.admin.updatingUserIds.includes(user.id));
@@ -61,9 +63,9 @@ export default function UserActions({ user }) {
     setConfirming(null);
     try {
       await dispatch(updateUserStatus({ id: user.id, status: action.next })).unwrap();
-      dispatch(showSuccess(action.done(user.name || user.email)));
+      dispatch(showSuccess(t(action.done, { name: user.name || user.email })));
     } catch (err) {
-      dispatch(showError(typeof err === "string" ? err : "Couldn't update the user."));
+      dispatch(showError(typeof err === "string" ? err : t("Couldn't update the user.")));
     }
   };
 
@@ -71,19 +73,19 @@ export default function UserActions({ user }) {
     const action = ACTIONS[confirming];
     return (
       <span className="d-inline-flex align-items-center gap-2">
-        <span className="small">{action.question}</span>
+        <span className="small">{t(action.question)}</span>
         <button type="button" className="btn btn-sm btn-danger" disabled={updating} onClick={() => run(confirming)}>
-          Yes
+          {t("Yes")}
         </button>
         <button type="button" className="btn btn-sm btn-outline-secondary" onClick={() => setConfirming(null)}>
-          No
+          {t("No")}
         </button>
       </span>
     );
   }
 
   return (
-    <span className="d-inline-flex flex-wrap gap-2" title={isSelf ? SELF_ACTION_MESSAGE : undefined}>
+    <span className="d-inline-flex flex-wrap gap-2" title={isSelf ? t(SELF_ACTION_MESSAGE) : undefined}>
       {keys.map((key) => {
         const action = ACTIONS[key];
         return (
@@ -92,10 +94,10 @@ export default function UserActions({ user }) {
             type="button"
             className={`btn btn-sm ${action.tone}`}
             disabled={isSelf || updating}
-            aria-label={`${action.label} ${user.name || user.email}`}
+            aria-label={`${t(action.label)} ${user.name || user.email}`}
             onClick={() => (action.confirm ? setConfirming(key) : run(key))}
           >
-            {updating ? action.busy : action.label}
+            {updating ? t(action.busy) : t(action.label)}
           </button>
         );
       })}

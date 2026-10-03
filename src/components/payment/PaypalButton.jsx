@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { formatPrice } from "../../utils/format";
+import { useT } from "../../i18n/useT";
 
 export default function PaypalButton({ amount, processing, error, onConfirm }) {
+  const { t } = useT();
   const [open, setOpen] = useState(false);
 
   const close = () => {
@@ -13,7 +15,7 @@ export default function PaypalButton({ amount, processing, error, onConfirm }) {
     <>
       <button type="button" className="btn btn-lg w-100 text-white fw-semibold" style={{ background: "#003087" }} onClick={() => setOpen(true)}>
         <i className="bi bi-paypal me-2" aria-hidden="true" />
-        Pay with PayPal
+        {t("Pay with PayPal")}
       </button>
 
       {open && (
@@ -28,30 +30,30 @@ export default function PaypalButton({ amount, processing, error, onConfirm }) {
             <div className="payment-gateway-icon paypal">
               <i className="bi bi-paypal" aria-hidden="true" />
             </div>
-            <h2 id="paypal-modal-title" className="h5 mb-1">Redirecting to PayPal</h2>
+            <h2 id="paypal-modal-title" className="h5 mb-1">{t("Redirecting to PayPal")}</h2>
             <p className="text-secondary small mb-4">
-              You'll complete a payment of <strong>{formatPrice(amount)}</strong> using your PayPal account.
-              This is a mock — no real PayPal window will open.
+              <bdi>{t("You'll complete a payment of {amount} using your PayPal account.", { amount: formatPrice(amount) })}</bdi>
+              {t("This is a mock — no real PayPal window will open.")}
             </p>
 
             {error && (
               <div className="alert alert-danger py-2 text-start" role="alert">
-                {error}
+                {t(error)}
               </div>
             )}
 
             {processing ? (
               <div className="py-2">
                 <span className="spinner-border spinner-border-sm me-2" aria-hidden="true" />
-                Confirming with PayPal...
+                {t("Confirming with PayPal...")}
               </div>
             ) : (
               <div className="d-flex gap-2">
                 <button type="button" className="btn btn-outline-secondary flex-fill" onClick={close}>
-                  Cancel
+                  {t("Cancel")}
                 </button>
                 <button type="button" className="btn btn-accent flex-fill" onClick={onConfirm}>
-                  Confirm Payment
+                  {t("Confirm Payment")}
                 </button>
               </div>
             )}

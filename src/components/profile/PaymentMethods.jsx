@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useT } from "../../i18n/useT";
 
 const CARD_RE = /^\d{13,19}$/;
 const EMPTY = { holder: "", number: "", expiry: "", brand: "Card" };
@@ -22,6 +23,7 @@ const validate = (v) => {
 // This is a UI-only mock — no card data is sent anywhere or stored server-side, only kept in
 // memory for this session, since json-server has nowhere real (or PCI-safe) to put it.
 export default function PaymentMethods() {
+  const { t } = useT();
   const [cards, setCards] = useState([]);
   const [adding, setAdding] = useState(false);
   const [values, setValues] = useState(EMPTY);
@@ -50,11 +52,11 @@ export default function PaymentMethods() {
   return (
     <div>
       <p className="small text-secondary">
-        Demo only — cards are kept in this browser session and are never saved or sent anywhere.
+        {t("Demo only — cards are kept in this browser session and are never saved or sent anywhere.")}
       </p>
 
       {cards.length === 0 && !adding && (
-        <p className="text-secondary mb-3">No payment methods saved yet.</p>
+        <p className="text-secondary mb-3">{t("No payment methods saved yet.")}</p>
       )}
 
       {cards.map((card) => (
@@ -66,7 +68,7 @@ export default function PaymentMethods() {
                 {card.brand} &middot;&middot;&middot;&middot; {card.last4}
               </div>
               <div className="small text-secondary">
-                {card.holder} &middot; Expires {card.expiry}
+                {card.holder} &middot; {t("Expires")} <bdi>{card.expiry}</bdi>
               </div>
             </div>
           </div>
@@ -75,7 +77,7 @@ export default function PaymentMethods() {
             className="btn btn-sm btn-outline-danger"
             onClick={() => setCards((c) => c.filter((x) => x.id !== card.id))}
           >
-            Delete
+            {t("Delete")}
           </button>
         </div>
       ))}
@@ -85,7 +87,7 @@ export default function PaymentMethods() {
           <div className="row gx-3">
             <div className="col-12">
               <div className="mb-3">
-                <label htmlFor="pm-holder" className="form-label small fw-semibold">Cardholder name</label>
+                <label htmlFor="pm-holder" className="form-label small fw-semibold">{t("Cardholder name")}</label>
                 <input
                   id="pm-holder"
                   name="holder"
@@ -94,12 +96,12 @@ export default function PaymentMethods() {
                   onChange={handleChange}
                   autoComplete="cc-name"
                 />
-                {errors.holder && <div className="invalid-feedback">{errors.holder}</div>}
+                {errors.holder && <div className="invalid-feedback">{t(errors.holder)}</div>}
               </div>
             </div>
             <div className="col-md-8">
               <div className="mb-3">
-                <label htmlFor="pm-number" className="form-label small fw-semibold">Card number</label>
+                <label htmlFor="pm-number" className="form-label small fw-semibold">{t("Card number")}</label>
                 <input
                   id="pm-number"
                   name="number"
@@ -110,12 +112,12 @@ export default function PaymentMethods() {
                   onChange={handleChange}
                   autoComplete="cc-number"
                 />
-                {errors.number && <div className="invalid-feedback">{errors.number}</div>}
+                {errors.number && <div className="invalid-feedback">{t(errors.number)}</div>}
               </div>
             </div>
             <div className="col-md-4">
               <div className="mb-3">
-                <label htmlFor="pm-expiry" className="form-label small fw-semibold">Expiry (MM/YY)</label>
+                <label htmlFor="pm-expiry" className="form-label small fw-semibold">{t("Expiry (MM/YY)")}</label>
                 <input
                   id="pm-expiry"
                   name="expiry"
@@ -125,12 +127,12 @@ export default function PaymentMethods() {
                   onChange={handleChange}
                   autoComplete="cc-exp"
                 />
-                {errors.expiry && <div className="invalid-feedback">{errors.expiry}</div>}
+                {errors.expiry && <div className="invalid-feedback">{t(errors.expiry)}</div>}
               </div>
             </div>
           </div>
           <div className="d-flex flex-wrap gap-2">
-            <button type="submit" className="btn btn-accent px-4">Save card</button>
+            <button type="submit" className="btn btn-accent px-4">{t("Save card")}</button>
             <button
               type="button"
               className="btn btn-outline-secondary px-4"
@@ -147,7 +149,7 @@ export default function PaymentMethods() {
       ) : (
         <button type="button" className="btn btn-outline-secondary" onClick={() => setAdding(true)}>
           <i className="bi bi-plus-lg me-1" aria-hidden="true" />
-          Add new payment method
+          {t("Add new payment method")}
         </button>
       )}
     </div>

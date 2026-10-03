@@ -13,6 +13,7 @@ import SecurityForm from "../components/profile/SecurityForm";
 import PaymentMethods from "../components/profile/PaymentMethods";
 import InterestPreferences from "../components/profile/InterestPreferences";
 import "../styles/customer-experience.css";
+import { useT } from "../i18n/useT";
 
 const TABS = [
   { key: "info", label: "Profile info", icon: "bi-person" },
@@ -24,6 +25,7 @@ const TABS = [
 const withProfileSource = (to) => `${to}${to.includes("?") ? "&" : "?"}from=profile`;
 
 export default function Profile() {
+  const { t, te } = useT();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const user = useSelector((s) => s.auth.user);
@@ -75,7 +77,7 @@ export default function Profile() {
     if (!user?.email || sendingReset) return;
     dispatch(sendPasswordReset(user.email))
       .unwrap()
-      .then(() => dispatch(showSuccess(`Password reset email sent to ${user.email}.`)))
+      .then(() => dispatch(showSuccess(t("Password reset email sent to {email}.", { email: user.email }))))
       .catch(() => {}); // the mock API rarely fails; if it does, the button just re-enables
   };
 
@@ -112,54 +114,54 @@ export default function Profile() {
   return (
     <div className="container py-4">
       <div className="mb-4">
-        <p className="eyebrow mb-1">My account</p>
+        <p className="eyebrow mb-1">{t("My account")}</p>
         <h1 className="h3 mb-0">حسابي</h1>
       </div>
 
       {isCustomer && (
         <div className="customer-profile-dashboard">
-          <section className="customer-profile-summary bg-white border rounded-4 p-3 p-md-4 mb-4" aria-label="Profile summary">
+          <section className="customer-profile-summary bg-white border rounded-4 p-3 p-md-4 mb-4" aria-label={t("Profile summary")}>
             <div className="customer-profile-avatar" aria-hidden="true">{initials}</div>
             <div className="customer-profile-identity">
-              <span className="badge text-bg-light border mb-2">Customer</span>
+              <span className="badge text-bg-light border mb-2">{t("Customer")}</span>
               <h2 className="h4 mb-1 text-break">{user?.name}</h2>
               <p className="text-secondary mb-2 text-break">{user?.email}</p>
               {primaryAddress && (
                 <p className="small text-secondary mb-1">
                   <i className="bi bi-geo-alt me-1" aria-hidden="true" />
-                  <span className="fw-semibold">{primaryAddress.isDefault ? "Default address: " : "Saved address: "}</span>
+                  <span className="fw-semibold">{primaryAddress.isDefault ? t("Default address:") : t("Saved address:")} </span>
                   {[primaryAddress.address, primaryAddress.city, primaryAddress.governorate, primaryAddress.postalCode]
                     .filter(Boolean)
                     .join(", ")}
                 </p>
               )}
-              {showDate && <p className="small text-secondary mb-0">Member since {formatOrderDate(user.createdAt)}</p>}
+              {showDate && <p className="small text-secondary mb-0">{t("Member since {date}", { date: formatOrderDate(user.createdAt) })}</p>}
             </div>
             <button type="button" className="btn btn-outline-secondary customer-profile-edit" onClick={() => openSettingsTab("info")}>
-              <i className="bi bi-pencil me-2" aria-hidden="true" />Edit Profile
+              <i className="bi bi-pencil me-2" aria-hidden="true" />{t("Edit Profile")}
             </button>
           </section>
 
-          <section className="customer-profile-stats mb-4" aria-label="Account statistics">
+          <section className="customer-profile-stats mb-4" aria-label={t("Account statistics")}>
             <Link to={withProfileSource("/orders")} className="customer-profile-stat bg-white border rounded-3 p-3 text-decoration-none">
-              <span className="small text-secondary">My Orders</span>
+              <span className="small text-secondary">{t("My Orders")}</span>
               <strong>{ordersStatus === "succeeded" || orders.length > 0 ? orders.length : "—"}</strong>
             </Link>
             <Link to={withProfileSource("/wishlist")} className="customer-profile-stat bg-white border rounded-3 p-3 text-decoration-none">
-              <span className="small text-secondary">Wishlist</span>
+              <span className="small text-secondary">{t("Wishlist")}</span>
               <strong>{wishlistStatus === "succeeded" ? wishlistCount : "—"}</strong>
             </Link>
             <button type="button" className="customer-profile-stat bg-white border rounded-3 p-3 text-start" onClick={() => openSettingsTab("addresses")}>
-              <span className="small text-secondary">Saved Addresses</span>
+              <span className="small text-secondary">{t("Saved Addresses")}</span>
               <strong>{addressesStatus === "succeeded" ? addresses.length : "—"}</strong>
             </button>
           </section>
 
           {(!Array.isArray(user?.interests) || user.interests.length === 0) && (
             <div className="customer-interest-prompt border rounded-3 p-3 mb-4 d-flex flex-wrap justify-content-between align-items-center gap-2">
-              <span className="small">Choose your interests to personalize product suggestions.</span>
+              <span className="small">{t("Choose your interests to personalize product suggestions.")}</span>
               <button type="button" className="btn btn-sm btn-outline-secondary" onClick={() => openSettingsTab("interests")}>
-                Choose your interests
+                {t("Choose your interests")}
               </button>
             </div>
           )}
@@ -167,21 +169,21 @@ export default function Profile() {
           <div className="row g-4 mb-4">
             <div className="col-lg-4">
               <section className="customer-profile-panel h-100 bg-white border rounded-4 p-3 p-md-4" aria-labelledby="profile-quick-actions-title">
-                <h2 id="profile-quick-actions-title" className="h5 mb-3">Quick Actions</h2>
+                <h2 id="profile-quick-actions-title" className="h5 mb-3">{t("Quick Actions")}</h2>
                 <div className="customer-profile-actions">
-                  <Link to={withProfileSource("/orders")}><i className="bi bi-receipt" aria-hidden="true" />My Orders</Link>
-                  <Link to={withProfileSource("/wishlist")}><i className="bi bi-heart" aria-hidden="true" />My Favorites</Link>
-                  <button type="button" onClick={() => openSettingsTab("addresses")}><i className="bi bi-geo-alt" aria-hidden="true" />My Addresses</button>
-                  <button type="button" onClick={() => openSettingsTab("info")}><i className="bi bi-person-gear" aria-hidden="true" />Edit Profile</button>
-                  <button type="button" onClick={() => openSettingsTab("interests")}><i className="bi bi-sliders" aria-hidden="true" />Manage Interests</button>
+                  <Link to={withProfileSource("/orders")}><i className="bi bi-receipt" aria-hidden="true" />{t("My Orders")}</Link>
+                  <Link to={withProfileSource("/wishlist")}><i className="bi bi-heart" aria-hidden="true" />{t("My Favorites")}</Link>
+                  <button type="button" onClick={() => openSettingsTab("addresses")}><i className="bi bi-geo-alt" aria-hidden="true" />{t("My Addresses")}</button>
+                  <button type="button" onClick={() => openSettingsTab("info")}><i className="bi bi-person-gear" aria-hidden="true" />{t("Edit Profile")}</button>
+                  <button type="button" onClick={() => openSettingsTab("interests")}><i className="bi bi-sliders" aria-hidden="true" />{t("Manage Interests")}</button>
                 </div>
               </section>
             </div>
             <div className="col-lg-8">
               <section className="customer-profile-panel h-100 bg-white border rounded-4 p-3 p-md-4" aria-labelledby="profile-recent-orders-title">
                 <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
-                  <h2 id="profile-recent-orders-title" className="h5 mb-0">Recent Orders</h2>
-                  <Link to={withProfileSource("/orders")} className="small fw-semibold text-decoration-none">View All Orders</Link>
+                  <h2 id="profile-recent-orders-title" className="h5 mb-0">{t("Recent Orders")}</h2>
+                  <Link to={withProfileSource("/orders")} className="small fw-semibold text-decoration-none">{t("View All Orders")}</Link>
                 </div>
                 {recentOrders.length > 0 ? (
                   <div className="customer-recent-orders">
@@ -189,23 +191,23 @@ export default function Profile() {
                       <Link key={order.id} to={withProfileSource(`/orders/${order.id}`)} className="customer-recent-order">
                         <span className="customer-recent-order-id">#{orderNumber(order.id)}</span>
                         <span className="customer-recent-order-date">{formatOrderDate(order.createdAt)}</span>
-                        <span className="badge text-bg-light border text-capitalize">{order.status || "Status unavailable"}</span>
+                        <span className="badge text-bg-light border text-capitalize">{order.status ? te("order", order.status) : t("Status unavailable")}</span>
                         {Number.isFinite(Number(order.total)) && <strong>{formatPrice(Number(order.total))}</strong>}
                       </Link>
                     ))}
                   </div>
                 ) : ordersStatus === "idle" || ordersStatus === "loading" ? (
-                  <div className="placeholder-glow" aria-busy="true" aria-label="Loading recent orders">
+                  <div className="placeholder-glow" aria-busy="true" aria-label={t("Loading recent orders")}>
                     <span className="placeholder d-block col-12 mb-2" style={{ height: 48 }} />
                     <span className="placeholder d-block col-12" style={{ height: 48 }} />
                   </div>
                 ) : ordersStatus === "failed" ? (
-                  <div className="alert alert-danger py-2 mb-0" role="alert">{ordersError || "We couldn't load your orders."}</div>
+                  <div className="alert alert-danger py-2 mb-0" role="alert">{ordersError ? t(ordersError) : t("We couldn't load your orders.")}</div>
                 ) : (
                   <div className="customer-orders-empty">
                     <i className="bi bi-receipt" aria-hidden="true" />
-                    <p className="mb-2">No orders yet.</p>
-                    <Link to="/products" className="btn btn-sm btn-outline-secondary">Browse products</Link>
+                    <p className="mb-2">{t("No orders yet.")}</p>
+                    <Link to="/products" className="btn btn-sm btn-outline-secondary">{t("Browse products")}</Link>
                   </div>
                 )}
               </section>
@@ -216,7 +218,7 @@ export default function Profile() {
 
       <div className="row g-4">
         <div className="col-lg-3">
-          <div className="nav nav-pills flex-lg-column gap-1 profile-tabs" role="tablist" aria-label="Account sections">
+          <div className="nav nav-pills flex-lg-column gap-1 profile-tabs" role="tablist" aria-label={t("Account sections")}>
             {TABS.map(({ key, label, icon }) => (
               <button
                 key={key}
@@ -227,7 +229,7 @@ export default function Profile() {
                 onClick={() => setTab(key)}
               >
                 <i className={`bi ${icon}`} aria-hidden="true" />
-                {label}
+                {t(label)}
               </button>
             ))}
           </div>
@@ -235,28 +237,28 @@ export default function Profile() {
 
         <div className="col-lg-9">
           <div className="bg-white border rounded-4 p-3 p-lg-4" id="account-settings">
-            {isCustomer && <h2 className="h5 mb-3">Account settings</h2>}
+            {isCustomer && <h2 className="h5 mb-3">{t("Account settings")}</h2>}
             {tab === "info" && (
               <>
                 {isCustomer
-                  ? <h3 className="h6 mb-3">Profile information</h3>
-                  : <h2 className="h5 mb-3">Profile information</h2>}
+                  ? <h3 className="h6 mb-3">{t("Profile information")}</h3>
+                  : <h2 className="h5 mb-3">{t("Profile information")}</h2>}
                 <ProfileForm />
               </>
             )}
             {tab === "addresses" && (
               <>
                 {isCustomer
-                  ? <h3 className="h6 mb-3">Saved addresses</h3>
-                  : <h2 className="h5 mb-3">Saved addresses</h2>}
+                  ? <h3 className="h6 mb-3">{t("Saved addresses")}</h3>
+                  : <h2 className="h5 mb-3">{t("Saved addresses")}</h2>}
                 <AddressesList />
               </>
             )}
             {tab === "payment" && (
               <>
                 {isCustomer
-                  ? <h3 className="h6 mb-3">Payment methods</h3>
-                  : <h2 className="h5 mb-3">Payment methods</h2>}
+                  ? <h3 className="h6 mb-3">{t("Payment methods")}</h3>
+                  : <h2 className="h5 mb-3">{t("Payment methods")}</h2>}
                 <PaymentMethods />
               </>
             )}
@@ -266,18 +268,17 @@ export default function Profile() {
             {tab === "security" && (
               <>
                 {isCustomer
-                  ? <h3 className="h6 mb-3">Change password</h3>
-                  : <h2 className="h5 mb-3">Change password</h2>}
+                  ? <h3 className="h6 mb-3">{t("Change password")}</h3>
+                  : <h2 className="h5 mb-3">{t("Change password")}</h2>}
                 <SecurityForm />
 
                 <hr className="my-4" />
 
                 {isCustomer
-                  ? <h3 className="h6 mb-1">Password reset email</h3>
-                  : <h2 className="h6 mb-1">Password reset email</h2>}
+                  ? <h3 className="h6 mb-1">{t("Password reset email")}</h3>
+                  : <h2 className="h6 mb-1">{t("Password reset email")}</h2>}
                 <p className="text-secondary small">
-                  Send a mock password reset email to {user?.email ?? "your inbox"} — useful for testing the email
-                  flow without actually changing your password.
+                  {t("Send a mock password reset email to {email} — useful for testing the email flow without actually changing your password.", { email: user?.email ?? t("your inbox") })}
                 </p>
                 <button
                   type="button"
@@ -288,10 +289,10 @@ export default function Profile() {
                   {sendingReset ? (
                     <>
                       <span className="spinner-border spinner-border-sm me-2" aria-hidden="true" />
-                      Sending...
+                      {t("Sending...")}
                     </>
                   ) : (
-                    "Send password reset email"
+                    t("Send password reset email")
                   )}
                 </button>
               </>

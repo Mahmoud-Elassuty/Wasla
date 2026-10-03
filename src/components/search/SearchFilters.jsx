@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
+import { getCategoryDisplayName } from "../../utils/categoryDisplay";
 import { formatPrice } from "../../utils/format";
+import { useT } from "../../i18n/useT";
 
 export const RATING_TIERS = ["4", "3", "2", "1"];
 
@@ -27,6 +29,7 @@ export default function SearchFilters({
   onClose,
   onApplyAndClose,
 }) {
+  const { t } = useT();
   const [draftMin, setDraftMin] = useState(priceValue.min);
   const [draftMax, setDraftMax] = useState(priceValue.max);
 
@@ -50,7 +53,7 @@ export default function SearchFilters({
         <button
           type="button"
           className="filters-drawer-backdrop"
-          aria-label="Close product filters"
+          aria-label={t("Close product filters")}
           tabIndex={-1}
           onClick={onClose}
         />
@@ -63,18 +66,18 @@ export default function SearchFilters({
         aria-labelledby="filters-panel-title"
       >
       <div className="filters-panel-header d-flex justify-content-between align-items-center mb-3">
-        <h2 id="filters-panel-title" className="h6 mb-0">Filters</h2>
+        <h2 id="filters-panel-title" className="h6 mb-0">{t("Filters")}</h2>
         <div className="d-flex align-items-center gap-3">
         {hasActiveFilters && (
           <button type="button" className="btn btn-link btn-sm p-0 filters-clear-desktop" onClick={onClearAll}>
-            Clear all
+            {t("Clear all")}
           </button>
         )}
           <button
             id="filters-panel-close"
             type="button"
             className="btn btn-sm btn-outline-secondary d-md-none"
-            aria-label="Close product filters"
+            aria-label={t("Close product filters")}
             onClick={onClose}
           >
             <i className="bi bi-x-lg" aria-hidden="true" />
@@ -84,7 +87,7 @@ export default function SearchFilters({
 
       {categoryOptions.length > 0 && (
         <div className="mb-4">
-          <span className="form-label small fw-semibold d-block mb-2">Category</span>
+          <span className="form-label small fw-semibold d-block mb-2">{t("Category")}</span>
           <div className="d-flex flex-column gap-1">
             {categoryOptions.map(({ slug, name }) => (
               <div className="form-check" key={slug}>
@@ -96,7 +99,7 @@ export default function SearchFilters({
                   onChange={() => onToggleCategory(slug)}
                 />
                 <label htmlFor={`cat-${slug}`} className="form-check-label small">
-                  {name}
+                  {getCategoryDisplayName(slug)}
                 </label>
               </div>
             ))}
@@ -106,12 +109,12 @@ export default function SearchFilters({
 
       <div className="mb-4">
         <div className="d-flex justify-content-between align-items-center mb-2">
-          <span className="form-label small fw-semibold mb-0">Price range</span>
+          <span className="form-label small fw-semibold mb-0">{t("Price range")}</span>
           <span className="small text-secondary">
-            {formatPrice(draftMin)} &ndash; {formatPrice(draftMax)}
+            <bdi dir="ltr">{formatPrice(draftMin)} &ndash; {formatPrice(draftMax)}</bdi>
           </span>
         </div>
-        <div className="price-slider position-relative">
+        <div className="price-slider position-relative" dir="ltr">
           <div className="price-slider-track" aria-hidden="true">
             <div className="price-slider-fill" style={{ left: `${leftPct}%`, right: `${100 - rightPct}%` }} />
           </div>
@@ -122,7 +125,7 @@ export default function SearchFilters({
             max={bounds.max}
             step="0.01"
             value={draftMin}
-            aria-label="Minimum price"
+            aria-label={t("Minimum price")}
             onChange={handleMinChange}
           />
           <input
@@ -132,7 +135,7 @@ export default function SearchFilters({
             max={bounds.max}
             step="0.01"
             value={draftMax}
-            aria-label="Maximum price"
+            aria-label={t("Maximum price")}
             onChange={handleMaxChange}
           />
         </div>
@@ -142,20 +145,20 @@ export default function SearchFilters({
           disabled={!dirty}
           onClick={() => onApplyPrice(draftMin, draftMax)}
         >
-          Apply filters
+          {t("Apply filters")}
         </button>
       </div>
 
       <div className="mb-4">
-        <span className="form-label small fw-semibold d-block mb-2">Rating</span>
-        <div className="d-flex flex-wrap gap-2" role="group" aria-label="Filter by rating">
+        <span className="form-label small fw-semibold d-block mb-2">{t("Rating")}</span>
+        <div className="d-flex flex-wrap gap-2" role="group" aria-label={t("Filter by rating")}>
           <button
             type="button"
             className={`chip${ratingMin ? "" : " active"}`}
             aria-pressed={!ratingMin}
             onClick={() => onRatingChange("")}
           >
-            All
+            {t("All")}
           </button>
           {RATING_TIERS.map((tier) => (
             <button
@@ -174,7 +177,7 @@ export default function SearchFilters({
 
       {brandOptions.length > 0 && (
         <div className="mb-4">
-          <span className="form-label small fw-semibold d-block mb-2">Brand</span>
+          <span className="form-label small fw-semibold d-block mb-2">{t("Brand")}</span>
           <div className="d-flex flex-column gap-1 brand-list">
             {brandOptions.map((brand) => (
               <div className="form-check" key={brand}>
@@ -204,16 +207,16 @@ export default function SearchFilters({
           onChange={(e) => onInStockChange(e.target.checked)}
         />
         <label htmlFor="in-stock-only" className="form-check-label small fw-semibold">
-          In stock only
+          {t("In stock only")}
         </label>
       </div>
 
       <div className="filters-panel-actions d-md-none d-flex gap-2">
         <button type="button" className="btn btn-outline-secondary flex-fill" disabled={!hasActiveFilters} onClick={onClearAll}>
-          Clear filters
+          {t("Clear filters")}
         </button>
         <button type="button" className="btn btn-accent flex-fill" onClick={onApplyAndClose}>
-          Apply filters
+          {t("Apply filters")}
         </button>
       </div>
       </aside>

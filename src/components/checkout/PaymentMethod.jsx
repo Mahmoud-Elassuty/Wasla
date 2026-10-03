@@ -1,3 +1,4 @@
+import { useT } from "../../i18n/useT";
 const METHODS = [
   { id: "cod", label: "Cash on delivery", hint: "Pay in cash when your order arrives.", icon: "bi-cash-coin" },
   { id: "credit_card", label: "Credit / Debit card", hint: "Pay online with Visa, Mastercard or Amex.", icon: "bi-credit-card" },
@@ -6,9 +7,10 @@ const METHODS = [
 ];
 
 export default function PaymentMethod({ value, onChange }) {
+  const { t } = useT();
   return (
     <fieldset>
-      <legend className="visually-hidden">Payment method</legend>
+      <legend className="visually-hidden">{t("Payment method")}</legend>
       <div className="d-grid gap-2">
         {METHODS.map(({ id, label, hint, icon }) => (
           <label
@@ -27,8 +29,8 @@ export default function PaymentMethod({ value, onChange }) {
             />
             <i className={`bi ${icon} fs-4 text-wasla`} aria-hidden="true" />
             <span className="flex-grow-1">
-              <span className="d-block fw-semibold">{label}</span>
-              <span className="d-block small text-secondary">{hint}</span>
+              <span className="d-block fw-semibold">{t(label)}</span>
+              <span className="d-block small text-secondary">{t(`payopt.${id}.hint`)}</span>
             </span>
           </label>
         ))}

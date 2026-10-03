@@ -1,3 +1,4 @@
+import { getLocale } from "../i18n";
 export const SHIPPING_FEE_EGP = 50;
 
 // Product prices are in USD. Change this rate to match the exchange rate you want to use.
@@ -98,19 +99,8 @@ export const PAYMENT_METHOD_LABELS = {
 export const orderItemCount = (order) =>
   (order.items ?? []).reduce((count, item) => count + item.quantity, 0);
 
-const dateFormat = new Intl.DateTimeFormat("en-GB", {
-  day: "numeric",
-  month: "short",
-  year: "numeric",
-});
-
-const dateTimeFormat = new Intl.DateTimeFormat("en-GB", {
-  day: "numeric",
-  month: "short",
-  year: "numeric",
-  hour: "2-digit",
-  minute: "2-digit",
-});
+const DATE_OPTS = { day: "numeric", month: "short", year: "numeric" };
+const DATETIME_OPTS = { ...DATE_OPTS, hour: "2-digit", minute: "2-digit" };
 
 export const formatOrderDate = (iso, withTime = false) => {
   const date = new Date(iso);
@@ -119,5 +109,5 @@ export const formatOrderDate = (iso, withTime = false) => {
     return "-";
   }
 
-  return (withTime ? dateTimeFormat : dateFormat).format(date);
+  return new Intl.DateTimeFormat(getLocale() === "en-US" ? "en-GB" : getLocale(), withTime ? DATETIME_OPTS : DATE_OPTS).format(date);
 };

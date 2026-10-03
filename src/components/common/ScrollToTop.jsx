@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import "../../styles/scroll-to-top.css";
+import { useT } from "../../i18n/useT";
 
 // Floating "back to top" button. Hidden until the page is scrolled `threshold` px.
 // Render it once (MainLayout) — it is fixed-position, so it works on every public page.
 export default function ScrollToTop({ threshold = 300 }) {
+  const { t } = useT();
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -22,8 +24,8 @@ export default function ScrollToTop({ threshold = 300 }) {
     <button
       type="button"
       className={`scroll-top-btn${visible ? " is-visible" : ""}`}
-      aria-label="Scroll to top"
-      title="Scroll to top"
+      aria-label={t("Scroll to top")}
+      title={t("Scroll to top")}
       onClick={handleClick}
     >
       <i className="bi bi-arrow-up" aria-hidden="true" />

@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { formatPrice } from "../../utils/format";
+import { useT } from "../../i18n/useT";
 
 export default function WalletButton({ amount, processing, error, onConfirm }) {
+  const { t } = useT();
   const [open, setOpen] = useState(false);
 
   const close = () => {
@@ -14,7 +16,7 @@ export default function WalletButton({ amount, processing, error, onConfirm }) {
       <button type="button" className="btn btn-dark btn-lg w-100 fw-semibold" onClick={() => setOpen(true)}>
         <i className="bi bi-apple me-1" aria-hidden="true" />
         <i className="bi bi-google me-2" aria-hidden="true" />
-        Pay with Apple Pay / Google Pay
+        {t("Pay with Apple Pay / Google Pay")}
       </button>
 
       {open && (
@@ -30,16 +32,16 @@ export default function WalletButton({ amount, processing, error, onConfirm }) {
               <i className="bi bi-fingerprint" aria-hidden="true" />
             </div>
             <h2 id="wallet-modal-title" className="h5 mb-1">
-              {processing ? "Verifying..." : "Confirm with Face ID / Touch ID"}
+              {processing ? t("Verifying...") : t("Confirm with Face ID / Touch ID")}
             </h2>
             <p className="text-secondary small mb-4">
-              Authorize a payment of <strong>{formatPrice(amount)}</strong> from your digital wallet.
-              This is a mock — no biometric check actually happens.
+              {t("Authorize a payment of {amount} from your digital wallet.", { amount: formatPrice(amount) })}
+              {t("This is a mock — no biometric check actually happens.")}
             </p>
 
             {error && (
               <div className="alert alert-danger py-2 text-start" role="alert">
-                {error}
+                {t(error)}
               </div>
             )}
 
@@ -51,7 +53,7 @@ export default function WalletButton({ amount, processing, error, onConfirm }) {
             ) : (
               <div className="d-flex gap-2">
                 <button type="button" className="btn btn-outline-secondary flex-fill" onClick={close}>
-                  Cancel
+                  {t("Cancel")}
                 </button>
                 <button type="button" className="btn btn-accent flex-fill" onClick={onConfirm}>
                   Confirm Payment

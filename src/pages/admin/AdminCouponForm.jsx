@@ -9,6 +9,7 @@ import {
   updateCoupon,
 } from "../../store/reducers/adminSlice";
 import FormField from "../../components/common/FormField";
+import { useT } from "../../i18n/useT";
 
 const FIELD_ORDER = ["code", "discount", "type", "minTotal", "maxDiscount", "validFrom", "validUntil", "usageLimit"];
 
@@ -59,6 +60,7 @@ function validate(v) {
 }
 
 function CouponFormView({ coupon }) {
+  const { t } = useT();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { couponSaveStatus, couponSaveError } = useSelector((s) => s.admin);
@@ -125,7 +127,7 @@ function CouponFormView({ coupon }) {
             <div className="col-md-6">
               <FormField
                 {...field("code")}
-                label="Code"
+                label={t("Code")}
                 placeholder="WASLA10"
                 maxLength={20}
                 style={{ textTransform: "uppercase" }}
@@ -133,9 +135,9 @@ function CouponFormView({ coupon }) {
               />
             </div>
             <div className="col-md-6">
-              <FormField {...field("type")} as="select" label="Type">
-                <option value="percentage">Percentage</option>
-                <option value="fixed">Fixed amount</option>
+              <FormField {...field("type")} as="select" label={t("Type")}>
+                <option value="percentage">{t("Percentage")}</option>
+                <option value="fixed">{t("Fixed amount")}</option>
               </FormField>
             </div>
             <div className="col-md-6">
@@ -150,13 +152,13 @@ function CouponFormView({ coupon }) {
               <FormField
                 {...field("maxDiscount")}
                 type="number" min="0" step="0.01" inputMode="decimal"
-                label="Max discount (optional)"
-                placeholder="No cap"
+                label={t("Max discount (optional)")}
+                placeholder={t("No cap")}
                 disabled={saving || values.type !== "percentage"}
               />
               {values.type !== "percentage" && (
                 <p className="form-text" style={{ marginTop: "-0.5rem" }}>
-                  Only applies to percentage coupons.
+                  {t("Only applies to percentage coupons.")}
                 </p>
               )}
             </div>
@@ -164,23 +166,23 @@ function CouponFormView({ coupon }) {
               <FormField
                 {...field("minTotal")}
                 type="number" min="0" step="0.01" inputMode="decimal"
-                label="Minimum cart total (optional)"
-                placeholder="No minimum"
+                label={t("Minimum cart total (optional)")}
+                placeholder={t("No minimum")}
               />
             </div>
             <div className="col-md-6">
               <FormField
                 {...field("usageLimit")}
                 type="number" min="1" step="1" inputMode="numeric"
-                label="Usage limit (optional)"
-                placeholder="Unlimited"
+                label={t("Usage limit (optional)")}
+                placeholder={t("Unlimited")}
               />
             </div>
             <div className="col-md-6">
-              <FormField {...field("validFrom")} type="date" label="Valid from (optional)" />
+              <FormField {...field("validFrom")} type="date" label={t("Valid from (optional)")} />
             </div>
             <div className="col-md-6">
-              <FormField {...field("validUntil")} type="date" label="Valid until (optional)" />
+              <FormField {...field("validUntil")} type="date" label={t("Valid until (optional)")} />
             </div>
             <div className="col-12">
               <div className="form-check">
@@ -193,7 +195,7 @@ function CouponFormView({ coupon }) {
                   onChange={handleChange}
                 />
                 <label htmlFor="active" className="form-check-label small fw-semibold">
-                  Active
+                  {t("Active")}
                 </label>
               </div>
             </div>
@@ -211,13 +213,13 @@ function CouponFormView({ coupon }) {
             {saving ? (
               <>
                 <span className="spinner-border spinner-border-sm me-2" aria-hidden="true" />
-                Saving...
+                {t("Saving...")}
               </>
             ) : (
               "Save"
             )}
           </button>
-          <Link to="/admin/coupons" className="btn btn-outline-secondary px-4">Cancel</Link>
+          <Link to="/admin/coupons" className="btn btn-outline-secondary px-4">{t("Cancel")}</Link>
         </div>
       </form>
     </>
@@ -225,6 +227,7 @@ function CouponFormView({ coupon }) {
 }
 
 export default function AdminCouponForm() {
+  const { t } = useT();
   const { id } = useParams(); // undefined on /admin/coupons/new
   const dispatch = useDispatch();
   const { coupons, couponsStatus, couponsError } = useSelector((s) => s.admin);
@@ -247,11 +250,11 @@ export default function AdminCouponForm() {
   if (couponsStatus === "succeeded" || couponsStatus === "failed") {
     return (
       <div className="text-center py-5">
-        <h1 className="h4">We couldn't find this coupon</h1>
+        <h1 className="h4">{t("We couldn't find this coupon")}</h1>
         <p className="text-secondary">
           {couponsStatus === "failed" ? couponsError : "It may have been deleted."}
         </p>
-        <Link to="/admin/coupons" className="btn btn-outline-secondary">Back to coupons</Link>
+        <Link to="/admin/coupons" className="btn btn-outline-secondary">{t("Back to coupons")}</Link>
       </div>
     );
   }
@@ -259,7 +262,7 @@ export default function AdminCouponForm() {
   return (
     <div className="text-center py-5" role="status">
       <div className="spinner-border text-primary" />
-      <span className="visually-hidden">Loading coupon...</span>
+      <span className="visually-hidden">{t("Loading coupon...")}</span>
     </div>
   );
 }

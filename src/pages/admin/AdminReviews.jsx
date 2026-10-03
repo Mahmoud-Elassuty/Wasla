@@ -10,6 +10,7 @@ import {
 } from "../../store/reducers/adminSlice";
 import { fetchProducts } from "../../store/reducers/productsSlice";
 import RatingStars from "../../components/reviews/RatingStars";
+import { useT } from "../../i18n/useT";
 
 const isHomepageFeatured = (review) => Boolean(review.verified) && review.homepageFeatured !== false;
 const newestFirst = (a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
@@ -25,6 +26,7 @@ function sortHomepageReviews(reviews) {
 }
 
 export default function AdminReviews() {
+  const { t } = useT();
   const dispatch = useDispatch();
   const { reviews, reviewsStatus, reviewsError, deletingReviewIds, updatingReviewIds, actionError } = useSelector((s) => s.admin);
   const products = useSelector((s) => s.products.items);
@@ -100,7 +102,7 @@ export default function AdminReviews() {
     <>
       <div className="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-4">
         <div>
-          <p className="eyebrow mb-1">Reviews management</p>
+          <p className="eyebrow mb-1">{t("Reviews management")}</p>
           <h1 className="h3 mb-1">إدارة التقييمات</h1>
           {hasReviews && <p className="small text-secondary mb-0">{homeReviews.length} review{homeReviews.length === 1 ? "" : "s"} shown on the homepage · use the arrows to change their order</p>}
         </div>
@@ -108,25 +110,25 @@ export default function AdminReviews() {
 
       {actionError && (
         <div className="alert alert-danger d-flex justify-content-between align-items-center gap-2" role="alert">
-          <span>{actionError}</span><button type="button" className="btn-close" aria-label="Dismiss" onClick={() => dispatch(clearActionError())} />
+          <span>{actionError}</span><button type="button" className="btn-close" aria-label={t("Dismiss")} onClick={() => dispatch(clearActionError())} />
         </div>
       )}
 
       <div className="row g-2 mb-3">
-        <div className="col-md-4 col-lg-3"><select className="form-select" aria-label="Filter by rating" value={rating} onChange={(event) => setRating(event.target.value)}><option value="">All ratings</option>{[5, 4, 3, 2, 1].map((number) => <option key={number} value={number}>{number} star{number === 1 ? "" : "s"}</option>)}</select></div>
-        <div className="col-md-4 col-lg-3"><select className="form-select" aria-label="Filter by product" value={productId} onChange={(event) => setProductId(event.target.value)}><option value="">All products</option>{productOptions.map(({ id, title }) => <option key={id} value={id}>{title}</option>)}</select></div>
-        <div className="col-md-4 col-lg-3"><select className="form-select" aria-label="Filter by verified status" value={verified} onChange={(event) => setVerified(event.target.value)}><option value="">All statuses</option><option value="verified">Verified</option><option value="unverified">Unverified</option></select></div>
+        <div className="col-md-4 col-lg-3"><select className="form-select" aria-label={t("Filter by rating")} value={rating} onChange={(event) => setRating(event.target.value)}><option value="">{t("All ratings")}</option>{[5, 4, 3, 2, 1].map((number) => <option key={number} value={number}>{number} star{number === 1 ? "" : "s"}</option>)}</select></div>
+        <div className="col-md-4 col-lg-3"><select className="form-select" aria-label={t("Filter by product")} value={productId} onChange={(event) => setProductId(event.target.value)}><option value="">{t("All products")}</option>{productOptions.map(({ id, title }) => <option key={id} value={id}>{title}</option>)}</select></div>
+        <div className="col-md-4 col-lg-3"><select className="form-select" aria-label={t("Filter by verified status")} value={verified} onChange={(event) => setVerified(event.target.value)}><option value="">{t("All statuses")}</option><option value="verified">{t("Verified")}</option><option value="unverified">{t("Unverified")}</option></select></div>
       </div>
 
       {failed ? (
-        <div className="alert alert-danger d-flex flex-wrap justify-content-between align-items-center gap-2" role="alert"><span>{reviewsError || "We couldn't load the reviews."}</span><button type="button" className="btn btn-sm btn-outline-danger" onClick={() => dispatch(fetchAdminReviews())}>Try again</button></div>
+        <div className="alert alert-danger d-flex flex-wrap justify-content-between align-items-center gap-2" role="alert"><span>{reviewsError || "We couldn't load the reviews."}</span><button type="button" className="btn btn-sm btn-outline-danger" onClick={() => dispatch(fetchAdminReviews())}>{t("Try again")}</button></div>
       ) : loading ? (
-        <div className="admin-card p-4 placeholder-glow" aria-busy="true" aria-label="Loading reviews">{Array.from({ length: 6 }, (_, index) => <span key={index} className="placeholder d-block col-12 mb-3" style={{ height: 32 }} />)}</div>
+        <div className="admin-card p-4 placeholder-glow" aria-busy="true" aria-label={t("Loading reviews")}>{Array.from({ length: 6 }, (_, index) => <span key={index} className="placeholder d-block col-12 mb-3" style={{ height: 32 }} />)}</div>
       ) : (
         <div className="admin-card">
           <div className="table-responsive">
             <table className="table admin-table align-middle mb-0">
-              <thead><tr><th>Product</th><th>User</th><th>Rating</th><th>Review</th><th>Date</th><th>Status</th><th>Homepage</th><th>Actions</th></tr></thead>
+              <thead><tr><th>{t("Product")}</th><th>{t("User")}</th><th>{t("Rating")}</th><th>{t("Review")}</th><th>{t("Date")}</th><th>{t("Status")}</th><th>{t("Homepage")}</th><th>{t("Actions")}</th></tr></thead>
               <tbody>
                 {visible.map((review) => {
                   const deleting = deletingReviewIds.includes(review.id);
@@ -138,19 +140,19 @@ export default function AdminReviews() {
                       <td>{productTitle(review.productId)}</td>
                       <td>{review.userName || "Wasla customer"}</td>
                       <td><RatingStars value={review.rating} size="0.85rem" /></td>
-                      <td style={{ maxWidth: 280 }}><div className="fw-semibold text-truncate">{review.title || "Customer review"}</div><div className="small text-secondary text-truncate">{review.comment}</div></td>
+                      <td style={{ maxWidth: 280 }}><div className="fw-semibold text-truncate">{review.title || t("Customer review")}</div><div className="small text-secondary text-truncate">{review.comment}</div></td>
                       <td className="text-nowrap">{review.createdAt ? new Date(review.createdAt).toLocaleDateString() : "—"}</td>
                       <td><button type="button" className={`badge rounded-pill border-0 ${review.verified ? "stock-ok" : "stock-low"}`} disabled={updating} onClick={() => dispatch(updateReviewStatus({ id: review.id, verified: !review.verified }))}>{updating ? "Saving…" : review.verified ? "Verified" : "Unverified"}</button></td>
                       <td className="text-nowrap">
                         <div className="d-flex align-items-center gap-1">
                           <button type="button" className={`btn btn-sm ${featured ? "btn-success" : "btn-outline-secondary"}`} disabled={!review.verified || updatingReviewIds.length > 0} onClick={() => toggleHomepageReview(review)} title={!review.verified ? "Verify this review before featuring it" : undefined}>
-                            {updating ? "Saving…" : featured ? "Shown" : "Show"}
+                            {updating ? t("Saving...") : featured ? t("Shown") : t("Show")}
                           </button>
                           {featured && <span className="d-inline-flex gap-1 ms-1"><button type="button" className="btn btn-sm btn-outline-secondary" aria-label={`Move review by ${review.userName || "Wasla customer"} up`} disabled={position === 0 || updatingReviewIds.length > 0} onClick={() => moveHomepageReview(review, -1)}><i className="bi bi-arrow-up" aria-hidden="true" /></button><button type="button" className="btn btn-sm btn-outline-secondary" aria-label={`Move review by ${review.userName || "Wasla customer"} down`} disabled={position === homeReviews.length - 1 || updatingReviewIds.length > 0} onClick={() => moveHomepageReview(review, 1)}><i className="bi bi-arrow-down" aria-hidden="true" /></button></span>}
                         </div>
                       </td>
                       <td className="text-nowrap">
-                        {confirmingId === review.id ? <span className="d-inline-flex align-items-center gap-2"><span className="small">Delete?</span><button type="button" className="btn btn-sm btn-danger" disabled={deleting} onClick={() => { dispatch(deleteReview(review.id)); setConfirmingId(null); }}>Yes</button><button type="button" className="btn btn-sm btn-outline-secondary" onClick={() => setConfirmingId(null)}>No</button></span> : <button type="button" className="btn btn-sm btn-outline-danger" disabled={deleting} aria-label={`Delete review by ${review.userName}`} onClick={() => setConfirmingId(review.id)}>{deleting ? "Deleting…" : "Delete"}</button>}
+                        {confirmingId === review.id ? <span className="d-inline-flex align-items-center gap-2"><span className="small">{t("Delete?")}</span><button type="button" className="btn btn-sm btn-danger" disabled={deleting} onClick={() => { dispatch(deleteReview(review.id)); setConfirmingId(null); }}>{t("Yes")}</button><button type="button" className="btn btn-sm btn-outline-secondary" onClick={() => setConfirmingId(null)}>{t("No")}</button></span> : <button type="button" className="btn btn-sm btn-outline-danger" disabled={deleting} aria-label={`Delete review by ${review.userName}`} onClick={() => setConfirmingId(review.id)}>{deleting ? "Deleting…" : "Delete"}</button>}
                       </td>
                     </tr>
                   );

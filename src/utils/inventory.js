@@ -1,3 +1,5 @@
+import { t } from "../i18n";
+
 export const LOW_STOCK_THRESHOLD = 5;
 
 export const isValidStock = (stock) => Number.isInteger(stock) && stock >= 0;
@@ -8,7 +10,7 @@ export function getStockState(stock, active = true) {
   if (!isValidStock(stock)) {
     return {
       level: "invalid",
-      label: "Stock unavailable",
+      label: t("Stock unavailable"),
       purchasable: false,
       quantity: 0,
     };
@@ -16,7 +18,7 @@ export function getStockState(stock, active = true) {
   if (stock === 0) {
     return {
       level: "out",
-      label: "Out of stock",
+      label: t("Out of stock"),
       purchasable: false,
       quantity: 0,
     };
@@ -24,7 +26,7 @@ export function getStockState(stock, active = true) {
   if (active === false) {
     return {
       level: "unavailable",
-      label: "Unavailable",
+      label: t("Unavailable"),
       purchasable: false,
       quantity: stock,
     };
@@ -32,12 +34,12 @@ export function getStockState(stock, active = true) {
   if (stock <= LOW_STOCK_THRESHOLD) {
     return {
       level: "low",
-      label: `Only ${stock} left`,
+      label: t("Only {count} left", { count: stock }),
       purchasable: true,
       quantity: stock,
     };
   }
-  return { level: "in", label: "In stock", purchasable: true, quantity: stock };
+  return { level: "in", label: t("In stock"), purchasable: true, quantity: stock };
 }
 
 export function availabilityStatusFromStock(stock) {

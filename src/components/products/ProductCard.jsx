@@ -2,13 +2,16 @@ import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { addToCart, selectItemQuantity } from "../../store/reducers/cartSlice";
-import { formatPrice, getSalePrice, titleCase } from "../../utils/format";
+import { formatPrice, getSalePrice } from "../../utils/format";
+import { getCategoryDisplayName } from "../../utils/categoryDisplay";
 import { showError, showSuccess } from "../../utils/notifications";
 import { getStockState, safeStock } from "../../utils/inventory";
 import useWishlist from "../../hooks/useWishlist";
 import "../../styles/wishlist.css";
+import { useT } from "../../i18n/useT";
 
 export default function ProductCard({ product, imageFallback = false, homeDeal = false }) {
+  const { t } = useT();
   const dispatch = useDispatch();
   const location = useLocation();
   const [added, setAdded] = useState(false);
@@ -32,11 +35,11 @@ export default function ProductCard({ product, imageFallback = false, homeDeal =
 
   const handleAdd = () => {
     if (!stockState.purchasable) {
-      dispatch(showError(`"${product.title}" is ${stockState.label.toLowerCase()}.`));
+      dispatch(showError(t("\"{title}\" is {state}.", { title: product.title, state: stockState.label.toLowerCase() })));
       return;
     }
     if (inCart >= stockCount) {
-      dispatch(showError(`Only ${stockCount} of "${product.title}" are available.`));
+      dispatch(showError(t("Only {count} of \"{title}\" are available.", { count: stockCount, title: product.title })));
       return;
     }
     dispatch(
@@ -51,7 +54,7 @@ export default function ProductCard({ product, imageFallback = false, homeDeal =
       })
     );
     setAdded(true);
-    dispatch(showSuccess(`Added "${product.title}" to cart.`));
+    dispatch(showSuccess(t("Added \"{title}\" to cart.", { title: product.title })));
   };
 
   const handleToggleWish = async () => {
@@ -64,8 +67,8 @@ export default function ProductCard({ product, imageFallback = false, homeDeal =
     if (action?.meta.requestStatus !== "fulfilled") return;
     dispatch(
       willRemove
-        ? showSuccess(`Removed "${product.title}" from wishlist.`)
-        : showSuccess(`Added "${product.title}" to wishlist.`)
+        ? showSuccess(t("Removed \"{title}\" from wishlist.", { title: product.title }))
+        : showSuccess(t("Added \"{title}\" to wishlist.", { title: product.title }))
     );
   };
 
@@ -81,7 +84,7 @@ export default function ProductCard({ product, imageFallback = false, homeDeal =
         )}
       </div>
       {discount >= 1 && (
-        <span className="badge rounded-pill bg-accent position-absolute top-0 start-0 m-2">-{discount}%{homeDeal ? " OFF" : ""}</span>
+        <span className="badge rounded-pill bg-accent position-absolute top-0 start-0 m-2">-{discount}%{homeDeal ? ` ${t("OFF")}` : ""}</span>
       )}
       {homeDeal && <span className="home-deal-stock position-absolute start-0">{stockState.label}</span>}
       <button
@@ -90,7 +93,7 @@ export default function ProductCard({ product, imageFallback = false, homeDeal =
         onClick={handleToggleWish}
         disabled={wishPending}
         aria-pressed={wished}
-        aria-label={wished ? `Remove ${product.title} from wishlist` : `Add ${product.title} to wishlist`}
+        aria-label={wished ? t("Remove {title} from wishlist", { title: product.title }) : t("Add {title} to wishlist", { title: product.title })}
       >
         <i className={`bi ${wished ? "bi-heart-fill" : "bi-heart"}`} aria-hidden="true" />
       </button>
@@ -100,11 +103,11 @@ export default function ProductCard({ product, imageFallback = false, homeDeal =
           {homeDeal ? (
             <span className="home-deal-rating">
               <i className="bi bi-star-fill" aria-hidden="true" /> {Number(product.rating || 0).toFixed(1)}
-              {Array.isArray(product.reviews) && product.reviews.length > 0 && <span className="text-secondary ms-1">({product.reviews.length} reviews)</span>}
+              {Array.isArray(product.reviews) && product.reviews.length > 0 && <span className="text-secondary ms-1">({t("count.reviews", { count: product.reviews.length })})</span>}
             </span>
           ) : (
             <>
-              <span className="text-truncate">{titleCase(product.category)}</span>
+              <span className="text-truncate">{getCategoryDisplayName(product.category)}</span>
               <span className="rating-badge flex-shrink-0"><i className="bi bi-star-fill" aria-hidden="true" /> {Number(product.rating).toFixed(1)}</span>
             </>
           )}
@@ -124,7 +127,7 @@ export default function ProductCard({ product, imageFallback = false, homeDeal =
             {product.title}
           </Link>
         </h3>
-        {homeDeal && <p className="home-deal-brand small text-secondary text-truncate mb-1">{product.brand || titleCase(product.category)}</p>}
+        {homeDeal && <p className="home-deal-brand small text-secondary text-truncate mb-1">{product.brand || getCategoryDisplayName(product.category)}</p>}
 
         <div className={`mt-auto pt-2 d-flex gap-2 ${homeDeal ? "align-items-center justify-content-between" : "align-items-baseline"}`}>
           <div className="d-flex flex-wrap align-items-baseline column-gap-2">
@@ -133,7 +136,7 @@ export default function ProductCard({ product, imageFallback = false, homeDeal =
           </div>
           {homeDeal && (
             <button type="button" className="btn btn-accent home-deal-cart-btn position-relative z-2" onClick={handleAdd} disabled={soldOut || added || atLimit}
-              aria-label={soldOut ? `${product.title} is out of stock` : added ? `${product.title} added to cart` : atLimit ? `${product.title} cart limit reached` : `Add ${product.title} to cart`}>
+              aria-label={soldOut ? t("{title} is out of stock", { title: product.title }) : added ? t("{title} added to cart", { title: product.title }) : atLimit ? t("{title} cart limit reached", { title: product.title }) : t("Add {title} to cart", { title: product.title })}>
               <i className={`bi ${added ? "bi-check2" : "bi-cart-plus"}`} aria-hidden="true" />
             </button>
           )}
@@ -144,10 +147,10 @@ export default function ProductCard({ product, imageFallback = false, homeDeal =
             {!stockState.purchasable
               ? stockState.label
               : added
-                ? "Added to cart"
+                ? t("Added to cart")
                 : atLimit
-                  ? "Max in cart"
-                  : "Add to cart"}
+                  ? t("Max in cart")
+                  : t("Add to cart")}
           </button>
         )}
       </div>

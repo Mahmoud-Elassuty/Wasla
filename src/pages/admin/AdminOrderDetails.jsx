@@ -11,13 +11,17 @@ import OrderStatus from "../../components/orders/OrderStatus";
 import { formatPrice } from "../../utils/format";
 import { ORDER_STATUSES, PAYMENT_METHOD_LABELS, formatOrderDate, orderNumber } from "../../utils/checkout";
 import { showError, showSuccess } from "../../utils/notifications";
+import { useT } from "../../i18n/useT";
 
-const BackLink = () => (
+const BackLink = () => {
+  const { t, te } = useT();
+  return (
   <Link to="/admin/orders" className="btn btn-outline-secondary">
     <i className="bi bi-arrow-left me-1" aria-hidden="true" />
-    Back to orders
+    {t("Back to orders")}
   </Link>
-);
+  );
+};
 
 const label = (s) => s[0].toUpperCase() + s.slice(1);
 
@@ -27,6 +31,7 @@ const label = (s) => s[0].toUpperCase() + s.slice(1);
 const PAYMENT_STATUS_TONE = { paid: "stock-ok", success: "stock-ok", pending: "stock-low", failed: "stock-out" };
 
 function OrderView({ order, sellerOf, updating }) {
+  const { t, te } = useT();
   const dispatch = useDispatch();
   const { customer = {}, shippingAddress: ship = {}, items = [] } = order;
   const payment = PAYMENT_METHOD_LABELS[order.paymentMethod] ?? { label: order.paymentMethod ?? "-", ar: null };
@@ -36,7 +41,7 @@ function OrderView({ order, sellerOf, updating }) {
   const handleStatusChange = async (status) => {
     try {
       await dispatch(updateOrderStatus({ id: order.id, status })).unwrap();
-      dispatch(showSuccess(`Order #${orderNumber(order.id)} marked ${status}.`));
+      dispatch(showSuccess(t("Order #{number} marked {status}.", { number: orderNumber(order.id), status: te("order", status) })));
     } catch (err) {
       dispatch(showError(typeof err === "string" ? err : "Couldn't update the order status."));
     }
@@ -46,8 +51,8 @@ function OrderView({ order, sellerOf, updating }) {
     <div className="container py-4">
       <div className="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-4">
         <div>
-          <p className="eyebrow mb-1">Order details</p>
-          <h1 className="h3 mb-2">Order #{orderNumber(order.id)}</h1>
+          <p className="eyebrow mb-1">{t("Order details")}</p>
+          <h1 className="h3 mb-2">{t("order.titleWithNumber", { number: "#" + orderNumber(order.id) })}</h1>
           <div className="d-flex flex-wrap align-items-center gap-2 small text-secondary">
             <span>Placed on {formatOrderDate(order.createdAt, true)}</span>
             <OrderStatus status={order.status} />
@@ -60,7 +65,7 @@ function OrderView({ order, sellerOf, updating }) {
         <div className="col-lg-8">
           <section className="bg-white border rounded-4 px-3 px-md-4 pt-3 pb-1 mb-4">
             <h2 className="h5 mb-3">
-              Items <span className="text-secondary fw-normal">({items.length})</span>
+              {t("Items")} <span className="text-secondary fw-normal">({items.length})</span>
             </h2>
             <ul className="list-unstyled mb-0">
               {items.map((item, i) => (
@@ -69,7 +74,7 @@ function OrderView({ order, sellerOf, updating }) {
                     {item?.thumbnail ? (
                       <img src={item.thumbnail} alt="" />
                     ) : (
-                      <span className="d-flex h-100 align-items-center justify-content-center text-secondary" aria-label="Product image unavailable">
+                      <span className="d-flex h-100 align-items-center justify-content-center text-secondary" aria-label={t("Product image unavailable")}>
                         <i className="bi bi-image" aria-hidden="true" />
                       </span>
                     )}
@@ -91,7 +96,7 @@ function OrderView({ order, sellerOf, updating }) {
                 </li>
               ))}
               {items.length === 0 && (
-                <li className="text-center text-secondary py-4">This order has no items on record.</li>
+                <li className="text-center text-secondary py-4">{t("This order has no items on record.")}</li>
               )}
             </ul>
           </section>
@@ -100,8 +105,8 @@ function OrderView({ order, sellerOf, updating }) {
             <div className="col-md-6">
               <section className="bg-white border rounded-4 p-4 h-100">
                 <h2 className="h5 mb-3">
-                  Customer
-                  {order.isGuest && <span className="badge rounded-pill stock-low ms-2 fs-6">Guest</span>}
+                  {t("Customer")}
+                  {order.isGuest && <span className="badge rounded-pill stock-low ms-2 fs-6">{t("Guest")}</span>}
                 </h2>
                 <p className="fw-semibold mb-1">{customer.name ?? "-"}</p>
                 <p className="mb-1 text-break">{customer.email ?? "-"}</p>
@@ -110,7 +115,7 @@ function OrderView({ order, sellerOf, updating }) {
             </div>
             <div className="col-md-6">
               <section className="bg-white border rounded-4 p-4 h-100">
-                <h2 className="h5 mb-3">Shipping address</h2>
+                <h2 className="h5 mb-3">{t("Shipping address")}</h2>
                 <p className="fw-semibold mb-1">{ship.recipientName ?? ship.fullName ?? ship.name ?? customer.name ?? "-"}</p>
                 <p className="mb-1" dir="ltr">{ship.phone ?? customer.phone ?? "-"}</p>
                 <p className="mb-1">{ship.address ?? "-"}</p>
@@ -125,16 +130,16 @@ function OrderView({ order, sellerOf, updating }) {
         </div>
 
         <div className="col-lg-4">
-          <aside className="checkout-summary bg-white border rounded-4 p-4" aria-label="Order summary">
-            <h2 className="h5 mb-3">Totals</h2>
+          <aside className="checkout-summary bg-white border rounded-4 p-4" aria-label={t("Order summary")}>
+            <h2 className="h5 mb-3">{t("Totals")}</h2>
             <dl className="d-grid gap-2 mb-0">
               <div className="d-flex justify-content-between">
-                <dt className="fw-normal text-secondary">Subtotal</dt>
+                <dt className="fw-normal text-secondary">{t("Subtotal")}</dt>
                 <dd className="mb-0">{formatPrice(order.subtotal ?? 0)}</dd>
               </div>
               {order.discount > 0 && (
                 <div className="d-flex justify-content-between text-success">
-                  <dt className="fw-normal">Product discount</dt>
+                  <dt className="fw-normal">{t("Product discount")}</dt>
                   <dd className="mb-0">−{formatPrice(order.discount)}</dd>
                 </div>
               )}
@@ -145,17 +150,17 @@ function OrderView({ order, sellerOf, updating }) {
                 </div>
               )}
               <div className="d-flex justify-content-between">
-                <dt className="fw-normal text-secondary">Shipping</dt>
+                <dt className="fw-normal text-secondary">{t("Shipping")}</dt>
                 <dd className="mb-0">{formatPrice(order.shipping ?? 0)}</dd>
               </div>
               <div className="d-flex justify-content-between fs-5 fw-semibold border-top pt-2 mt-1">
-                <dt className="fw-semibold">Total</dt>
+                <dt className="fw-semibold">{t("Total")}</dt>
                 <dd className="mb-0 font-display">{formatPrice(order.total ?? 0)}</dd>
               </div>
             </dl>
 
             <div className="border-top mt-3 pt-3">
-              <p className="small text-secondary mb-1">Payment method</p>
+              <p className="small text-secondary mb-1">{t("Payment method")}</p>
               <p className="fw-semibold mb-2">{payment.label}</p>
               {order.paymentStatus && (
                 <span className={`badge rounded-pill ${paymentStatusTone}`}>{label(order.paymentStatus)}</span>
@@ -167,7 +172,7 @@ function OrderView({ order, sellerOf, updating }) {
 
             <div className="border-top mt-3 pt-3">
               <label htmlFor="admin-order-status" className="small text-secondary mb-2 d-block">
-                Update status
+                {t("Update status")}
               </label>
               <select
                 id="admin-order-status"
@@ -181,7 +186,7 @@ function OrderView({ order, sellerOf, updating }) {
                   <option key={s} value={s}>{label(s)}</option>
                 ))}
               </select>
-              {updating && <p className="small text-secondary mt-2 mb-0">Updating...</p>}
+              {updating && <p className="small text-secondary mt-2 mb-0">{t("Updating...")}</p>}
             </div>
           </aside>
         </div>
@@ -191,6 +196,7 @@ function OrderView({ order, sellerOf, updating }) {
 }
 
 export default function AdminOrderDetails() {
+  const { t, te } = useT();
   const { id } = useParams();
   const dispatch = useDispatch();
   const { orders, ordersStatus, ordersError, products, users, updatingOrderIds } = useSelector((s) => s.admin);
@@ -233,10 +239,10 @@ export default function AdminOrderDetails() {
   if (ordersStatus === "failed") {
     return (
       <div className="container py-5 text-center">
-        <h1 className="h4">We couldn't load this order</h1>
+        <h1 className="h4">{t("We couldn't load this order")}</h1>
         <p className="text-secondary">{ordersError || "Something went wrong."}</p>
         <div className="d-flex justify-content-center gap-2">
-          <button type="button" className="btn btn-outline-danger" onClick={retry}>Try again</button>
+          <button type="button" className="btn btn-outline-danger" onClick={retry}>{t("Try again")}</button>
           <BackLink />
         </div>
       </div>
@@ -246,8 +252,8 @@ export default function AdminOrderDetails() {
   if (ordersStatus === "succeeded") {
     return (
       <div className="container py-5 text-center">
-        <h1 className="h4">We couldn't find this order</h1>
-        <p className="text-secondary">It may have been deleted, or the link is incorrect.</p>
+        <h1 className="h4">{t("We couldn't find this order")}</h1>
+        <p className="text-secondary">{t("It may have been deleted, or the link is incorrect.")}</p>
         <BackLink />
       </div>
     );
@@ -258,7 +264,7 @@ export default function AdminOrderDetails() {
   return (
     <div className="container py-5 text-center" role="status">
       <div className="spinner-border text-primary" />
-      <span className="visually-hidden">Loading order...</span>
+      <span className="visually-hidden">{t("Loading order...")}</span>
     </div>
   );
 }

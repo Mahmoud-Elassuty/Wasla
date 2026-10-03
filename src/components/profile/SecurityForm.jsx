@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { changePassword, resetPasswordStatus } from "../../store/reducers/profileSlice";
 import { showError, showSuccess } from "../../utils/notifications";
 import FormField from "../common/FormField";
+import { useT } from "../../i18n/useT";
 
 const FIELD_ORDER = ["currentPassword", "newPassword", "confirmPassword"];
 const EMPTY = { currentPassword: "", newPassword: "", confirmPassword: "" };
@@ -18,6 +19,7 @@ const validate = (v) => {
 };
 
 export default function SecurityForm() {
+  const { t } = useT();
   const dispatch = useDispatch();
   const { passwordStatus, passwordError } = useSelector((s) => s.profile);
   const [values, setValues] = useState(EMPTY);
@@ -27,7 +29,7 @@ export default function SecurityForm() {
   // Clear the form and fade the success message after a change goes through.
   useEffect(() => {
     if (passwordStatus !== "succeeded") return;
-    dispatch(showSuccess("Password updated."));
+    dispatch(showSuccess(t("Password updated.")));
     setValues(EMPTY);
     const timer = setTimeout(() => dispatch(resetPasswordStatus()), 4000);
     return () => clearTimeout(timer);
@@ -69,21 +71,21 @@ export default function SecurityForm() {
       <fieldset disabled={saving} className="border-0 p-0 m-0">
         <div className="row gx-3">
           <div className="col-md-6">
-            <FormField {...field("currentPassword")} label="Current password" />
+            <FormField {...field("currentPassword")} label={t("Current password")} />
           </div>
           <div className="col-md-6" />
           <div className="col-md-6">
-            <FormField {...field("newPassword")} label="New password" />
+            <FormField {...field("newPassword")} label={t("New password")} />
           </div>
           <div className="col-md-6">
-            <FormField {...field("confirmPassword")} label="Confirm new password" />
+            <FormField {...field("confirmPassword")} label={t("Confirm new password")} />
           </div>
         </div>
       </fieldset>
 
       {passwordStatus === "succeeded" && (
         <div className="alert alert-success py-2" role="status">
-          Password updated.
+          {t("Password updated.")}
         </div>
       )}
       {passwordError && (
@@ -99,7 +101,7 @@ export default function SecurityForm() {
             Updating...
           </>
         ) : (
-          "Update password"
+          t("Update password")
         )}
       </button>
     </form>
