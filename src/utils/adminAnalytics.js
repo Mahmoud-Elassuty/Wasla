@@ -5,12 +5,7 @@ import { isValidStock } from "./inventory";
 
 export const RANGES = ["7d", "30d", "all"];
 export const DEFAULT_RANGE = "30d";
-
-// One Admin-wide "low stock" rule, shared by the dashboard Low stock panel and the analytics KPI:
-// a product is low when it has this many units or fewer. (The storefront's own badge threshold in
-// utils/inventory.js is separate and unchanged.)
-export const ADMIN_LOW_STOCK_THRESHOLD = 10;
-export const isLowStock = (product) => isValidStock(product?.stock) && product.stock <= ADMIN_LOW_STOCK_THRESHOLD;
+export const LOW_STOCK_THRESHOLD = 10;
 
 const TOP_LIMIT = 5;
 const round2 = (n) => Math.round(n * 100) / 100;
@@ -30,7 +25,8 @@ const startOfDay = (t) => {
 };
 
 const pad = (n) => String(n).padStart(2, "0");
-const dayKey = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+const dayKey = (d) =>
+  `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 const monthKey = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}`;
 
 const rangeDays = (range) => (range === "7d" ? 7 : 30);
@@ -49,21 +45,16 @@ export function filterOrdersByRange(orders, range, now = Date.now()) {
   });
 }
 
-// Gross sales (`revenue`) = sum of order.total for orders whose status is not "cancelled".
+// Revenue = sum of order.total for orders that are not cancelled.
 export function summarizeOrders(orders) {
   const valid = orders.filter((o) => !isCancelled(o));
   const revenue = round2(valid.reduce((sum, o) => sum + num(o.total), 0));
-  // Delivered revenue = totals of delivered orders only (paymentStatus is deliberately not used).
-  const deliveredRevenue = round2(
-    orders.filter((o) => o.status === "delivered").reduce((sum, o) => sum + num(o.total), 0),
-  );
   return {
     totalOrders: orders.length,
     validOrders: valid.length,
     cancelledOrders: orders.length - valid.length,
     pendingOrders: orders.filter((o) => o.status === "pending").length,
     revenue,
-    deliveredRevenue,
     averageOrderValue: valid.length > 0 ? round2(revenue / valid.length) : 0,
   };
 }
@@ -71,7 +62,8 @@ export function summarizeOrders(orders) {
 // One point per real calendar day (7d / 30d) or per month (all time). A period with no orders is a real zero.
 export function buildSalesSeries(orders, range, now = Date.now()) {
   const buckets = new Map();
-  const add = (key, date, unit) => buckets.set(key, { key, date, unit, revenue: 0, orders: 0 });
+  const add = (key, date, unit) =>
+    buckets.set(key, { key, date, unit, revenue: 0, orders: 0 });
 
   if (range === "all") {
     const times = orders.map(orderTime).filter((t) => t !== null);
@@ -138,7 +130,13 @@ export function buildTopProducts(orders, products) {
   const totals = new Map();
   for (const { item, quantity, revenue } of soldItems(orders)) {
     const id = String(item.productId);
-    const entry = totals.get(id) ?? { id, units: 0, revenue: 0, title: "", thumbnail: "" };
+    const entry = totals.get(id) ?? {
+      id,
+      units: 0,
+      revenue: 0,
+      title: "",
+      thumbnail: "",
+    };
     entry.units += quantity;
     entry.revenue += revenue;
     entry.title ||= item.title || "";
@@ -161,7 +159,9 @@ export function buildTopProducts(orders, products) {
 
 // Only items whose product still exists with a category are mapped; the rest are skipped, never guessed.
 export function buildCategorySales(orders, products) {
-  const categoryOf = new Map(products.filter((p) => p.category).map((p) => [String(p.id), p.category]));
+  const categoryOf = new Map(
+    products.filter((p) => p.category).map((p) => [String(p.id), p.category]),
+  );
   const totals = new Map();
   for (const { item, quantity, revenue } of soldItems(orders)) {
     const category = categoryOf.get(String(item.productId));
@@ -177,7 +177,10 @@ export function buildCategorySales(orders, products) {
     .slice(0, TOP_LIMIT);
 }
 
-export const countLowStock = (products) => products.filter(isLowStock).length;
+export const countLowStock = (products) =>
+  products.filter(
+    (p) => isValidStock(p.stock) && p.stock <= LOW_STOCK_THRESHOLD,
+  ).length;
 
 // Customers are accounts with the customer role that haven't been deleted. Users have no signup date, so this isn't range-filtered.
 export const countCustomers = (users) =>

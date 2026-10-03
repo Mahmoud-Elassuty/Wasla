@@ -4,16 +4,18 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   fetchAdminOrders,
   fetchAdminProducts,
+  fetchAdminUsers,
   resetOrdersStatus,
   resetProductsStatus,
+  resetUsersStatus,
 } from "../../store/reducers/adminSlice";
+import AnalyticsOverview from "../../components/admin/AnalyticsOverview";
 import OrderStatus from "../../components/orders/OrderStatus";
 import { formatPrice } from "../../utils/format";
 import { formatOrderDate, orderNumber } from "../../utils/checkout";
-import { useT } from "../../i18n/useT";
+import { LOW_STOCK_THRESHOLD } from "../../utils/adminAnalytics";
 
 const RECENT_LIMIT = 8;
-const LOW_STOCK_LIMIT = 10; // "low" means this many units or fewer
 
 function StatCard({ label, value, icon, tone, loading }) {
   return (
@@ -38,22 +40,25 @@ function StatCard({ label, value, icon, tone, loading }) {
 }
 
 export default function AdminDashboard() {
-  const { t } = useT();
   const dispatch = useDispatch();
   const userName = useSelector((s) => s.auth.user?.name);
-  const { orders, ordersStatus, ordersError, products, productsStatus, productsError } = useSelector((s) => s.admin);
+  const { orders, ordersStatus, ordersError, products, productsStatus, productsError, users, usersStatus } = useSelector((s) => s.admin);
 
   const load = () => {
     dispatch(fetchAdminOrders());
     dispatch(fetchAdminProducts());
+    dispatch(fetchAdminUsers());
   };
 
   useEffect(() => {
     const a = dispatch(fetchAdminOrders());
     const b = dispatch(fetchAdminProducts());
+    const c = dispatch(fetchAdminUsers());
     return () => {
       a.abort();
       b.abort();
+      c.abort();
+      dispatch(resetUsersStatus());
       dispatch(resetOrdersStatus());
       dispatch(resetProductsStatus());
     };
@@ -74,62 +79,72 @@ export default function AdminDashboard() {
     [orders]
   );
   const lowStock = useMemo(
-    () => products.filter((p) => p.stock <= LOW_STOCK_LIMIT).sort((a, b) => a.stock - b.stock).slice(0, 5),
+    () => products.filter((p) => p.stock <= LOW_STOCK_THRESHOLD).sort((a, b) => a.stock - b.stock).slice(0, 5),
     [products]
   );
 
   const ordersLoading = orders.length === 0 && (ordersStatus === "idle" || ordersStatus === "loading");
   const productsLoading = products.length === 0 && (productsStatus === "idle" || productsStatus === "loading");
+  const usersLoading = users.length === 0 && (usersStatus === "idle" || usersStatus === "loading");
   const failed =
     (ordersStatus === "failed" && orders.length === 0) || (productsStatus === "failed" && products.length === 0);
 
   return (
     <>
       <div className="mb-4">
-        <p className="eyebrow mb-1">{t("Dashboard")}</p>
-        <h1 className="h3 mb-1">{userName ? t("Welcome back, {name}", {name: userName }) : t("Welcome back")}</h1>
-        <p className="text-secondary mb-0">{t("Here's what's happening in your store.")}</p>
+        <p className="eyebrow mb-1">Dashboard</p>
+        <h1 className="h3 mb-1">Welcome back{userName ? `, ${userName}` : ""}</h1>
+        <p className="text-secondary mb-0">Here's what's happening in your store.</p>
       </div>
 
       {failed && (
         <div className="alert alert-danger d-flex flex-wrap justify-content-between align-items-center gap-2" role="alert">
           <span>{ordersError || productsError || "We couldn't load the dashboard."}</span>
-          <button type="button" className="btn btn-sm btn-outline-danger" onClick={load}>{t("Try again")}</button>
+          <button type="button" className="btn btn-sm btn-outline-danger" onClick={load}>Try again</button>
         </div>
       )}
 
       <div className="row g-3 mb-2">
         <div className="col-6 col-xl-3">
-          <StatCard label={t("Total orders")} value={stats.totalOrders} icon="bi-receipt" tone="stat-blue" loading={ordersLoading} />
+          <StatCard label="Total orders" value={stats.totalOrders} icon="bi-receipt" tone="stat-blue" loading={ordersLoading} />
         </div>
         <div className="col-6 col-xl-3">
-          <StatCard label={t("Pending orders")} value={stats.pending} icon="bi-hourglass-split" tone="stat-orange" loading={ordersLoading} />
+          <StatCard label="Pending orders" value={stats.pending} icon="bi-hourglass-split" tone="stat-orange" loading={ordersLoading} />
         </div>
         <div className="col-6 col-xl-3">
-          <StatCard label={t("Total revenue")} value={formatPrice(stats.revenue)} icon="bi-cash-stack" tone="stat-green" loading={ordersLoading} />
+          <StatCard label="Total revenue" value={formatPrice(stats.revenue)} icon="bi-cash-stack" tone="stat-green" loading={ordersLoading} />
         </div>
         <div className="col-6 col-xl-3">
-          <StatCard label={t("Total products")} value={stats.totalProducts} icon="bi-box-seam" tone="stat-purple" loading={productsLoading} />
+          <StatCard label="Total products" value={stats.totalProducts} icon="bi-box-seam" tone="stat-purple" loading={productsLoading} />
         </div>
       </div>
-      <p className="small text-secondary mb-4">{t("Revenue doesn't include cancelled orders.")}</p>
+      <p className="small text-secondary mb-4">Revenue doesn't include cancelled orders.</p>
+
+      <AnalyticsOverview
+        orders={orders}
+        products={products}
+        users={users}
+        ordersLoading={ordersLoading}
+        productsLoading={productsLoading}
+        usersLoading={usersLoading}
+      />
 
       <div className="row g-4">
         <div className="col-xl-8">
           <section className="admin-card">
             <div className="d-flex justify-content-between align-items-center p-3 p-md-4 pb-3">
-              <h2 className="h5 mb-0">{t("Recent orders")}</h2>
-              <Link to="/admin/orders" className="small fw-semibold">{t("View all orders")}</Link>
+              <h2 className="h5 mb-0">Recent orders</h2>
+              <Link to="/admin/orders" className="small fw-semibold">View all orders</Link>
             </div>
             <div className="table-responsive">
               <table className="table admin-table align-middle mb-0">
                 <thead>
                   <tr>
-                    <th>{t("Order #")}</th>
-                    <th>{t("Customer")}</th>
-                    <th>{t("Date")}</th>
-                    <th>{t("Status")}</th>
-                    <th className="text-end">{t("Total")}</th>
+                    <th>Order #</th>
+                    <th>Customer</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                    <th className="text-end">Total</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -161,24 +176,24 @@ export default function AdminDashboard() {
 
         <div className="col-xl-4">
           <section className="admin-card p-3 p-md-4 mb-4">
-            <h2 className="h5 mb-3">{t("Quick actions")}</h2>
+            <h2 className="h5 mb-3">Quick actions</h2>
             <div className="d-grid gap-2">
               <Link to="/admin/products/new" className="btn btn-accent">
                 <i className="bi bi-plus-lg me-1" aria-hidden="true" />
-                {t("Add product")}
+                Add product
               </Link>
               <Link to="/admin/orders?status=pending" className="btn btn-outline-secondary">
-                {t("Review pending orders")}{stats.pending > 0 ? ` (${stats.pending})` : ""}
+                Review pending orders{stats.pending > 0 ? ` (${stats.pending})` : ""}
               </Link>
-              <Link to="/admin/products" className="btn btn-outline-secondary">{t("Manage products")}</Link>
+              <Link to="/admin/products" className="btn btn-outline-secondary">Manage products</Link>
             </div>
           </section>
 
           <section className="admin-card p-3 p-md-4">
-            <h2 className="h5 mb-3">{t("Low stock")}</h2>
+            <h2 className="h5 mb-3">Low stock</h2>
             {lowStock.length === 0 ? (
               <p className="small text-secondary mb-0">
-                {productsLoading ? "Loading products..." : `No product is at ${LOW_STOCK_LIMIT} units or fewer.`}
+                {productsLoading ? "Loading products..." : `No product is at ${LOW_STOCK_THRESHOLD} units or fewer.`}
               </p>
             ) : (
               <ul className="list-unstyled d-grid gap-3 mb-0">
@@ -188,10 +203,10 @@ export default function AdminDashboard() {
                     <div className="flex-grow-1 min-w-0">
                       <div className="small fw-semibold text-truncate">{p.title}</div>
                       <span className={`stock-badge ${p.stock === 0 ? "stock-out" : "stock-low"}`}>
-                        {p.stock === 0 ? t("Out of stock") : t("{count} left", { count: p.stock })}
+                        {p.stock === 0 ? "Out of stock" : `${p.stock} left`}
                       </span>
                     </div>
-                    <Link to={`/admin/products/${p.id}/edit`} className="btn btn-sm btn-outline-secondary">{t("Restock")}</Link>
+                    <Link to={`/admin/products/${p.id}/edit`} className="btn btn-sm btn-outline-secondary">Restock</Link>
                   </li>
                 ))}
               </ul>

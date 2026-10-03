@@ -5,7 +5,7 @@ import { formatPrice } from "../../utils/format";
 import { getCategoryDisplayName } from "../../utils/categoryDisplay";
 import {
   DEFAULT_RANGE,
-  ADMIN_LOW_STOCK_THRESHOLD,
+  LOW_STOCK_THRESHOLD,
   RANGES,
   buildCategorySales,
   buildSalesSeries,
@@ -49,9 +49,9 @@ function Segmented({ label, options, value, onChange }) {
   );
 }
 
-function Kpi({ label, value, note, help, icon, tone, to, loading, loadingText }) {
+function Kpi({ label, value, note, icon, tone, to, loading, loadingText }) {
   const card = (
-    <div className="stat-card an-kpi" title={help}>
+    <div className="stat-card an-kpi">
       <div className="d-flex justify-content-between align-items-start gap-2">
         <div className="min-w-0">
           <p className="small text-secondary mb-1">{label}</p>
@@ -190,26 +190,23 @@ export default function AnalyticsOverview({
       </div>
 
       <div className="row g-3 mb-4">
-        <div className="col-6 col-md-4 col-xl-3">
-          <Kpi label={t.grossSales} value={formatPrice(summary.revenue)} note={t.grossSalesNote} help={t.grossSalesHelp} icon="bi-cash-stack" tone="stat-green" loading={ordersLoading} loadingText={loadingText} />
+        <div className="col-6 col-md-4">
+          <Kpi label={t.revenue} value={formatPrice(summary.revenue)} note={t.revenueNote} icon="bi-cash-stack" tone="stat-green" loading={ordersLoading} loadingText={loadingText} />
         </div>
-        <div className="col-6 col-md-4 col-xl-3">
-          <Kpi label={t.deliveredRevenue} value={formatPrice(summary.deliveredRevenue)} note={t.deliveredRevenueNote} help={t.deliveredRevenueHelp} icon="bi-bag-check" tone="stat-green" loading={ordersLoading} loadingText={loadingText} />
-        </div>
-        <div className="col-6 col-md-4 col-xl-3">
+        <div className="col-6 col-md-4">
           <Kpi label={t.orders} value={count.format(summary.totalOrders)} note={t.ordersNote(summary.cancelledOrders)} icon="bi-receipt" tone="stat-blue" to="/admin/orders" loading={ordersLoading} loadingText={loadingText} />
         </div>
-        <div className="col-6 col-md-4 col-xl-3">
+        <div className="col-6 col-md-4">
           <Kpi label={t.aov} value={formatPrice(summary.averageOrderValue)} note={t.aovNote} icon="bi-graph-up-arrow" tone="stat-purple" loading={ordersLoading} loadingText={loadingText} />
         </div>
-        <div className="col-6 col-md-4 col-xl-3">
-          <Kpi label={t.customers} value={count.format(customers)} note={t.customersNote} icon="bi-people" tone="stat-blue" to="/admin/users?role=customer" loading={usersLoading} loadingText={loadingText} />
+        <div className="col-6 col-md-4">
+          <Kpi label={t.customers} value={count.format(customers)} note={t.customersNote} icon="bi-people" tone="stat-blue" to="/admin/users" loading={usersLoading} loadingText={loadingText} />
         </div>
-        <div className="col-6 col-md-4 col-xl-3">
+        <div className="col-6 col-md-4">
           <Kpi label={t.pending} value={count.format(summary.pendingOrders)} note={t.pendingNote} icon="bi-hourglass-split" tone="stat-orange" to="/admin/orders?status=pending" loading={ordersLoading} loadingText={loadingText} />
         </div>
-        <div className="col-12 col-sm-6 col-md-4 col-xl-3">
-          <Kpi label={t.lowStock} value={count.format(lowStock)} note={t.lowStockNote(ADMIN_LOW_STOCK_THRESHOLD)} icon="bi-box-seam" tone="stat-orange" to="/admin/products" loading={productsLoading} loadingText={loadingText} />
+        <div className="col-6 col-md-4">
+          <Kpi label={t.lowStock} value={count.format(lowStock)} note={t.lowStockNote(LOW_STOCK_THRESHOLD)} icon="bi-box-seam" tone="stat-orange" to="/admin/products" loading={productsLoading} loadingText={loadingText} />
         </div>
       </div>
 

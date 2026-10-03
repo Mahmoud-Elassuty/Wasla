@@ -5,7 +5,7 @@ import { formatOrderDate } from "../../utils/checkout";
 import { ROLE_LABELS, STATUS_LABELS, STATUS_TONE, getUserStatus } from "../../utils/users";
 import { useT } from "../../i18n/useT";
 
-export function UserStatusBadge({ user }) {
+export function UserStatusBadge({ user, te }) {
   const status = getUserStatus(user);
   return (
     <span className={`badge rounded-pill ${STATUS_TONE[status] ?? "stock-low"}`}>{te("userstatus", status) ?? status}</span>
@@ -47,7 +47,7 @@ export default function UsersTable({ users, emptyMessage }) {
                 <td>{ROLE_LABELS[user.role] ?? user.role ?? "-"}</td>
                 <td>{user.storeName || "-"}</td>
                 <td>
-                  <UserStatusBadge user={user} />
+                  <UserStatusBadge user={user} te={te} />
                 </td>
                 <td className="text-nowrap">{user.createdAt ? formatOrderDate(user.createdAt) : "-"}</td>
                 <td className="text-nowrap">
